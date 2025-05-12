@@ -1,21 +1,35 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="ihmp_analysis",
+    name="strainscape",
     version="0.1.0",
-    packages=find_packages(),
+    packages=find_packages(where="src/python"),
+    package_dir={"": "src/python"},
     install_requires=[
         "pandas",
         "intervaltree",
         "numpy",
+        "snakemake",
     ],
     entry_points={
         'console_scripts': [
-            'create-trees=ihmp_analysis.trees:main',
-            'summarize-coverage=ihmp_analysis.coverage:main',
+            'create-trees=strainscape.trees:main',
+            'summarize-coverage=strainscape.coverage:main',
         ],
     },
     author="Renee Oles",
-    description="Analysis tools for iHMP data",
+    description="A toolkit for analyzing strain evolution in microbiome data",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     python_requires=">=3.6",
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+    ],
 ) 

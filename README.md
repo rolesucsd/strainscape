@@ -1,35 +1,96 @@
-# iHMP Analysis Tools
+# StrainScape
 
-A collection of tools for analyzing iHMP (Integrative Human Microbiome Project) data.
+A comprehensive toolkit for analyzing strain evolution in microbiome data, with a focus on iHMP (Integrative Human Microbiome Project) data.
+
+## Repository Structure
+
+```
+strainscape/
+├── snakemake/                 # Snakemake workflow for initial data processing
+│   ├── instrain_mags.smk     # Main workflow file
+│   └── rules/                # Individual workflow rules
+│
+├── src/                      # Source code for analysis
+│   ├── python/               # Python analysis modules
+│   │   ├── trees/           # Interval tree creation and management
+│   │   ├── coverage/        # Coverage analysis
+│   │   ├── filtering/       # BAM and pangenome filtering
+│   │   └── mapping/         # Mapping and alignment utilities
+│   │
+│   └── r/                   # R visualization and analysis
+│       ├── figures/         # Figure generation scripts
+│       └── analysis/        # Statistical analysis scripts
+│
+├── scripts/                  # Utility scripts
+│   ├── bash/                # Shell scripts for setup and utilities
+│   └── python/              # Python utility scripts
+│
+├── tests/                   # Test suite
+│   ├── python/             # Python tests
+│   └── r/                  # R tests
+│
+└── docs/                    # Documentation
+    ├── usage/              # Usage guides
+    └── api/                # API documentation
+```
 
 ## Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/rolesucsd/strainscape.git
+cd strainscape
+
+# Install Python package
 pip install -e .
+
+# Install R dependencies
+R -e "install.packages(c('tidyverse', 'ggplot2', 'devtools'))"
 ```
 
 ## Usage
 
-### Creating Interval Trees
+### Running the Snakemake Workflow
 
 ```bash
-create-trees --genes_file path/to/genes.txt --output_dir path/to/output
+snakemake -s snakemake/instrain_mags.smk --configfile config.yaml
 ```
 
-### Summarizing Coverage
+### Python Analysis
 
-```bash
-summarize-coverage --coverage_dir path/to/coverage_results
+```python
+from strainscape import trees, coverage
+
+# Create interval trees
+trees.compute_and_save_trees(genes_file, output_dir)
+
+# Analyze coverage
+coverage.summarize_coverage(coverage_dir)
+```
+
+### R Visualization
+
+```r
+# Load the package
+library(strainscape)
+
+# Generate figures
+plot_coverage_summary(coverage_data)
+plot_strain_evolution(evolution_data)
 ```
 
 ## Development
 
-This package is organized as follows:
+This project uses a development workflow with two main branches:
+- `main`: Production-ready code
+- `develop`: Development branch for new features
 
-- `ihmp_analysis/`: Main package directory
-  - `trees.py`: Functions for creating and managing interval trees
-  - `coverage.py`: Functions for analyzing coverage data
-  - `utils.py`: Common utility functions
+### Contributing
+
+1. Create a feature branch from `develop`
+2. Make your changes
+3. Add tests
+4. Submit a pull request
 
 ## License
 

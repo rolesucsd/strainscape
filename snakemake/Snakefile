@@ -1,0 +1,34 @@
+"""
+Main Snakefile for the iHMP pipeline.
+Coordinates all analysis steps from quality control to strain-level analysis.
+"""
+
+# Import configuration and utilities
+include: "config/config.yaml"
+include: "scripts/utils.py"
+
+# Include all rule files
+include: "rules/quality.smk"
+include: "rules/assembly.smk"
+include: "rules/mapping.smk"
+include: "rules/mags.smk"
+include: "rules/annotation.smk"
+include: "rules/instrain.smk"
+
+# Define default target
+rule all:
+    input:
+        # Quality control
+        qc = expand(MULTIQC_REPORT("{patient}"), patient=config["patients"]),
+        # Assembly
+        assembly = expand(FILTERED_CONTIGS("{patient}"), patient=config["patients"]),
+        # Mapping
+        mapping = expand(SORT_BAM("{patient}", "{sample}"), 
+                        patient=config["patients"],
+                        sample=lambda wc: get_samples(wc.patient).keys()),
+        # MAGs
+        mags = expand(MAGS_DEREP("{patient}"), patient=config["patients"]),
+        # Annotation
+        annotation = expand(PROKKA_GFF("{patient}"), patient=config["patients"]),
+        # InStrain
+        instrain = expand(INSTRAIN_COMPARE("{patient}"), patient=config["patients"]) 

@@ -1,0 +1,80 @@
+# iHMP Pipeline Configuration
+
+# Input/Output paths
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  results: "results"
+  intermediate: "results/intermediate"
+  final: "results/final"
+
+# Snakemake configuration
+snakemake:
+  cores: 4
+  memory: "32G"
+  use_conda: true
+
+# Python analysis parameters
+python:
+  min_coverage: 10
+  min_quality: 20
+  min_frequency: 0.1
+  p_threshold: 0.05
+  threads: 4
+
+# R analysis parameters
+r:
+  significance_threshold: 0.05
+  plot_width: 12
+  plot_height: 8
+
+# Reference data
+reference:
+  genome: "data/reference/genome.fasta"
+  annotation: "data/reference/annotation.gff"
+  taxonomy: "data/reference/taxonomy.tsv"
+
+# Logging
+logging:
+  level: "INFO"
+  max_file_size: "100MB"
+
+# Sample and patient information
+samples: !include "samples.yaml"
+patients: !include "patients.yaml"
+
+# Analysis parameters
+params:
+  # Quality control
+  min_quality: 20
+  min_length: 50
+  
+  # Assembly
+  min_contig_length: 1000
+  min_coverage: 10
+  
+  # Mapping
+  min_mapq: 1
+  
+  # MAGs
+  min_completeness: 50
+  max_contamination: 10
+  
+  # InStrain
+  min_coverage: 5
+  min_freq: 0.1
+
+# Conda environments
+conda_envs:
+  qc: "envs/qc.yaml"
+  assembly: "envs/assembly.yaml"
+  mapping: "envs/mapping.yaml"
+  mags: "envs/mags.yaml"
+  annotation: "envs/annotation.yaml"
+  instrain: "envs/instrain.yaml"
+
+# Resource limits
+resources:
+  threads: 8
+  memory: "32G"
+  time: "24:00:00" 

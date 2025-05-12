@@ -1,0 +1,50 @@
+# iHMP Analysis Pipeline Configuration
+
+# Input/Output Paths
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  results: "results"
+  intermediate: "results/intermediate"
+  final: "results/final"
+
+# Snakemake Configuration
+snakemake:
+  cores: 4
+  memory: "32G"
+  conda_env: "snakemake/envs/instrain.yml"
+  rules:
+    - "snakemake/rules/assembly.smk"
+    - "snakemake/rules/mapping.smk"
+    - "snakemake/rules/variant_calling.smk"
+
+# Python Analysis Parameters
+python:
+  min_coverage: 10
+  min_quality: 20
+  min_frequency: 0.01
+  max_frequency: 0.99
+  min_reads: 5
+  threads: 4
+
+# R Analysis Parameters
+r:
+  significance_threshold: 0.05
+  min_samples: 3
+  plot_theme: "minimal"
+  figure_dpi: 300
+  figure_width: 10
+  figure_height: 8
+
+# Reference Data
+reference:
+  genome_db: "reference/genomes"
+  annotation_db: "reference/annotations"
+  taxonomy_db: "reference/taxonomy"
+
+# Logging
+logging:
+  level: "INFO"
+  file: "pipeline.log"
+  max_size: "100MB"
+  backup_count: 3 

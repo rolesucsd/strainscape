@@ -1,0 +1,8 @@
+name: instrain
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - instrain
+  - samtools

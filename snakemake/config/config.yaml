@@ -4,9 +4,9 @@
 paths:
   raw_data: "data/raw"
   processed_data: "data/processed"
-  results: "results"
-  intermediate: "results/intermediate"
-  final: "results/final"
+  results: "data"
+  intermediate: "data/intermediate"
+  final: "data/final"
 
 # Snakemake configuration
 snakemake:

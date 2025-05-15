@@ -16,7 +16,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from functools import lru_cache
 import logging
 
-from utils import (
+from snakemake.scripts.utils import (
     setup_logging,
     PerformanceMonitor,
     validate_file_exists,
@@ -27,18 +27,21 @@ from utils import (
 logger = setup_logging()
 perf_monitor = PerformanceMonitor(logger)
 
-def merge_snv_info(
+def filter_mutations(
     snv_file: str,
     processed_scaffold_file: str,
     output_file: str,
     threads: int = 4,
-    chunksize: int = 10000
+    chunksize: int = 10000,
+    log_file: Optional[str] = None
 ) -> None:
     """
     Merge SNV information with processed scaffolds on 'scaffold'.
     Only keep SNVs mapping to scaffolds present in processed_scaffolds.tsv.
     """
-    perf_monitor.start_operation('merge_snv_info')
+    if log_file:
+        logger = setup_logging(log_file)
+    perf_monitor.start_operation('filter_mutations')
     logger.info(f"Processing files: {snv_file}, {processed_scaffold_file}")
     try:
         validate_file_exists(snv_file)
@@ -68,10 +71,14 @@ def merge_snv_info(
         else:
             logger.warning("No SNV information found after filtering")
             pd.DataFrame().to_csv(output_file, sep='\t', index=False)
-        perf_monitor.end_operation('merge_snv_info')
+        perf_monitor.end_operation('filter_mutations')
     except Exception as e:
         logger.error(f"Error merging SNV information: {str(e)}")
         raise
+
+def filter_mutations_df(mutations: pd.DataFrame, min_coverage: float = 10, min_freq: float = 0.0) -> pd.DataFrame:
+    """Filter mutations DataFrame by coverage and frequency (for unit tests)."""
+    return mutations[(mutations['coverage'] >= min_coverage) & (mutations['frequency'] >= min_freq)].copy()
 
 if __name__ == "__main__":
     import argparse
@@ -89,12 +96,13 @@ if __name__ == "__main__":
     if args.log_file:
         logger = setup_logging(args.log_file)
     try:
-        merge_snv_info(
+        filter_mutations(
             args.snv_file,
             args.processed_scaffold_file,
             args.output_file,
             args.threads,
-            args.chunksize
+            args.chunksize,
+            args.log_file
         )
     except Exception as e:
         logger.error(f"Pipeline failed: {str(e)}")

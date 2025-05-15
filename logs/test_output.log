@@ -1,0 +1,87 @@
+
+==================================== ERRORS ====================================
+_________________ ERROR collecting tests/python/test_trees.py __________________
+ImportError while importing test module '/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/tests/python/test_trees.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/reneeoles/opt/anaconda3/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/python/test_trees.py:7: in <module>
+    from strainscape.trees import read_annotation, build_and_save_tree, compute_and_save_trees
+E   ModuleNotFoundError: No module named 'strainscape'
+_________ ERROR collecting tests/python/unit/test_filter_mutations.py __________
+ImportError while importing test module '/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/tests/python/unit/test_filter_mutations.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/reneeoles/opt/anaconda3/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/python/unit/test_filter_mutations.py:4: in <module>
+    from snakemake.scripts.filter_mutations import filter_mutations
+snakemake/scripts/filter_mutations.py:19: in <module>
+    from utils import (
+E   ModuleNotFoundError: No module named 'utils'
+___________ ERROR collecting tests/python/unit/test_gene_mapping.py ____________
+ImportError while importing test module '/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/tests/python/unit/test_gene_mapping.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/reneeoles/opt/anaconda3/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/python/unit/test_gene_mapping.py:14: in <module>
+    from snakemake.scripts.map_genes import map_genes
+E   ImportError: cannot import name 'map_genes' from 'snakemake.scripts.map_genes' (/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/snakemake/scripts/map_genes.py)
+_________ ERROR collecting tests/python/unit/test_mutation_analysis.py _________
+ImportError while importing test module '/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/tests/python/unit/test_mutation_analysis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/reneeoles/opt/anaconda3/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/python/unit/test_mutation_analysis.py:13: in <module>
+    from snakemake.scripts.analyze_mutation_types import get_mutation_type, load_sequences
+E   ImportError: cannot import name 'get_mutation_type' from 'snakemake.scripts.analyze_mutation_types' (/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/snakemake/scripts/analyze_mutation_types.py)
+_________ ERROR collecting tests/python/unit/test_process_scaffolds.py _________
+ImportError while importing test module '/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/tests/python/unit/test_process_scaffolds.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/reneeoles/opt/anaconda3/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/python/unit/test_process_scaffolds.py:4: in <module>
+    from snakemake.scripts.process_scaffolds import process_scaffolds
+E   ImportError: cannot import name 'process_scaffolds' from 'snakemake.scripts.process_scaffolds' (/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/snakemake/scripts/process_scaffolds.py)
+________ ERROR collecting tests/python/unit/test_trajectory_analysis.py ________
+ImportError while importing test module '/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/tests/python/unit/test_trajectory_analysis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/reneeoles/opt/anaconda3/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/python/unit/test_trajectory_analysis.py:17: in <module>
+    from snakemake.scripts.prepare_trajectories import filter_static_mutations, prepare_trajectories
+E   ImportError: cannot import name 'filter_static_mutations' from 'snakemake.scripts.prepare_trajectories' (/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/snakemake/scripts/prepare_trajectories.py)
+__________ ERROR collecting tests/python/unit/test_trend_analysis.py ___________
+ImportError while importing test module '/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/tests/python/unit/test_trend_analysis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/reneeoles/opt/anaconda3/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/python/unit/test_trend_analysis.py:16: in <module>
+    from snakemake.scripts.calculate_trends import calculate_trend
+E   ImportError: cannot import name 'calculate_trend' from 'snakemake.scripts.calculate_trends' (/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/snakemake/scripts/calculate_trends.py)
+_______________ ERROR collecting tests/python/unit/test_utils.py _______________
+ImportError while importing test module '/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/tests/python/unit/test_utils.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/reneeoles/opt/anaconda3/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/python/unit/test_utils.py:18: in <module>
+    from snakemake.scripts.utils import (
+E   ImportError: cannot import name 'load_data' from 'snakemake.scripts.utils' (/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/scripts/snakemake/scripts/utils.py)
+=========================== short test summary info ============================
+ERROR tests/python/test_trees.py
+ERROR tests/python/unit/test_filter_mutations.py
+ERROR tests/python/unit/test_gene_mapping.py
+ERROR tests/python/unit/test_mutation_analysis.py
+ERROR tests/python/unit/test_process_scaffolds.py
+ERROR tests/python/unit/test_trajectory_analysis.py
+ERROR tests/python/unit/test_trend_analysis.py
+ERROR tests/python/unit/test_utils.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
+8 errors in 3.55s

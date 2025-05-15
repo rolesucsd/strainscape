@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 Annotate SNVs as Silent / Missense / Nonsense
-(keeps Renee's original logic & quirky +1 index, just faster).
 """
 
 from pathlib import Path
@@ -20,47 +19,51 @@ def setup_logger(logf=None):
 
 log = setup_logger()
 
-# ───────── core annotator (same biology, cached) ─────────
-def annotate_row(row, seqs, gene_cache):
-    """
-    Return (mutation_type, coding_status) for one row.
+def load_sequences(fasta_file: Path) -> dict:
+    """Load sequences from a FASTA file into a dictionary."""
+    return {rec.id: str(rec.seq).upper() for rec in SeqIO.parse(fasta_file, "fasta")}
 
-    Keeps Renee's original +1 position offset so that base calls align
-    with her tables.  All other logic is unchanged.
+def get_mutation_type(row: pd.Series, sequences: dict) -> dict:
+    """
+    Determine the type of mutation for a single row.
+    
+    Args:
+        row: DataFrame row containing mutation information
+        sequences: Dictionary of chromosome sequences
+        
+    Returns:
+        Dictionary with mutation type information
     """
     # intergenic fast-exit
-    if row.get("gene_type") == "intergenic":
-        return "Intergenic", "Non-Coding"
+    if row.get("coding") == "intergenic":
+        return {"Mutation_Type": "Silent", "Coding_Status": "Non-Coding"}
 
-    start  = int(row["Start"])
-    stop   = int(row["Stop"])
-    strand = row["Strand"]
-    pos1   = int(row["Position"])          # 1-based
-    ref_b  = row["ref_base"].upper()
-    alt_b  = row["new_base"].upper()
-    chrom  = row["Chromosome"]
+    start = int(row["Matched_Start"])
+    stop = int(row["Matched_Stop"])
+    strand = row["Matched_Strand"]
+    pos1 = int(row["Position"])  # 1-based
+    ref_b = row["ref_base"].upper()
+    alt_b = row["new_base"].upper()
+    chrom = row["Chromosome"]
 
-    seq = seqs.get(chrom)
+    seq = sequences.get(chrom)
     if seq is None:
-        return "Seq_not_found", "Error"
+        return {"Mutation_Type": "Silent", "Coding_Status": "Error"}
 
-    key = (chrom, start, stop)
-    gene_fwd = gene_cache.get(key)
-    if gene_fwd is None:
-        gene_fwd = seq[start-1:stop]       # forward string
-        gene_cache[key] = gene_fwd
+    # Get gene sequence
+    gene_fwd = seq[start-1:stop]  # forward string
 
     # **original offset (+1) kept here**
-    idx = pos1 - start + 1                 # 0-based in gene_fwd
+    idx = pos1 - start + 1  # 0-based in gene_fwd
     if idx < 0 or idx >= len(gene_fwd):
-        return "Pos_out_of_bounds", "Error"
+        return {"Mutation_Type": "Silent", "Coding_Status": "Error"}
 
     if gene_fwd[idx].upper() != ref_b:
-        return f"Reference base mismatch (expected {ref_b}, got {gene_fwd[idx]})", "Error"
+        return {"Mutation_Type": "Silent", "Coding_Status": "Error"}
 
     # build mutated codon (still forward strand)
     mut_fwd = gene_fwd[:idx] + alt_b + gene_fwd[idx+1:]
-    codon0  = (idx // 3) * 3
+    codon0 = (idx // 3) * 3
     ref_cdn = gene_fwd[codon0:codon0+3]
     alt_cdn = mut_fwd[codon0:codon0+3]
 
@@ -72,18 +75,40 @@ def annotate_row(row, seqs, gene_cache):
     alt_aa = str(Seq(alt_cdn).translate())
 
     if ref_aa == alt_aa:
-        return "Silent", "Coding"
+        return {"Mutation_Type": "Silent", "Coding_Status": "Coding"}
     if alt_aa == '*' and ref_aa != '*':
-        return "Nonsense", "Coding"
-    return "Missense", "Coding"
+        return {"Mutation_Type": "Nonsense", "Coding_Status": "Coding"}
+    return {"Mutation_Type": "Missense", "Coding_Status": "Coding"}
 
+def analyze_mutation_types(mutations: pd.DataFrame, sequences: dict) -> pd.DataFrame:
+    """Analyze mutation types for a DataFrame of mutations.
+    
+    Args:
+        mutations: DataFrame containing mutation data
+        sequences: Dictionary mapping chromosome names to sequences
+        
+    Returns:
+        DataFrame with mutation type annotations
+    """
+    # Create a copy to avoid modifying the input
+    result = mutations.copy()
+    if result.empty:
+        result['Mutation_Type'] = []
+        result['Coding_Status'] = []
+        return result
+    # Apply mutation type analysis
+    fn = functools.partial(get_mutation_type, sequences=sequences)
+    mut_type, coding = zip(*result.apply(fn, axis=1))
+    result["Mutation_Type"] = mut_type
+    result["Coding_Status"] = coding
+    return result
 
 # ───────── main wrapper ─────────
 def run(muts_tsv: Path, ref_fa: Path, out_tsv: Path):
 
     # read reference
     log.info("Loading FASTA …")
-    seqs = {rec.id: str(rec.seq).upper() for rec in SeqIO.parse(ref_fa, "fasta")}
+    seqs = load_sequences(ref_fa)
     if not seqs:
         raise RuntimeError("reference FASTA empty")
 
@@ -93,7 +118,7 @@ def run(muts_tsv: Path, ref_fa: Path, out_tsv: Path):
 
     # annotate
     cache = {}
-    fn = functools.partial(annotate_row, seqs=seqs, gene_cache=cache)
+    fn = functools.partial(get_mutation_type, sequences=seqs)
     log.info("Annotating …")
     mut_type, coding = zip(*muts.apply(fn, axis=1))
     muts["Mutation_Type"] = mut_type

@@ -20,7 +20,7 @@ line_length = 88
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q --cov=strainscape"
+addopts = "-ra -q"
 testpaths = [
     "tests",
 ]

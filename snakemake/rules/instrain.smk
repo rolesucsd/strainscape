@@ -77,30 +77,6 @@ rule combine_scaffold_info:
         combined: Combined scaffold information file
     """
     input:
-        lambda wc: [SCF_FILE(wc.patient, s) for s in get_samples(wc.patient)]
-    output:
-        combined = COMBINED_SCAFFOLD_INFO("{patient}")
-    run:
-        import pandas as pd, os
-        dfs = [
-            pd.read_csv(f, sep="\t").assign(Sample=os.path.basename(os.path.dirname(f)))
-            for f in input if os.path.getsize(f)
-        ]
-        pd.concat(dfs, ignore_index=True).to_csv(output.combined, sep="\t", index=False)
-
-rule combine_SNV_info:
-    """
-    Combine SNV information across samples.
-    
-    This rule merges SNV information from all samples for a patient,
-    creating a combined file for downstream analysis. 
-    
-    Input:
-        snv_files: Individual SNV information files
-    Output:
-        combined: Combined SNV information file
-    """
-    input:
         lambda wc: [SNV_FILE(wc.patient, s) for s in get_samples(wc.patient)]
     output:
         combined = COMBINED_SNV_INFO("{patient}")
@@ -111,6 +87,36 @@ rule combine_SNV_info:
             for f in input if os.path.getsize(f)
         ]
         pd.concat(dfs, ignore_index=True).to_csv(output.combined, sep="\t", index=False)
+
+
+rule combine_SNV_info:
+    input:
+        lambda wc: [SNV_FILE(wc.patient, s) for s in get_samples(wc.patient)]
+    output:
+        combined = COMBINED_SNV_INFO("{patient}")
+    run:
+        import os, sys, pandas as pd
+
+        dfs = []
+        for f in input:
+            if os.path.getsize(f):
+                df = pd.read_csv(f, sep="\t")
+                df["Sample"] = os.path.basename(os.path.dirname(f))
+                dfs.append(df)
+            else:
+                print(f"[combine_SNV_info] WARNING: {f} is empty – skipped", file=sys.stderr)
+
+        if dfs:
+            pd.concat(dfs, ignore_index=True).to_csv(output.combined,
+                                                    sep="\t", index=False)
+        else:
+            # write an empty table with the expected columns so downstream
+            # rules don’t crash
+            pd.DataFrame(columns=["Sample"]).to_csv(output.combined,
+                                                    sep="\t", index=False)
+            print(f"[combine_SNV_info] WARNING: all input files empty → "
+                  f"wrote empty {output.combined}", file=sys.stderr)
+
 
 rule process_scaffolds:
     """

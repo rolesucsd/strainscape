@@ -1,7 +1,7 @@
 import os
-import pandas as pd
 import pytest
-from snakemake.scripts.filter_mutations import merge_snv_info
+import pandas as pd
+from snakemake.scripts.filter_mutations import filter_mutations as filter_mutations_file
 
 def test_filter_mutations():
     # Sample input files
@@ -15,7 +15,7 @@ def test_filter_mutations():
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
     # Run the merge_snv_info function
-    merge_snv_info(
+    filter_mutations_file(
         snv_file=snv_file,
         processed_scaffold_file=processed_scaffold_file,
         output_file=output_file,

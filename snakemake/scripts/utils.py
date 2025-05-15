@@ -63,6 +63,78 @@ class PerformanceMonitor:
             self.logger.info(f"Operation '{operation}' took {duration:.2f} seconds")
             del self.metrics[operation]
 
+# Data loading and saving
+def load_data(file_path: str) -> pd.DataFrame:
+    """Load data from a CSV file.
+    
+    Args:
+        file_path: Path to the CSV file
+        
+    Returns:
+        DataFrame containing the loaded data
+    """
+    return pd.read_csv(file_path, dtype=str)
+
+def save_data(data: pd.DataFrame, file_path: str) -> None:
+    """Save data to a CSV file.
+    
+    Args:
+        data: DataFrame to save
+        file_path: Path where to save the file
+    """
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    data.to_csv(file_path, index=False)
+
+def filter_data(data: pd.DataFrame, condition: str) -> pd.DataFrame:
+    """
+    Filter data based on a condition.
+    
+    Args:
+        data: DataFrame to filter
+        condition: String containing the filter condition
+    
+    Returns:
+        Filtered DataFrame
+    """
+    return data.query(condition)
+
+def merge_data(df1: pd.DataFrame, df2: pd.DataFrame, on: str, how: str = 'inner') -> pd.DataFrame:
+    """Merge two DataFrames.
+    
+    Args:
+        df1: First DataFrame
+        df2: Second DataFrame
+        on: Column to merge on
+        how: Type of merge to perform
+        
+    Returns:
+        Merged DataFrame
+    """
+    return pd.merge(df1, df2, on=on, how=how)
+
+def calculate_statistics(data: pd.DataFrame, column: str, groupby: Optional[str] = None) -> Union[Dict, pd.DataFrame]:
+    """
+    Calculate basic statistics for a column.
+    
+    Args:
+        data: DataFrame containing the data
+        column: Column to calculate statistics for
+        groupby: Optional column to group by
+    
+    Returns:
+        Dictionary of statistics or DataFrame with grouped statistics
+    """
+    if groupby:
+        return data.groupby(groupby)[column].agg(['mean', 'std', 'min', 'max']).reset_index()
+    else:
+        return {
+            'mean': data[column].mean(),
+            'std': data[column].std(),
+            'min': data[column].min(),
+            'max': data[column].max()
+        }
+
 # Data validation
 def validate_file_exists(file_path: Union[str, Path]) -> bool:
     """

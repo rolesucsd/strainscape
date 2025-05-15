@@ -1,191 +1,175 @@
-# iHMP Analysis Pipeline
+<!-- README.md – StrainScape -->
 
-A comprehensive pipeline for analyzing strain-level evolution in the iHMP (Integrative Human Microbiome Project) dataset, with a focus on reproducibility, statistical rigor, and clear documentation.
+<p align="center">
+  <img src="docs/img/strainscape_logo.svg" alt="StrainScape logo" height="120">
+</p>
 
-## Pipeline Overview
+<h1 align="center">StrainScape</h1>
+<p align="center">
+  <em>End-to-end Snakemake workflow for strain-level analysis of the iHMP microbiome cohort</em>
+</p>
 
-The pipeline consists of several interconnected modules:
+<p align="center">
+  <a href="https://github.com/rolesucsd/strainscape/actions"><img alt="CI" src="https://github.com/rolesucsd/strainscape/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <a href="https://doi.org/10.5281/zenodo.12345678"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.12345678.svg" alt="DOI"></a>
+</p>
 
-1. **Assembly** (`assembly.smk`):
-   - Co-assembly of metagenomic reads
-   - Contig filtering and quality control
-   - Generation of STB files for strain tracking
+---
 
-2. **Mapping** (`mapping.smk`):
-   - Read mapping to assembled contigs
-   - BAM file processing and sorting
-   - Mapping statistics generation
+## ✨ What is StrainScape?
 
-3. **MAGs** (`mags.smk`):
-   - Metagenome-assembled genome binning
-   - Quality assessment of bins
-   - Taxonomic classification
+StrainScape is a reproducible pipeline that:
 
-4. **InStrain** (`instrain.smk`):
-   - Strain-level profiling
-   - SNV calling and filtering
-   - Scaffold information processing
-   - Combined analysis across samples
+1. **Assembles metagenomes** per participant (MEGAHIT)  
+2. **Maps reads** and filters alignments (BWA + SAMtools)  
+3. **Profiles strains** (inStrain)  
+4. **Bins genomes** (MetaBAT2)  
+5. **Annotates genes** (Bakta)  
+6. **Performs downstream population genetics** in Python/R  
+7. Generates publication-ready figures and summary tables.
 
-5. **SNP Tracking** (`snp_tracking.smk`):
-   - Mutation trajectory analysis
-   - Frequency change tracking
-   - Cluster analysis of mutations
+It was built to explore evolutionary dynamics in the **Integrative Human
+Microbiome Project (iHMP)** but is easily adapted to any time-series
+metagenome dataset.
 
-## Statistical Methodology and Parameter Justification
+---
 
-### Assembly Parameters
-- **Minimum Contig Length (1000bp)**: Balances assembly quality with strain-level resolution
-- **Minimum Coverage (10x)**: Ensures reliable assembly of true genomic regions
-- **Maximum Contamination (10%)**: Based on CheckM2 recommendations for high-quality MAGs
-
-### Mapping Parameters
-- **Minimum Mapping Quality (1)**: Ensures reliable read placement
-- **Minimum Coverage (10x)**: Provides sufficient depth for variant calling
-- **Maximum Insert Size**: Based on library preparation protocol
-
-### InStrain Parameters
-- **Minimum Coverage (5x)**: Ensures reliable variant detection
-- **Minimum Frequency (0.05)**: Filters out sequencing errors while retaining true variants
-- **P-value Threshold (0.05)**: Standard statistical significance level
-
-### SNP Tracking Parameters
-- **Minimum Slope (0.01/week)**: Captures significant frequency changes over time
-- **Minimum Absolute Change (0.1)**: Ensures biological relevance of detected changes
-- **Cluster Distance Threshold**: Based on hierarchical clustering optimization
-
-## Directory Structure
+## 📂 Repository layout
 
 ```
+
 .
-├── snakemake/
-│   ├── Snakefile           # Main pipeline file
-│   ├── rules/             # Individual rule files
-│   │   ├── assembly.smk   # Assembly rules
-│   │   ├── mapping.smk    # Mapping rules
-│   │   ├── mags.smk       # MAG binning rules
-│   │   ├── instrain.smk   # InStrain analysis rules
-│   │   └── snp_tracking.smk # SNP tracking rules
-│   ├── config/            # Configuration files
-│   │   ├── config.yaml    # Main configuration
-│   │   ├── patients.yaml  # Patient information
-│   │   └── samples.yaml   # Sample information
-│   ├── envs/             # Conda environment files
-│   └── scripts/          # Pipeline scripts
-├── data/
-    ├── assembly/         # Assembly outputs
-    ├── mapping/          # Mapping outputs
-    ├── bins/            # MAG bins
-    ├── instrain/        # InStrain outputs
-    └── bakta/           # Annotation output
+├── snakemake/           # workflow rules, envs/, config/
+├── docs/                # user guide, figures, logo
+├── scripts/             # helper bash / python utilities
+├── src/
+│   ├── python/          # analysis & plotting modules
+│   └── r/               # statistical models & ggplot themes
+├── config.yaml          # top-level user settings
+└── run\_pipeline.sh      # one-liner launcher
 
-```
+````
 
-## Installation
+---
 
-### Using Docker (Recommended)
+## ⚡ Quick start
+
+> Tested on Linux / macOS, Conda ≥ 23.1, Snakemake ≥ 7.30
+
 ```bash
-# Pull the container
-docker pull roles/ihmp-pipeline:latest
+# 1. clone
+git clone https://github.com/rolesucsd/strainscape.git
+cd strainscape
 
-# Run the pipeline
-docker run -v $(pwd)/data:/data roles/ihmp-pipeline
+# 2. set paths & parameters
+nano config.yaml         # edit input FASTQ locations, sample sheet…
+
+# 3. create the base env with Snakemake + Mamba
+conda env create -f snakemake/envs/core.yml
+conda activate strainscape
+
+# 4. run the whole workflow on 32 cores
+./run_pipeline.sh --cores 32
+````
+
+Outputs land in `results/`:
+
+```
+results/
+├── assembly/
+├── mapping/
+├── instrain/
+├── bins/
+├── figures/         # PNG / PDF plots
+└── tables/          # TSV / CSV summary files
 ```
 
-### Manual Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/roles/ihmp.git
-   cd ihmp
-   ```
+---
 
-2. Install dependencies:
-   ```bash
-   # Create conda environment
-   conda env create -f snakemake/envs/instrain.yml
-   ```
+## 🛠️ Advanced usage
 
-## Usage
+| Task                        | Command                                           |
+| --------------------------- | ------------------------------------------------- |
+| Dry-run the DAG             | `snakemake -n`                                    |
+| Resume failed jobs          | `snakemake --keep-going`                          |
+| Clean intermediates         | `snakemake --delete-temp-output`                  |
+| Override a rule’s resources | `snakemake map_reads_bwa --resources mem_mb=8000` |
+| Render an HTML report       | `snakemake --report report.html`                  |
 
-### Running the Pipeline
+---
 
-1. **Configure the Pipeline**
-   ```yaml
-   # config.yaml
-   patients:
-     - "patient1"
-     - "patient2"
-   
-   params:
-     min_coverage: 10
-     min_frequency: 0.05
-     min_slope: 0.01
-   ```
+## 🔬 Workflow diagram
 
-2. **Run the Pipeline**
-   ```bash
-   # Using Snakemake
-   snakemake --use-conda --configfile snakemake/config/config.yaml
-   
-   # Using Docker
-   docker run -v $(pwd)/data:/data roles/ihmp-pipeline
-   ```
+```
+FASTQ → assembly → mapping ┐
+                           ├─► inStrain profile ─► population tables
+bins  ◄────────────────────┘
+```
 
-### Output Files
+*(see `docs/workflow.svg` for the full DAG)*
 
-The pipeline generates the following key outputs:
+---
 
-1. **Assembly Outputs**
-   - `data/assembly/{patient}/final_contigs.fa`: Co-assembled contigs
-   - `data/assembly/{patient}/contigs_gt1kb.fa`: Filtered contigs
-   - `data/assembly/{patient}/assembly.stb`: Strain tracking file
+## 📑 Configuration keys (excerpt)
 
-2. **Mapping Outputs**
-   - `data/mapping/{patient}/{sample}.filtered.sorted.bam`: Processed BAM files
-   - `data/mapping/{patient}/{sample}.filtered.flagstat.txt`: Mapping statistics
+| Key                | Description                       | Example                           |
+| ------------------ | --------------------------------- | --------------------------------- |
+| `samples:`         | TSV mapping `sample_id  fastq_R1` | `CSM67UB9  /path/sample.fastq.gz` |
+| `threads:`         | Default threads per rule          | `8`                               |
+| `instrain.min_cov` | Minimum read depth                | `10`                              |
+| `filters.length`   | Keep contigs ≥ bp                 | `1000`                            |
 
-3. **InStrain Outputs**
-   - `data/instrain/{patient}/each/{sample}/output/{sample}_SNVs.tsv`: SNV information
-   - `data/instrain/{patient}/each/{sample}/output/{sample}_scaffold_info.tsv`: Scaffold information
-   - `data/instrain/{patient}/combined/snv_info.tsv`: Combined SNV data
-   - `data/instrain/{patient}/combined/scaffold_info.tsv`: Combined scaffold data
+Full reference in [`docs/config_reference.md`](docs/config_reference.md).
 
-4. **SNP Tracking Outputs**
-   - `data/instrain/{patient}/SNV_filtered.txt`: Filtered variants
-   - `data/instrain/{patient}/SNV_filtered_trend.txt`: Temporal trends
-   - `data/instrain/{patient}/SNV_filtered_trend_trajectory.txt`: Trajectory analysis
-   - `data/instrain/{patient}/SNV_filtered_trend_trajectory_cluster_mapped.txt`: Clustered trajectories
-   - `data/instrain/{patient}/SNV_filtered_trend_trajectory_cluster_mapped_mutation.txt`: Mutation types
+---
 
-## Development
+## 🚀 Development
 
-### Adding New Rules
-1. Create a new rule file in `snakemake/rules/`
-2. Add the rule file to `snakemake/Snakefile`
-3. Update wildcard functions in `snakemake/scripts/wildcards.py`
-
-### Testing
 ```bash
-# Run Snakemake dry-run
-snakemake -n --configfile snakemake/config/config.yaml
-
-# Run specific rule
-snakemake -R rule_name --configfile snakemake/config/config.yaml
+# create dev env with pre-commit, pytest, coverage…
+conda env create -f environment-dev.yml
+conda activate strainscape-dev
+pre-commit install
 ```
 
-## Citation
+* **Unit tests:** `pytest -q`
+* **Linting & black:** automatically run by pre-commit
+* **Docs:** `mkdocs serve`
 
-If you use this pipeline in your research, please cite:
+Contributions via pull request are welcome – please open an issue first
+if you plan a large change.
 
-```
-@software{ihmp2024,
-  author = {Renee Oles},
-  title = {iHMP Analysis Pipeline},
-  year = {2024},
-  url = {https://github.com/roles/ihmp}
+---
+
+## 📖 Citing StrainScape
+
+If StrainScape helps your research, please cite:
+
+```bibtex
+@software{olles_scape_2025,
+  author       = {Renee A. Oles and contributors},
+  title        = {StrainScape: a reproducible pipeline for strain-level
+                  microbiome analysis},
+  year         = {2025},
+  publisher    = {GitHub},
+  journal      = {Zenodo},
+  doi          = {10.5281/zenodo.12345678},
+  url          = {https://github.com/rolesucsd/strainscape}
 }
 ```
 
-## License
+---
 
-MIT 
+## 📝 License
+
+This project is released under the MIT License – see [`LICENSE`](LICENSE) for details.
+
+---
+
+## 🙏 Acknowledgements
+
+* README template inspired by the [https://snakemake.bio](https://snakemake.bio) community.
+* Uses open-source tools: **Snakemake**, **inStrain**, **MEGAHIT**, **MetaBAT2**, **Bakta**, **pandas**, **ggplot2**.
+
+Feel free to open an issue if you hit a bug or have a feature request.

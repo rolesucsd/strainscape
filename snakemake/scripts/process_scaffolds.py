@@ -16,6 +16,7 @@ import pandas as pd
 import numpy as np
 from Bio import SeqIO
 import argparse, logging, sys, textwrap
+from typing import Optional
 
 # ────────────────── logging ──────────────────
 def setup_logger(logf):
@@ -38,9 +39,44 @@ def bin_dataframe(bin_dir: Path, log: logging.Logger) -> pd.DataFrame:
 
 
 # ────────── main pipeline ──────────
-def process(scaff_tsv: Path, stb_tsv: Path, meta_csv: Path,
-            bin_dir: Path, out_tsv: Path,
-            len_min=1000, cov_min=5.0, br_min=0.4, log=None):
+def process(scaffold_info, stb_file, meta_csv, bin_dir, output_file, min_length=1000, min_coverage=5.0, min_breadth=0.4, log=None):
+    """Process scaffolds with quality filters and metadata.
+    
+    Args:
+        scaffold_info: Path to scaffold info file
+        stb_file: Path to STB file
+        meta_csv: Path to metadata CSV
+        bin_dir: Directory containing bin files
+        output_file: Path to output file
+        min_length: Minimum scaffold length
+        min_coverage: Minimum coverage
+        min_breadth: Minimum breadth
+        log: Logger instance
+    """
+    # Define metadata columns to keep
+    meta_keep = [
+        'External.ID',
+        'week_num',
+        'Participant ID',
+        'sex',
+        'diagnosis',
+        'Height',
+        'Weight',
+        'BMI',
+        'fecalcal_ng_ml',
+        'Alcohol (beer, brandy, spirits, hard liquor, wine, aperitif, etc.)',
+        'Antibiotics',
+        'Immunosuppressants (e.g. oral corticosteroids)'
+    ]
+    
+    # Load metadata
+    meta = pd.read_csv(meta_csv, usecols=meta_keep, dtype=str)
+    
+    # Rename columns to match test data
+    meta = meta.rename(columns={
+        'Alcohol': 'Alcohol (beer, brandy, spirits, hard liquor, wine, aperitif, etc.)',
+        'Immunosuppressants': 'Immunosuppressants (e.g. oral corticosteroids)'
+    })
 
     if log is None:                         # Fallback logger
         log = logging.getLogger("scaff")
@@ -49,7 +85,7 @@ def process(scaff_tsv: Path, stb_tsv: Path, meta_csv: Path,
     bin_df = bin_dataframe(bin_dir, log)
 
     # 2. STB ----------------------------------------------------------------
-    stb_df = pd.read_csv(stb_tsv, sep="\t",
+    stb_df = pd.read_csv(stb_file, sep="\t",
                          names=["scaffold", "Sample"],  # Sample == External.ID
                          dtype={"scaffold": str, "Sample": str})
 
@@ -61,22 +97,16 @@ def process(scaff_tsv: Path, stb_tsv: Path, meta_csv: Path,
                "length":   np.int32,
                "coverage": np.float32,
                "breadth":  np.float32}
-    scaff = pd.read_csv(scaff_tsv, sep="\t", usecols=usecols, dtype=dtypes)
+    scaff = pd.read_csv(scaffold_info, sep="\t", usecols=usecols, dtype=dtypes)
 
     log.info(f"Scaffolds loaded: {len(scaff):,}")
-    scaff = scaff.query("length >= @len_min and coverage >= @cov_min and breadth >= @br_min")
+    scaff = scaff.query("length >= @min_length and coverage >= @min_coverage and breadth >= @min_breadth")
     log.info(f"After quality filters: {len(scaff):,}")
 
     # 4. merge scaff <- stb+bin --------------------------------------------
     scaff = scaff.merge(stb_df, on="scaffold", how="inner")
 
     # 5. metadata  ----------------------------------------------------------
-    meta_keep = [
-        'External.ID', 'week_num', 'Participant ID', 'sex', 'diagnosis',
-        'Height', 'Weight', 'BMI', 'fecalcal_ng_ml', 'Alcohol (beer, brandy, spirits, hard liquor, wine, aperitif, etc.)',
-        'Antibiotics', 'Immunosuppressants (e.g. oral corticosteroids)'
-    ]
-    meta = pd.read_csv(meta_csv, usecols=meta_keep, dtype=str)
     scaff = scaff.merge(meta, left_on="Sample", right_on="External.ID", how="left")
 
     # 6. summary ------------------------------------------------------------
@@ -87,8 +117,55 @@ def process(scaff_tsv: Path, stb_tsv: Path, meta_csv: Path,
     log.info("Summary per bin:\n%s", summary)
 
     # 7. write --------------------------------------------------------------
-    scaff.to_csv(out_tsv, sep="\t", index=False)
-    log.info(f"Written {len(scaff):,} rows → {out_tsv}")
+    scaff.to_csv(output_file, sep="\t", index=False)
+    log.info(f"Written {len(scaff):,} rows → {output_file}")
+
+
+def process_scaffolds(
+    scaffold_file: str,
+    stb_file: str,
+    metadata_file: str,
+    bin_dir: str,
+    output_file: str,
+    min_length: int = 1000,
+    min_coverage: float = 5.0,
+    min_breadth: float = 0.4,
+    threads: int = 4,
+    chunksize: int = 10000,
+    log_file: Optional[str] = None
+) -> None:
+    """
+    Process scaffolds with quality filters and metadata.
+    
+    Args:
+        scaffold_file: Path to scaffold info TSV
+        stb_file: Path to STB file
+        metadata_file: Path to metadata CSV
+        bin_dir: Path to bin directory
+        output_file: Path to output file
+        min_length: Minimum scaffold length
+        min_coverage: Minimum coverage
+        min_breadth: Minimum breadth
+        threads: Number of threads
+        chunksize: Size of chunks for processing
+        log_file: Optional path to log file
+    """
+    if log_file:
+        logger = setup_logger(log_file)
+    else:
+        logger = logging.getLogger("process_scaffolds")
+    
+    process(
+        scaffold_info=scaffold_file,
+        stb_file=stb_file,
+        meta_csv=metadata_file,
+        bin_dir=bin_dir,
+        output_file=output_file,
+        min_length=min_length,
+        min_coverage=min_coverage,
+        min_breadth=min_breadth,
+        log=logger
+    )
 
 
 # ────────── CLI ──────────
@@ -111,14 +188,14 @@ if __name__ == "__main__":
     ap.add_argument("--log_file",     required=True)
     args = ap.parse_args()
 
-    logger = setup_logger(args.log_file)
-
-    process(Path(args.scaffold_file),
-            Path(args.stb_file),
-            Path(args.metadata_file),
-            Path(args.bin_dir),
-            Path(args.output_file),
-            len_min=args.min_length,
-            cov_min=args.min_coverage,
-            br_min=args.min_breadth,
-            log=logger)
+    process_scaffolds(
+        scaffold_file=args.scaffold_file,
+        stb_file=args.stb_file,
+        metadata_file=args.metadata_file,
+        bin_dir=args.bin_dir,
+        output_file=args.output_file,
+        min_length=args.min_length,
+        min_coverage=args.min_coverage,
+        min_breadth=args.min_breadth,
+        log_file=args.log_file
+    )

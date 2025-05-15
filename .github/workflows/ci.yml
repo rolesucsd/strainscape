@@ -26,7 +26,8 @@ jobs:
     
     - name: Run Python tests
       run: |
-        pip install pytest pandas
+        pip install pytest pandas biopython
+        pip install -e .
         pytest tests/python/
     
     - name: Run R tests

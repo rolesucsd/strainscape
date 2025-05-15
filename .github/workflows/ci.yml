@@ -25,7 +25,9 @@ jobs:
         conda env create -f snakemake/envs/instrain.yml
     
     - name: Run Python tests
-      run: pytest tests/python/
+      run: |
+        pip install pytest
+        pytest tests/python/
     
     - name: Run R tests
       run: Rscript -e "testthat::test_dir('tests/r/')"

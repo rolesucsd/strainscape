@@ -7,6 +7,23 @@ paths:
   results: "data"
   intermediate: "data/intermediate"
   final: "data/final"
+  log_dir: "logs"
+
+# Reference data
+reference:
+  bakta_db: "data/reference/bakta_db"
+  genomes: "data/reference/genomes"
+  annotations: "data/reference/annotations"
+  taxonomy: "data/reference/taxonomy.tsv"
+
+# Metadata files
+metadata:
+  file: "data/metadata/samples.tsv"
+  patients: "data/metadata/patients.tsv"
+
+# Gene trees configuration
+gene_trees:
+  directory: "data/reference/gene_trees"
 
 # Snakemake configuration
 snakemake:
@@ -28,12 +45,6 @@ r:
   plot_width: 12
   plot_height: 8
 
-# Reference data
-reference:
-  genome: "data/reference/genome.fasta"
-  annotation: "data/reference/annotation.gff"
-  taxonomy: "data/reference/taxonomy.tsv"
-
 # Logging
 logging:
   level: "INFO"
@@ -45,10 +56,6 @@ patients: !include "patients.yaml"
 
 # Analysis parameters
 params:
-  # Quality control
-  min_quality: 20
-  min_length: 50
-  
   # Assembly
   min_contig_length: 1000
   min_coverage: 10
@@ -63,6 +70,19 @@ params:
   # InStrain
   min_coverage: 5
   min_freq: 0.1
+  min_scaffold_length: 1000
+  min_scaffold_coverage: 5.0
+  min_scaffold_breadth: 0.4
+  
+  # SNP tracking
+  snp_tracking:
+    min_coverage: 10
+    min_freq: 0.05
+    p_threshold: 0.05
+    min_freq_change: 0.1
+    min_trajectory_change: 0.2
+    min_slope: 0.01
+    min_abs_change: 0.1
 
 # Conda environments
 conda_envs:

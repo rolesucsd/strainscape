@@ -6,29 +6,59 @@ Coordinates all analysis steps from quality control to strain-level analysis.
 # Import configuration and utilities
 include: "config/config.yaml"
 include: "scripts/utils.py"
+include: "scripts/wildcards.py"
+
+# Validate inputs before running the pipeline
+rule validate_inputs:
+    """
+    Validate all input files and dependencies before running the pipeline.
+    """
+    input:
+        config = "config/config.yaml",
+        samples = "config/samples.yaml",
+        patients = "config/patients.yaml"
+    output:
+        touch("logs/validation_complete")
+    log:
+        "logs/validate_inputs.log"
+    conda:
+        "../envs/python.yaml"
+    shell:
+        """
+        python scripts/validate_inputs.py {input.config} > {log} 2>&1
+        """
 
 # Include all rule files
-include: "rules/quality.smk"
 include: "rules/assembly.smk"
 include: "rules/mapping.smk"
 include: "rules/mags.smk"
-include: "rules/annotation.smk"
 include: "rules/instrain.smk"
+include: "rules/snp_tracking.smk"
 
 # Define default target
 rule all:
     input:
-        # Quality control
-        qc = expand(MULTIQC_REPORT("{patient}"), patient=config["patients"]),
-        # Assembly
-        assembly = expand(FILTERED_CONTIGS("{patient}"), patient=config["patients"]),
-        # Mapping
-        mapping = expand(SORT_BAM("{patient}", "{sample}"), 
-                        patient=config["patients"],
-                        sample=lambda wc: get_samples(wc.patient).keys()),
-        # MAGs
-        mags = expand(MAGS_DEREP("{patient}"), patient=config["patients"]),
-        # Annotation
-        annotation = expand(PROKKA_GFF("{patient}"), patient=config["patients"]),
-        # InStrain
-        instrain = expand(INSTRAIN_COMPARE("{patient}"), patient=config["patients"]) 
+        # Validation
+        "logs/validation_complete",
+        
+        # Assembly outputs
+        expand(COASSEMBLY("{patient}"), patient=config["patients"]),
+        expand(FILTERED_CONTIGS("{patient}"), patient=config["patients"]),
+        expand(STB_FILE("{patient}"), patient=config["patients"]),
+        expand(BAKTA_TSV("{patient}"), patient=config["patients"]),
+        
+        # Depth and binning outputs
+        expand(DEPTH_FILE("{patient}"), patient=config["patients"]),
+        expand(PATIENT_BIN_DIR("{patient}"), patient=config["patients"]),
+        
+        # Mapping outputs
+        lambda wc: [FLAGSTAT(p, s) for p in config["patients"] for s in get_samples(p)],
+        
+        # InStrain outputs
+        lambda wc: [SNV_FILE(p, s) for p in config["patients"] for s in get_samples(p)],
+        lambda wc: [SCF_FILE(p, s) for p in config["patients"] for s in get_samples(p)],
+        expand(COMBINED_SCAFFOLD_INFO("{patient}"), patient=config["patients"]),
+        expand(COMBINED_SNV_INFO("{patient}"), patient=config["patients"]),
+        
+        # SNP tracking outputs
+        expand(MUTATION_TYPES("{patient}"), patient=config["patients"]) 

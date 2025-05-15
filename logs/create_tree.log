@@ -1,0 +1,5 @@
+2025-05-14 16:28:35,351 - ihmp_pipeline - INFO - Starting tree computation with 4 threads
+2025-05-14 16:28:35,352 - ihmp_pipeline - INFO - Reading annotation from data/bakta/M2042/M2042.tsv
+2025-05-14 16:28:35,990 - ihmp_pipeline - INFO - Successfully loaded 273909 gene annotations
+2025-05-14 16:28:35,990 - ihmp_pipeline - INFO - Operation 'read_annotation' took 0.64 seconds
+2025-05-14 16:37:16,734 - ihmp_pipeline - ERROR - Error processing chromosome: [Errno 60] Operation timed out

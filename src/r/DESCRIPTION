@@ -1,0 +1,28 @@
+Package: ihmp
+Title: iHMP Analysis Tools
+Version: 0.1.0
+Authors@R: 
+    person("Renee", "Oles", , "roles@ucsd.edu", role = c("aut", "cre"))
+Description: Tools for analyzing iHMP (Integrative Human Microbiome Project) data,
+    including mutation accrual analysis, gene metrics calculation, and species
+    filtering. Provides functions for data processing, statistical analysis, and
+    visualization of strain-level evolution in the human microbiome.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports:
+    ComplexHeatmap,
+    circlize,
+    tidyverse,
+    data.table,
+    progress,
+    ggrepel,
+    ggdist,
+    scales,
+    ggpubr
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr 

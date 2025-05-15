@@ -1,110 +1,97 @@
 """
-Rules for SNP tracking and analysis in the iHMP pipeline.
+SNP tracking rules for the iHMP pipeline.
+Handles mutation analysis and tracking over time.
 """
 
-rule filter_mutations:
-    """
-    Filter mutations based on coverage and frequency thresholds.
-    """
-    input:
-        mutation_data = "results/mutations/{patient}/mutation_data.csv"
-    output:
-        filtered = "results/analysis/{patient}/filtered_mutations.csv"
-    params:
-        min_coverage = config['python']['min_coverage'],
-        min_freq = config['python']['min_frequency']
-    conda:
-        "../envs/python.yaml"
-    script:
-        "../scripts/filter_mutations.py"
+# Import wildcard functions
+from scripts.wildcards import (
+    COMBINED_SNV_INFO, COMBINED_SCAFFOLD_INFO,
+    FILTERED_MUTATIONS, MUTATION_TRENDS,
+    MUTATION_TRAJECTORIES, MAPPED_MUTATIONS,
+    MUTATION_TYPES, BAKTA_TSV,
+    ENV_INSTRAIN, ENV_PYTHON
+)
 
+# Calculate mutation trends over time
 rule calculate_trends:
-    """
-    Calculate mutation trends over time.
-    """
     input:
-        mutations = rules.filter_mutations.output.filtered,
-        metadata = "results/metadata/{patient}/metadata.csv"
+        mutation_file = rules.merge_snv_info.output.merged_file,
+        metadata_file = config['metadata']['file']
     output:
-        trends = "results/analysis/{patient}/mutation_trends.csv"
+        trends_file = os.path.join(config['paths']['results'], "mutation_trends.tsv")
     params:
-        p_threshold = config['python']['p_threshold']
+        min_slope = config.get("min_slope", 0.01),
+        min_abs_change = config.get("min_abs_change", 0.1),
+        p_value = config.get("p_value", 0.05),
+        threads = config.get("threads", 4),
+        chunksize = config.get("chunksize", 10000)
+    resources:
+        mem_mb = 16000,
+        threads = 4
+    log:
+        os.path.join(config['paths']['log_dir'], "calculate_trends.log")
     conda:
-        "../envs/python.yaml"
-    script:
-        "../scripts/calculate_trends.py"
+        config['conda_envs']['instrain']
+    shell:
+        """
+        python {workflow.basedir}/scripts/calculate_trends.py \
+            --mutation_file {input.mutation_file} \
+            --metadata_file {input.metadata_file} \
+            --output_file {output.trends_file} \
+            --min_slope {params.min_slope} \
+            --min_abs_change {params.min_abs_change} \
+            --p_value {params.p_value} \
+            --threads {params.threads} \
+            --chunksize {params.chunksize} \
+            --log_file {log} 2>&1
+        """
 
-rule map_genes:
-    """
-    Map mutations to genes using phylogenetic tree.
-    """
-    input:
-        mutations = rules.filter_mutations.output.filtered,
-        tree = "results/trees/{patient}/{patient}_tree.nwk"
-    output:
-        mapping = "results/analysis/{patient}/gene_mapping.csv"
-    conda:
-        "../envs/python.yaml"
-    script:
-        "../scripts/map_genes.py"
-
-rule analyze_mutations:
-    """
-    Analyze mutation types and patterns.
-    """
-    input:
-        mutations = rules.filter_mutations.output.filtered,
-        mapping = rules.map_genes.output.mapping
-    output:
-        analysis = "results/analysis/{patient}/mutation_analysis.csv"
-    conda:
-        "../envs/python.yaml"
-    script:
-        "../scripts/analyze_mutations.py"
-
+# Prepare mutation trajectories over time
 rule prepare_trajectories:
-    """
-    Prepare mutation trajectories over time.
-    """
     input:
-        mutations = rules.filter_mutations.output.filtered,
-        metadata = "results/metadata/{patient}/metadata.csv"
+        mutations = MUTATION_TRENDS("{patient}"),
+        metadata = config['metadata']['file']
     output:
-        trajectories = "results/analysis/{patient}/trajectories.csv"
+        trajectories = TRAJECTORY_MUTATIONS("{patient}")
+    params:
+        min_trajectory_change = config["snp_tracking"]["min_trajectory_change"]
     conda:
-        "../envs/python.yaml"
+        config['conda_envs']['instrain']
     script:
         "../scripts/prepare_trajectories.py"
 
-rule create_plots:
-    """
-    Create visualization plots for analysis results.
-    """
+# Map mutations to genes (no gene trees)
+rule map_genes:
     input:
-        mutations = rules.filter_mutations.output.filtered,
-        trends = rules.calculate_trends.output.trends,
-        mapping = rules.map_genes.output.mapping,
-        analysis = rules.analyze_mutations.output.analysis,
-        trajectories = rules.prepare_trajectories.output.trajectories
+        mutations = MUTATION_TRAJECTORIES("{patient}"),
+        trends = MUTATION_TRENDS("{patient}"),
+        annotation = BAKTA_TSV("{patient}")
     output:
-        plots = "results/plots/{patient}/analysis_plots.pdf"
+        mapped = MAPPED_MUTATIONS("{patient}")
     conda:
-        "../envs/python.yaml"
-    script:
-        "../scripts/create_plots.py"
+        config['conda_envs']['instrain']
+    shell:
+        """
+        python {{workflow.basedir}}/scripts/map_genes.py \
+            --mutation_file {{input.mutations}} \
+            --trend_file {{input.trends}} \
+            --gene_file {{input.annotation}} \
+            --output_file {{output.mapped}}
+        """
 
-# Add all outputs to the final rule
+# Analyze mutation types (Silent, Missense, Nonsense)
+rule analyze_mutation_types:
+    input:
+        mutations = MAPPED_MUTATIONS("{patient}"),
+        reference = lambda wc: config["reference"][wc.patient]
+    output:
+        mutation_types = MUTATION_TYPES("{patient}")
+    conda:
+        config['conda_envs']['instrain']
+    script:
+        "../scripts/analyze_mutation_types.py"
+
+# Final rule to collect all outputs
 rule all:
     input:
-        filtered = expand("results/analysis/{patient}/filtered_mutations.csv", 
-                         patient=config['patients']),
-        trends = expand("results/analysis/{patient}/mutation_trends.csv", 
-                       patient=config['patients']),
-        mapping = expand("results/analysis/{patient}/gene_mapping.csv", 
-                        patient=config['patients']),
-        analysis = expand("results/analysis/{patient}/mutation_analysis.csv", 
-                         patient=config['patients']),
-        trajectories = expand("results/analysis/{patient}/trajectories.csv", 
-                            patient=config['patients']),
-        plots = expand("results/plots/{patient}/analysis_plots.pdf", 
-                      patient=config['patients']) 
+        expand(MUTATION_TYPES("{patient}"), patient=config["patients"]) 

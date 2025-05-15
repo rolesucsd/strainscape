@@ -1,0 +1,104 @@
+2025-05-14 10:58:26,351 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mutation_trajectories.tsv
+2025-05-14 10:58:26,655 - ihmp_pipeline - ERROR - Error analyzing mutation types: 'mutation_type'
+2025-05-14 10:58:26,655 - ihmp_pipeline - ERROR - Pipeline failed: 'mutation_type'
+2025-05-14 10:59:07,832 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mutation_trajectories.tsv
+2025-05-14 10:59:07,905 - ihmp_pipeline - ERROR - Error analyzing mutation types: name 'total_transitions' is not defined
+2025-05-14 10:59:30,552 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mutation_trajectories.tsv
+2025-05-14 10:59:30,631 - ihmp_pipeline - INFO - Saved mutation type analysis to data/mutation_trends/mutation_types.csv
+2025-05-14 10:59:30,631 - ihmp_pipeline - INFO - Saved summary statistics to data/mutation_trends/mutation_types_summary.csv
+2025-05-14 10:59:30,631 - ihmp_pipeline - INFO - Operation 'analyze_mutation_types' took 0.08 seconds
+2025-05-14 17:03:17,627 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:03:17,629 - ihmp_pipeline - ERROR - Error analyzing mutation types: Error tokenizing data. C error: Expected 3 fields in line 4, saw 4
+
+2025-05-14 17:03:17,629 - ihmp_pipeline - ERROR - Pipeline failed: Error tokenizing data. C error: Expected 3 fields in line 4, saw 4
+
+2025-05-14 17:03:43,071 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:03:45,219 - ihmp_pipeline - INFO - Saved mutation type analysis to data/mutation_trends/mutation_types.csv
+2025-05-14 17:03:45,219 - ihmp_pipeline - INFO - Saved summary statistics to data/mutation_trends/mutation_types_summary.csv
+2025-05-14 17:03:45,219 - ihmp_pipeline - INFO - Operation 'analyze_mutation_types' took 2.15 seconds
+2025-05-14 17:06:53,293 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:06:53,293 - ihmp_pipeline - ERROR - Error analyzing mutation types: File not found: data/reference/M2042.fasta
+2025-05-14 17:06:53,293 - ihmp_pipeline - ERROR - Pipeline failed: File not found: data/reference/M2042.fasta
+2025-05-14 17:07:03,866 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:07:03,866 - ihmp_pipeline - INFO - Reading reference sequences
+2025-05-14 17:07:05,819 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:07:05,999 - ihmp_pipeline - INFO - Determining mutation types
+2025-05-14 17:07:06,035 - ihmp_pipeline - ERROR - Error analyzing mutation types: 'coding'
+2025-05-14 17:07:06,035 - ihmp_pipeline - ERROR - Pipeline failed: 'coding'
+2025-05-14 17:07:20,507 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:07:20,507 - ihmp_pipeline - INFO - Reading reference sequences
+2025-05-14 17:07:21,840 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:07:22,021 - ihmp_pipeline - INFO - Determining mutation types
+2025-05-14 17:07:22,252 - ihmp_pipeline - INFO - Visualizing mutation types
+2025-05-14 17:07:22,252 - ihmp_pipeline - ERROR - Error analyzing mutation types: 'coding'
+2025-05-14 17:07:22,252 - ihmp_pipeline - ERROR - Pipeline failed: 'coding'
+2025-05-14 17:07:32,777 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:07:32,777 - ihmp_pipeline - INFO - Reading reference sequences
+2025-05-14 17:07:34,004 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:07:34,197 - ihmp_pipeline - INFO - Determining mutation types
+2025-05-14 17:07:34,416 - ihmp_pipeline - INFO - Visualizing mutation types
+2025-05-14 17:07:35,759 - ihmp_pipeline - INFO - Saved mutation type analysis to data/mutation_trends/mutation_types.csv
+2025-05-14 17:07:35,759 - ihmp_pipeline - INFO - Operation 'analyze_mutation_types' took 2.98 seconds
+2025-05-14 17:11:04,337 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:11:04,337 - ihmp_pipeline - INFO - Reading reference sequences
+2025-05-14 17:11:05,760 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:11:05,945 - ihmp_pipeline - INFO - Determining mutation types
+2025-05-14 17:11:07,022 - ihmp_pipeline - INFO - Saved mutation type analysis to data/mutation_trends/mutation_types.tsv
+2025-05-14 17:11:07,022 - ihmp_pipeline - INFO - Operation 'analyze_mutation_types' took 2.69 seconds
+2025-05-14 17:36:10,592 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:36:10,593 - ihmp_pipeline - ERROR - Error analyzing mutation types: File not found: data/reference/M2042.fasta
+2025-05-14 17:36:10,593 - ihmp_pipeline - ERROR - Pipeline failed: File not found: data/reference/M2042.fasta
+2025-05-14 17:36:21,829 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:36:21,829 - ihmp_pipeline - INFO - Reading reference sequences
+2025-05-14 17:36:23,187 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:36:23,432 - ihmp_pipeline - INFO - Determining mutation types
+2025-05-14 17:36:25,038 - ihmp_pipeline - INFO - Saved mutation type analysis to data/mutation_trends/mutation_types.tsv
+2025-05-14 17:36:25,038 - ihmp_pipeline - INFO - Operation 'analyze_mutation_types' took 3.21 seconds
+2025-05-14 17:38:20,602 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:38:20,602 - ihmp_pipeline - INFO - Reading reference sequences
+2025-05-14 17:38:21,931 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:38:22,165 - ihmp_pipeline - INFO - Determining mutation types
+2025-05-14 17:38:22,206 - ihmp_pipeline - ERROR - Error analyzing mutation types: 'sequence_id'
+2025-05-14 17:38:22,206 - ihmp_pipeline - ERROR - Pipeline failed: 'sequence_id'
+2025-05-14 17:38:38,130 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:38:38,130 - ihmp_pipeline - INFO - Reading reference sequences
+2025-05-14 17:38:39,312 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:38:39,541 - ihmp_pipeline - INFO - Determining mutation types
+2025-05-14 17:38:41,054 - ihmp_pipeline - INFO - Saved mutation type analysis to data/mutation_trends/mutation_types.tsv
+2025-05-14 17:38:41,054 - ihmp_pipeline - INFO - Operation 'analyze_mutation_types' took 2.92 seconds
+2025-05-14 17:39:42,853 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:39:42,853 - ihmp_pipeline - INFO - Reading reference sequences
+2025-05-14 17:39:44,218 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:39:44,458 - ihmp_pipeline - INFO - Determining mutation types
+2025-05-14 17:39:44,503 - ihmp_pipeline - ERROR - Error analyzing mutation types: 'k77_100256'
+2025-05-14 17:39:44,503 - ihmp_pipeline - ERROR - Pipeline failed: 'k77_100256'
+2025-05-14 17:42:17,495 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:42:17,496 - ihmp_pipeline - INFO - Reading reference sequences
+2025-05-14 17:42:18,653 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:42:18,883 - ihmp_pipeline - INFO - Determining mutation types
+2025-05-14 17:42:18,928 - ihmp_pipeline - ERROR - Error analyzing mutation types: slice indices must be integers or None or have an __index__ method
+2025-05-14 17:42:18,928 - ihmp_pipeline - ERROR - Pipeline failed: slice indices must be integers or None or have an __index__ method
+2025-05-14 17:43:07,239 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:43:07,239 - ihmp_pipeline - INFO - Reading reference sequences
+2025-05-14 17:43:08,308 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:43:08,531 - ihmp_pipeline - INFO - Determining mutation types
+2025-05-14 17:43:08,573 - ihmp_pipeline - ERROR - Error analyzing mutation types: slice indices must be integers or None or have an __index__ method
+2025-05-14 17:43:08,573 - ihmp_pipeline - ERROR - Pipeline failed: slice indices must be integers or None or have an __index__ method
+2025-05-14 17:43:24,437 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:43:24,438 - ihmp_pipeline - INFO - Reading reference sequences
+2025-05-14 17:43:25,444 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:43:25,688 - ihmp_pipeline - INFO - Determining mutation types
+2025-05-14 17:43:36,494 - ihmp_pipeline - INFO - Saved mutation type analysis to data/mutation_trends/mutation_types.tsv
+2025-05-14 17:43:36,494 - ihmp_pipeline - INFO - Operation 'analyze_mutation_types' took 12.06 seconds
+2025-05-14 17:46:42,334 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:46:42,334 - ihmp_pipeline - INFO - Reading reference sequences
+2025-05-14 17:46:43,439 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:46:43,691 - ihmp_pipeline - INFO - Determining mutation types
+2025-05-14 17:46:45,157 - ihmp_pipeline - INFO - Saved mutation type analysis to data/mutation_trends/mutation_types.tsv
+2025-05-14 17:46:45,158 - ihmp_pipeline - INFO - Operation 'analyze_mutation_types' took 2.82 seconds
+2025-05-14 17:47:19,601 - ihmp_pipeline - INFO - Processing file: data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:47:19,601 - ihmp_pipeline - INFO - Reading reference sequences
+2025-05-14 17:47:20,701 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:47:20,948 - ihmp_pipeline - INFO - Determining mutation types
+2025-05-14 17:47:24,739 - ihmp_pipeline - INFO - Saved mutation type analysis to data/mutation_trends/mutation_types.tsv
+2025-05-14 17:47:24,740 - ihmp_pipeline - INFO - Operation 'analyze_mutation_types' took 5.14 seconds

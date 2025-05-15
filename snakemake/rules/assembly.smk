@@ -1,21 +1,55 @@
 """
 Assembly rules for the iHMP pipeline.
 Handles co-assembly, filtering, and annotation of metagenomic data.
+
+This module contains rules for processing metagenomic assemblies, including:
+- Co-assembly of multiple samples using MEGAHIT
+- Contig filtering based on length
+- STB file generation for strain tracking
+- Gene annotation using Bakta
+
+Dependencies:
+- Raw sequencing reads
+- MEGAHIT for assembly
+- SeqKit for contig filtering
+- Bakta for gene annotation
 """
 
+# Import wildcard functions
+from scripts.wildcards import COASSEMBLY, FILTERED_CONTIGS, STB_FILE, ASSEMBLY_DIR, REF_BAKTA_DIR, BAKTA_TSV
+
 rule megahit_coassembly:
+    """
+    Perform co-assembly of multiple samples using MEGAHIT.
+    
+    This rule assembles reads from multiple samples into a single assembly
+    using MEGAHIT. It uses the following parameters:
+    - k-mer range: 27-77
+    - k-mer step: 10
+    - Merge level: 20,0.95
+    - Minimum contig length: 200bp
+    
+    Input:
+        reads: List of read files from all samples
+    Output:
+        fa: Final assembly file
+    Resources:
+        mem: 200GB
+        cpu: 8 threads
+    """
     input:
         lambda wc: list(get_samples(wc.patient).values())
     output: 
         fa = COASSEMBLY("{patient}")
     params:
-        outdir = os.path.join(ASSEMBLY_DIR, "{patient}"),
+        outdir = ASSEMBLY_DIR("{patient}"),
         kmin = 27,
         kmax = 77,
         kstep = 10,
         merge = "20,0.95",
         minlen = 200
-    conda: CONDA_MEGAHIT
+    conda:
+        config['conda_envs']['assembly']
     threads: 8
     resources: mem = "200G"
     shell:
@@ -32,15 +66,40 @@ rule megahit_coassembly:
         """
 
 rule filter_contigs:
+    """
+    Filter contigs based on length.
+    
+    This rule removes short contigs from the assembly, keeping only those
+    longer than 1000bp. This helps reduce noise and improve downstream
+    analysis quality.
+    
+    Input:
+        fa: Raw assembly file
+    Output:
+        fa: Filtered assembly file
+    """
     input: 
         fa = COASSEMBLY("{patient}")
     output: 
         fa = FILTERED_CONTIGS("{patient}")
-    conda: CONDA_SEQKIT
+    conda:
+        config['conda_envs']['assembly']
     shell: 
         "seqkit seq -m 1000 {input.fa} -o {output.fa}"
 
 rule make_stb:
+    """
+    Generate STB file for strain tracking.
+    
+    This rule creates a scaffold-to-bin (STB) file that maps contigs to
+    their source patient. This information is used by InStrain for strain
+    tracking and analysis.
+    
+    Input:
+        fa: Filtered assembly file
+    Output:
+        stb: STB file
+    """
     input: 
         fa = FILTERED_CONTIGS("{patient}")
     output: 
@@ -52,16 +111,30 @@ rule make_stb:
                     fout.write(f"{line[1:].split()[0]}\t{wildcards.patient}\n")
 
 rule bakta_coassembly:
+    """
+    Annotate assembly using Bakta.
+    
+    This rule performs gene annotation on the filtered assembly using Bakta.
+   
+    
+    Input:
+        fa: Filtered assembly file
+    Output:
+        tsv: Bakta annotation file
+    Resources:
+        mem: 50GB
+    """
     input: 
         fa = FILTERED_CONTIGS("{patient}")
     output: 
-        touch(os.path.join(REF_BAKTA_DIR, "{patient}", "bakta.done"))
+        BAKTA_TSV("{patient}")
     params:
         db = config["reference"]["bakta_db"],
-        outdir = os.path.join(REF_BAKTA_DIR, "{patient}"),
+        outdir = REF_BAKTA_DIR("{patient}"),
         prefix = "{patient}"
-    conda: CONDA_BAKTA
+    conda:
+        config['conda_envs']['annotation']
     resources: mem = "50G"
     shell:
         "mkdir -p {params.outdir} && bakta --db {params.db} --output {params.outdir} "
-        "--prefix {params.prefix} --keep-contig-headers --force {input.fa}" 
+        "--prefix {params.prefix} --keep-contig-headers --force {input.fa}"

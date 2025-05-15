@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -9,57 +9,58 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.10, 3.11]
-
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
       with:
-        fetch-depth: 0
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-
+        python-version: '3.9'
+    
+    - name: Set up R
+      uses: r-lib/actions/setup-r@v1
+    
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -e ".[test]"
-        pip install pre-commit
-        pre-commit install
-
-    - name: Run pre-commit
+        conda env create -f snakemake/envs/instrain.yml
+        Rscript -e "renv::restore()"
+    
+    - name: Run Python tests
       run: |
-        pre-commit run --all-files
+        source activate instrain
+        pytest tests/python/
+    
+    - name: Run R tests
+      run: Rscript -e "testthat::test_dir('tests/r/')"
 
-    - name: Run tests
-      run: |
-        pytest --cov=strainscape --cov-report=xml
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        fail_ci_if_error: true
-
-  snakemake:
+  build-docker:
+    needs: test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
+    
+    - name: Build Docker image
+      run: docker build -t ihmp-pipeline .
+    
+    - name: Test Docker image
+      run: |
+        docker run --rm ihmp-pipeline --version
+        docker run --rm ihmp-pipeline --help
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
+  deploy:
+    needs: build-docker
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
       with:
-        python-version: '3.10'
-
-    - name: Install dependencies
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Build and push Docker image
       run: |
-        python -m pip install --upgrade pip
-        pip install -e ".[test]"
-        pip install snakemake
-
-    - name: Run Snakemake dry-run
-      run: |
-        snakemake -s snakemake/instrain_mags.smk --cores 1 --dry-run 
+        docker build -t roles/ihmp-pipeline:latest .
+        docker push roles/ihmp-pipeline:latest 

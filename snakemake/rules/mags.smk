@@ -1,41 +1,83 @@
 """
-MAGs (Metagenome-Assembled Genomes) rules for the iHMP pipeline.
-Handles binning, refinement, and quality assessment of MAGs.
+MAGs rules for the iHMP pipeline.
+Handles depth calculation and binning of metagenomic data.
+
+This module contains rules for processing metagenomic assembled genomes (MAGs), including:
+- Depth calculation using jgi_summarize_bam_contig_depths
+- Binning using MetaBAT2
+- Quality assessment of bins
+
+Dependencies:
+- Sorted BAM files from mapping
+- Filtered contigs from assembly
+- MetaBAT2 for binning
 """
 
-rule run_metabat2:
+# Import wildcard functions
+from scripts.wildcards import FILTERED_CONTIGS, SORT_BAM, DEPTH_FILE, PATIENT_BIN_DIR
+
+rule jgi_summarize_depths:
+    """
+    Calculate contig depths using jgi_summarize_bam_contig_depths.
+    
+    This rule calculates the depth of coverage for each contig across all
+    samples. The depth information is used by MetaBAT2 for binning.
+    
+    Input:
+        bams: List of sorted BAM files
+    Output:
+        depth: Depth file containing coverage information
+    """
     input:
-        fa = FILTERED_CONTIGS("{patient}"),
-        bam = expand(SORT_BAM("{patient}", "{sample}"), sample=lambda wc: get_samples(wc.patient).keys())
+        bams = lambda wc: [SORT_BAM(wc.patient, s) for s in get_samples(wc.patient)]
     output:
-        bins = MAGS("{patient}")
-    threads: 8
-    conda: CONDA_MAGS
+        depth = DEPTH_FILE("{patient}")
+    conda:
+        config['conda_envs']['mags']
     shell:
-        r"""
-        metabat2 -i {input.fa} -a {input.bam} -o {output.bins} -t {threads}
+        """
+        mkdir -p {DEPTH_DIR}
+        jgi_summarize_bam_contig_depths --outputDepth {output.depth} {input.bams}
         """
 
-rule run_checkm:
-    input:
-        bins = MAGS("{patient}")
-    output:
-        quality = MAGS_QUALITY("{patient}")
-    threads: 8
-    conda: CONDA_MAGS
+rule metabat2_binning:
+    """
+    Perform binning using MetaBAT2.
+    
+    This rule uses MetaBAT2 to bin contigs into metagenomic assembled
+    genomes (MAGs) based on:
+    - Coverage depth
+    - Tetranucleotide frequency
+    - Contig length
+    
+    Parameters:
+    - Minimum contig length: 1500bp
+    - Maximum probability threshold: 95%
+    - Minimum score: 60
+    - Maximum edges: 200
+    
+    Input:
+        contig: Filtered contigs file
+        depth: Depth file from jgi_summarize_depths
+    Output:
+        directory: Directory containing binned contigs
+    Resources:
+        mem: 50GB
+    """
+    input: 
+        contig = FILTERED_CONTIGS("{patient}"),
+        depth = DEPTH_FILE("{patient}")
+    output: 
+        directory(PATIENT_BIN_DIR("{patient}"))
+    params: 
+        outdir = PATIENT_BIN_DIR("{patient}")
+    conda:
+        config['conda_envs']['mags']
+    resources: mem = "50G"
     shell:
-        r"""
-        checkm lineage_wf -t {threads} -x fa {input.bins} {output.quality}
         """
-
-rule run_drep:
-    input:
-        bins = MAGS("{patient}")
-    output:
-        dereplicated = MAGS_DEREP("{patient}")
-    threads: 8
-    conda: CONDA_MAGS
-    shell:
-        r"""
-        dRep dereplicate {output.dereplicated} -g {input.bins}/*.fa -p {threads}
-        """ 
+        mkdir -p {params.outdir}
+        metabat2 -i {input.contig} -a {input.depth} -o {params.outdir}/bin \
+                 -s 1500 -m 1500 --maxP 95 --minS 60 --maxEdges 200 \
+                 --seed 1 --saveCls
+        """

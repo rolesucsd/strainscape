@@ -1,0 +1,48 @@
+2025-05-14 10:37:49,606 - ihmp_pipeline - INFO - Processing files: data/instrain/M2042/filtered_mutations.tsv, data/mutation_trends/mutation_trends.tsv, input/metadata/hmp2_metadata_2018-08-20.csv
+2025-05-14 10:37:49,785 - ihmp_pipeline - ERROR - Error preparing trajectories: 'new_base'
+2025-05-14 10:37:49,785 - ihmp_pipeline - ERROR - Pipeline failed: 'new_base'
+2025-05-14 10:38:03,733 - ihmp_pipeline - INFO - Processing files: data/instrain/M2042/filtered_mutations.tsv, data/mutation_trends/mutation_trends.tsv, input/metadata/hmp2_metadata_2018-08-20.csv
+2025-05-14 10:38:03,911 - ihmp_pipeline - ERROR - Error preparing trajectories: 'nucleotide'
+2025-05-14 10:38:03,911 - ihmp_pipeline - ERROR - Pipeline failed: 'nucleotide'
+2025-05-14 10:41:27,526 - ihmp_pipeline - INFO - Processing files: data/instrain/M2042/filtered_mutations.tsv, data/mutation_trends/mutation_trends.tsv, input/metadata/hmp2_metadata_2018-08-20.csv
+2025-05-14 10:42:34,312 - ihmp_pipeline - INFO - Saved 321361 trajectories to data/mutation_trends/mutation_trajectories.tsv
+2025-05-14 10:42:34,781 - ihmp_pipeline - INFO - Saved trends to data/mutation_trends/mutation_trends.tsv
+2025-05-14 10:42:34,781 - ihmp_pipeline - INFO - Operation 'prepare_trajectories' took 67.25 seconds
+2025-05-14 10:44:47,733 - ihmp_pipeline - INFO - Processing files: data/instrain/M2042/filtered_mutations.tsv, data/mutation_trends/mutation_trends.tsv, input/metadata/hmp2_metadata_2018-08-20.csv
+2025-05-14 10:44:56,558 - ihmp_pipeline - INFO - Saved 321361 trajectories to data/mutation_trends/mutation_trajectories.tsv
+2025-05-14 10:44:57,028 - ihmp_pipeline - INFO - Saved trends to data/mutation_trends/mutation_trends.tsv
+2025-05-14 10:44:57,028 - ihmp_pipeline - INFO - Operation 'prepare_trajectories' took 9.29 seconds
+2025-05-14 10:46:42,124 - ihmp_pipeline - INFO - Processing files: data/instrain/M2042/filtered_mutations.tsv, data/mutation_trends/mutation_trends.tsv, input/metadata/hmp2_metadata_2018-08-20.csv
+2025-05-14 10:46:51,061 - ihmp_pipeline - INFO - Saved 321361 trajectories to data/mutation_trends/mutation_trajectories.tsv
+2025-05-14 10:46:51,531 - ihmp_pipeline - INFO - Saved trends to data/mutation_trends/mutation_trends.tsv
+2025-05-14 10:46:51,531 - ihmp_pipeline - INFO - Operation 'prepare_trajectories' took 9.41 seconds
+2025-05-14 10:47:10,059 - ihmp_pipeline - INFO - Processing files: data/instrain/M2042/filtered_mutations.tsv, data/mutation_trends/mutation_trends.tsv, input/metadata/hmp2_metadata_2018-08-20.csv
+2025-05-14 10:47:18,979 - ihmp_pipeline - INFO - Saved 321361 trajectories to data/mutation_trends/mutation_trajectories.tsv
+2025-05-14 10:47:19,473 - ihmp_pipeline - INFO - Saved trends to data/mutation_trends/mutation_trends.tsv
+2025-05-14 10:47:19,473 - ihmp_pipeline - INFO - Operation 'prepare_trajectories' took 9.41 seconds
+2025-05-14 10:49:42,539 - ihmp_pipeline - INFO - Processing files: data/instrain/M2042/filtered_mutations.tsv, data/mutation_trends/mutation_trends.tsv, input/metadata/hmp2_metadata_2018-08-20.csv
+2025-05-14 10:49:42,767 - ihmp_pipeline - ERROR - Error preparing trajectories: 'week_num'
+2025-05-14 10:49:42,767 - ihmp_pipeline - ERROR - Pipeline failed: 'week_num'
+2025-05-14 10:50:39,155 - ihmp_pipeline - INFO - Processing files: data/instrain/M2042/filtered_mutations.tsv, data/mutation_trends/mutation_trends.tsv, input/metadata/hmp2_metadata_2018-08-20.csv
+2025-05-14 10:50:48,293 - ihmp_pipeline - INFO - Saved 321361 trajectories to data/mutation_trends/mutation_trajectories.tsv
+2025-05-14 10:50:48,902 - ihmp_pipeline - INFO - Saved trends to data/mutation_trends/mutation_trends.tsv
+2025-05-14 10:50:48,902 - ihmp_pipeline - INFO - Operation 'prepare_trajectories' took 9.75 seconds
+2025-05-14 10:51:03,157 - ihmp_pipeline - INFO - Processing files: data/instrain/M2042/filtered_mutations.tsv, data/mutation_trends/mutation_trends.tsv, input/metadata/hmp2_metadata_2018-08-20.csv
+2025-05-14 10:51:11,920 - ihmp_pipeline - INFO - Saved 321361 trajectories to data/mutation_trends/mutation_trajectories.tsv
+2025-05-14 10:51:12,395 - ihmp_pipeline - INFO - Saved trends to data/mutation_trends/mutation_trends.tsv
+2025-05-14 10:51:12,395 - ihmp_pipeline - INFO - Operation 'prepare_trajectories' took 9.24 seconds
+2025-05-14 10:52:37,714 - ihmp_pipeline - INFO - Processing files: data/instrain/M2042/filtered_mutations.tsv, data/mutation_trends/mutation_trends.tsv, input/metadata/hmp2_metadata_2018-08-20.csv
+2025-05-14 10:52:44,130 - ihmp_pipeline - INFO - Saved 91511 trajectories to data/mutation_trends/mutation_trajectories.tsv
+2025-05-14 10:52:44,629 - ihmp_pipeline - INFO - Saved trends to data/mutation_trends/mutation_trends.tsv
+2025-05-14 10:52:44,630 - ihmp_pipeline - INFO - Operation 'prepare_trajectories' took 6.92 seconds
+2025-05-14 10:54:02,592 - ihmp_pipeline - INFO - Processing files: data/instrain/M2042/filtered_mutations.tsv, data/mutation_trends/mutation_trends.tsv, input/metadata/hmp2_metadata_2018-08-20.csv
+2025-05-14 10:54:09,038 - ihmp_pipeline - INFO - Saved 91511 trajectories to data/mutation_trends/mutation_trajectories.tsv
+2025-05-14 10:54:09,525 - ihmp_pipeline - INFO - Saved trends to data/mutation_trends/mutation_trends.tsv
+2025-05-14 10:54:09,525 - ihmp_pipeline - INFO - Operation 'prepare_trajectories' took 6.93 seconds
+2025-05-14 10:54:54,694 - ihmp_pipeline - INFO - Processing files: data/instrain/M2042/filtered_mutations.tsv, data/mutation_trends/mutation_trends.tsv, input/metadata/hmp2_metadata_2018-08-20.csv
+2025-05-14 10:55:01,142 - ihmp_pipeline - INFO - Saved 91511 trajectories to data/mutation_trends/mutation_trajectories.tsv
+2025-05-14 10:55:01,626 - ihmp_pipeline - INFO - Saved trends to data/mutation_trends/mutation_trends.tsv
+2025-05-14 10:55:01,626 - ihmp_pipeline - INFO - Operation 'prepare_trajectories' took 6.93 seconds
+2025-05-14 10:56:01,859 - ihmp_pipeline - INFO - Processing files: data/instrain/M2042/filtered_mutations.tsv, data/mutation_trends/mutation_trends.tsv, input/metadata/hmp2_metadata_2018-08-20.csv
+2025-05-14 10:56:10,406 - ihmp_pipeline - INFO - Saved 91511 trajectories to data/mutation_trends
+2025-05-14 10:56:10,406 - ihmp_pipeline - INFO - Operation 'prepare_trajectories' took 8.55 seconds

@@ -1,0 +1,66 @@
+2025-05-14 16:28:24,695 - ihmp_pipeline - INFO - Processing files: data/mutation_trends/mutation_trajectories.tsv, data/gene_trees/M2042
+2025-05-14 16:28:24,696 - ihmp_pipeline - ERROR - Error mapping genes: [Errno 21] Is a directory: 'data/gene_trees/M2042'
+2025-05-14 16:28:24,696 - ihmp_pipeline - ERROR - Pipeline failed: [Errno 21] Is a directory: 'data/gene_trees/M2042'
+2025-05-14 16:51:49,223 - ihmp_pipeline - INFO - Processing files: data/mutation_trends/mutation_trajectories.tsv, data/bakta/M2042/M2042.tsv
+2025-05-14 16:51:49,224 - ihmp_pipeline - INFO - Reading gene annotations
+2025-05-14 16:51:49,634 - ihmp_pipeline - ERROR - Error mapping genes: "None of [Index(['Sequence Id', 'Start', 'Stop', 'Locus Tag', 'Product'], dtype='object')] are in the [columns]"
+2025-05-14 16:51:49,634 - ihmp_pipeline - ERROR - Pipeline failed: "None of [Index(['Sequence Id', 'Start', 'Stop', 'Locus Tag', 'Product'], dtype='object')] are in the [columns]"
+2025-05-14 16:52:05,799 - ihmp_pipeline - INFO - Processing files: data/mutation_trends/mutation_trajectories.tsv, data/bakta/M2042/M2042.tsv
+2025-05-14 16:52:05,799 - ihmp_pipeline - INFO - Reading gene annotations
+2025-05-14 16:52:06,204 - ihmp_pipeline - ERROR - Error mapping genes: "None of [Index(['Sequence Id', 'Start', 'Stop', 'Locus Tag', 'Gene', 'Product'], dtype='object')] are in the [columns]"
+2025-05-14 16:52:06,204 - ihmp_pipeline - ERROR - Pipeline failed: "None of [Index(['Sequence Id', 'Start', 'Stop', 'Locus Tag', 'Gene', 'Product'], dtype='object')] are in the [columns]"
+2025-05-14 16:52:31,508 - ihmp_pipeline - INFO - Processing files: data/mutation_trends/mutation_trajectories.tsv, data/bakta/M2042/M2042.tsv
+2025-05-14 16:52:31,508 - ihmp_pipeline - INFO - Reading gene annotations
+2025-05-14 16:52:32,101 - ihmp_pipeline - INFO - Processing mutations
+2025-05-14 16:52:32,149 - ihmp_pipeline - INFO - Mapping mutations to genes
+2025-05-14 16:52:32,150 - ihmp_pipeline - ERROR - Error mapping genes: 'scaffold'
+2025-05-14 16:52:32,150 - ihmp_pipeline - ERROR - Pipeline failed: 'scaffold'
+2025-05-14 16:52:50,900 - ihmp_pipeline - INFO - Processing files: data/mutation_trends/mutation_trajectories.tsv, data/bakta/M2042/M2042.tsv
+2025-05-14 16:52:50,900 - ihmp_pipeline - INFO - Reading gene annotations
+2025-05-14 16:52:51,454 - ihmp_pipeline - INFO - Processing mutations
+2025-05-14 16:52:51,508 - ihmp_pipeline - INFO - Mapping mutations to genes
+2025-05-14 16:52:51,660 - ihmp_pipeline - ERROR - Error mapping genes: "Column(s) ['frequency', 'position'] do not exist"
+2025-05-14 16:52:51,660 - ihmp_pipeline - ERROR - Pipeline failed: "Column(s) ['frequency', 'position'] do not exist"
+2025-05-14 16:54:06,530 - ihmp_pipeline - INFO - Processing files: data/mutation_trends/mutation_trajectories.tsv, data/bakta/M2042/M2042.tsv
+2025-05-14 16:54:06,531 - ihmp_pipeline - INFO - Reading gene annotations
+2025-05-14 16:54:07,123 - ihmp_pipeline - INFO - Processing mutations
+2025-05-14 16:54:07,174 - ihmp_pipeline - INFO - Mapping mutations to genes
+2025-05-14 16:54:07,648 - ihmp_pipeline - INFO - Saved 67857 mapped mutations to data/mutation_trends/mapped_mutations.tsv
+2025-05-14 16:54:07,658 - ihmp_pipeline - INFO - Saved gene statistics to data/mutation_trends/mapped_mutations_gene_stats.tsv
+2025-05-14 16:54:07,658 - ihmp_pipeline - INFO - Operation 'map_genes' took 1.13 seconds
+2025-05-14 16:58:27,199 - ihmp_pipeline - INFO - Processing files: data/mutation_trends/mutation_trajectories.tsv, data/bakta/M2042/M2042.tsv
+2025-05-14 16:58:27,200 - ihmp_pipeline - INFO - Reading gene annotations
+2025-05-14 16:58:27,769 - ihmp_pipeline - INFO - Processing mutations
+2025-05-14 16:58:27,818 - ihmp_pipeline - INFO - Mapping mutations to genes
+2025-05-14 16:58:28,413 - ihmp_pipeline - INFO - Saved 67857 mapped mutations to data/mutation_trends/mapped_mutations.tsv
+2025-05-14 16:58:28,414 - ihmp_pipeline - INFO - Operation 'map_genes' took 1.21 seconds
+2025-05-14 16:58:49,670 - ihmp_pipeline - INFO - Processing files: data/mutation_trends/mutation_trajectories.tsv, data/mutation_trends/mutation_trends.tsv, data/bakta/M2042/M2042.tsv
+2025-05-14 16:58:49,671 - ihmp_pipeline - INFO - Reading gene annotations
+2025-05-14 16:58:50,189 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 16:58:50,314 - ihmp_pipeline - INFO - Merging mutations with trends
+2025-05-14 16:58:50,314 - ihmp_pipeline - ERROR - Error mapping genes: 'Chromosome'
+2025-05-14 16:58:50,314 - ihmp_pipeline - ERROR - Pipeline failed: 'Chromosome'
+2025-05-14 16:59:12,028 - ihmp_pipeline - INFO - Processing files: data/mutation_trends/mutation_trajectories.tsv, data/mutation_trends/mutation_trends.tsv, data/bakta/M2042/M2042.tsv
+2025-05-14 16:59:12,028 - ihmp_pipeline - INFO - Reading gene annotations
+2025-05-14 16:59:12,624 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 16:59:12,751 - ihmp_pipeline - INFO - Merging mutations with trends
+2025-05-14 16:59:12,786 - ihmp_pipeline - INFO - Mapping mutations to genes
+2025-05-14 16:59:13,783 - ihmp_pipeline - INFO - Saved 67857 mapped mutations to data/mutation_trends/mapped_mutations.tsv
+2025-05-14 16:59:13,783 - ihmp_pipeline - INFO - Operation 'map_genes' took 1.76 seconds
+2025-05-14 17:00:09,666 - ihmp_pipeline - INFO - Processing files: data/mutation_trends/mutation_trajectories.tsv, data/mutation_trends/mutation_trends.tsv, data/bakta/M2042/M2042.tsv
+2025-05-14 17:00:09,666 - ihmp_pipeline - INFO - Reading gene annotations
+2025-05-14 17:00:10,223 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:00:10,355 - ihmp_pipeline - INFO - Merging mutations with trends
+2025-05-14 17:00:10,385 - ihmp_pipeline - INFO - Mapping mutations to genes
+2025-05-14 17:00:11,312 - ihmp_pipeline - INFO - Saved 67857 mapped mutations to data/mutation_trends/mapped_mutations.tsv
+2025-05-14 17:00:11,313 - ihmp_pipeline - INFO - Operation 'map_genes' took 1.65 seconds
+2025-05-14 17:18:58,062 - ihmp_pipeline - INFO - Processing files: data/mutation_trends/mutation_trajectories.tsv, data/mutation_trends/mutation_trends.tsv, data/bakta/M2042/M2042.tsv
+2025-05-14 17:18:58,063 - ihmp_pipeline - INFO - Reading gene annotations
+2025-05-14 17:18:58,690 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:18:58,815 - ihmp_pipeline - INFO - Merging mutations with trends
+2025-05-14 17:18:58,847 - ihmp_pipeline - INFO - Mapping mutations to genes
+2025-05-14 17:20:51,149 - ihmp_pipeline - INFO - Processing files: data/mutation_trends/mutation_trajectories.tsv, data/mutation_trends/mutation_trends.tsv, data/bakta/M2042/M2042.tsv
+2025-05-14 17:20:51,149 - ihmp_pipeline - INFO - Reading gene annotations
+2025-05-14 17:20:51,728 - ihmp_pipeline - INFO - Reading mutation data
+2025-05-14 17:20:51,872 - ihmp_pipeline - INFO - Merging mutations with trends
+2025-05-14 17:20:51,903 - ihmp_pipeline - INFO - Mapping mutations to genes

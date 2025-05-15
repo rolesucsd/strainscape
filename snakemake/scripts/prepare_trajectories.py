@@ -1,110 +1,115 @@
 #!/usr/bin/env python3
 """
-Script to prepare mutation trajectories over time.
+Prepare mutation trajectories for visualisation (fast version).
+
+Inputs:
+  – mutations.tsv  (per-sample counts)
+  – trends.tsv     (per-site model fits)
+  – metadata.csv   (Sample ↔ week_num)
+Outputs
+  mutation_trajectories.tsv   (wide table)
+  mutation_trends.tsv         (verbatim copy of trends)
 """
 
-import pandas as pd
-import numpy as np
 from pathlib import Path
-import logging
-from scipy import stats
+import numpy as np, pandas as pd, argparse, logging, sys, os
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-def prepare_trajectory(
-    mutations: pd.DataFrame,
-    metadata: pd.DataFrame
-) -> pd.DataFrame:
-    """
-    Prepare mutation trajectories over time.
-    
-    Args:
-        mutations: DataFrame containing filtered mutation data
-        metadata: DataFrame containing sample metadata
-        
-    Returns:
-        DataFrame containing trajectory analysis results
-    """
-    # Merge mutations with metadata
-    merged = pd.merge(
-        mutations,
-        metadata,
-        on='sample_id',
-        how='inner'
+# ────────────── logging ──────────────
+def setup_logging(logfile=None):
+    fmt = "%(asctime)s %(levelname)s  %(message)s"
+    logging.basicConfig(
+        filename=logfile,
+        level=logging.INFO,
+        format=fmt,
+        datefmt="%H:%M:%S",
+        handlers=[logging.FileHandler(logfile) if logfile else logging.StreamHandler(sys.stderr)]
     )
-    
-    # Sort by timepoint
-    merged = merged.sort_values(['mutation_id', 'timepoint'])
-    
-    # Initialize results
-    trajectories = []
-    
-    # Group by mutation
-    for mutation, group in merged.groupby('mutation_id'):
-        # Calculate trajectory statistics
-        timepoints = group['timepoint'].values
-        frequencies = group['frequency'].values
-        
-        # Calculate slope and intercept
-        slope, intercept, r_value, p_value, std_err = stats.linregress(
-            timepoints,
-            frequencies
-        )
-        
-        # Calculate mean and std of frequency
-        mean_freq = np.mean(frequencies)
-        std_freq = np.std(frequencies)
-        
-        # Calculate frequency change
-        freq_change = frequencies[-1] - frequencies[0]
-        
-        # Store results
-        trajectories.append({
-            'mutation_id': mutation,
-            'slope': slope,
-            'intercept': intercept,
-            'r_squared': r_value ** 2,
-            'p_value': p_value,
-            'std_err': std_err,
-            'mean_frequency': mean_freq,
-            'std_frequency': std_freq,
-            'frequency_change': freq_change,
-            'trajectory_type': 'increasing' if slope > 0 else 'decreasing' if slope < 0 else 'stable'
-        })
-    
-    return pd.DataFrame(trajectories)
+    return logging.getLogger("prepare_trajectories")
 
-def main():
-    """Main function."""
-    # Get input and output files from Snakemake
-    mutations_file = snakemake.input.mutations
-    metadata_file = snakemake.input.metadata
-    output_file = snakemake.output.trajectories
-    
-    try:
-        # Load data
-        logger.info("Loading mutation data and metadata")
-        mutations = pd.read_csv(mutations_file)
-        metadata = pd.read_csv(metadata_file)
-        
-        # Prepare trajectories
-        logger.info("Preparing mutation trajectories")
-        trajectories = prepare_trajectory(mutations, metadata)
-        
-        # Save results
-        logger.info(f"Saving trajectory analysis to {output_file}")
-        trajectories.to_csv(output_file, index=False)
-        
-        logger.info("Trajectory analysis completed successfully")
-        
-    except Exception as e:
-        logger.error(f"Error in trajectory analysis: {str(e)}")
-        raise
+logger = setup_logging()
 
-if __name__ == '__main__':
-    main() 
+# ─────────── main routine ────────────
+def prepare_trajectories_fast(muts_f, trends_f, meta_f, out_dir):
+    logger.info("Reading tables …")
+    meta   = (pd.read_csv(meta_f, usecols=["External.ID", "week_num"])
+                .rename(columns={"External.ID": "Sample"}))
+
+    trends = pd.read_csv(trends_f, sep="\t")
+
+    muts   = pd.read_csv(muts_f,   sep="\t")
+
+    # ── restrict to sites present in trends ──
+    muts = muts.merge(
+        trends[["scaffold", "position"]].drop_duplicates(),
+        on=["scaffold", "position"],
+        how="inner",
+    )
+
+    # ── merge metadata ──
+    muts = (muts.merge(meta,  on="Sample", how="left")
+                  .dropna(subset=["week_num"]))
+    muts["week_num"] = muts["week_num"].astype(int)
+
+    # ── compute alt-allele freq vectorised ──
+    base_cols = ["A", "C", "G", "T"]
+    base_to_idx = dict(zip(base_cols, range(len(base_cols))))
+
+    counts = muts[base_cols].to_numpy(dtype=float)
+    idx    = muts["new_base"].map(base_to_idx).to_numpy(int, na_value=-1)
+
+    freq = np.full(len(muts), np.nan, dtype=float)
+    valid = idx >= 0
+    freq[valid] = counts[np.arange(len(muts))[valid], idx[valid]] / muts.loc[valid, "position_coverage"]
+    muts["Value"] = freq
+
+    # ── reshape to wide trajectory table ──
+    key_cols = ["scaffold", "position", "ref_base", "new_base"]
+    traj = (muts
+            .loc[:, key_cols + ["week_num", "Value"]]
+            .dropna(subset=["Value"])
+            .pivot_table(index=key_cols,
+                         columns="week_num",
+                         values="Value",
+                         aggfunc="first")
+            .reset_index())
+
+    # add mutation type & model fits
+    traj["Type"] = traj["ref_base"] + ">" + traj["new_base"]
+    traj = traj.merge(
+        trends.rename(columns={"slope": "OLS_slope", "p_value": "OLS_pvalue",
+                               "r_squared": "OLS_fit"}),
+        on=["scaffold", "position"],
+        how="left",
+    )
+
+    # final tidy / column order
+    numeric_cols = sorted(c for c in traj.columns if isinstance(c, (int, np.integer)))
+    ordered = (["scaffold", "position", "ref_base", "new_base", "Type",
+                "OLS_slope", "OLS_pvalue", "OLS_fit"] + numeric_cols)
+    traj = traj[[c for c in ordered if c in traj]]
+
+    # ── write outputs ──
+    out_dir.mkdir(parents=True, exist_ok=True)
+    traj.to_csv(out_dir / "mutation_trajectories.tsv", sep="\t", index=False)
+    trends.to_csv(out_dir / "mutation_trends.tsv",       sep="\t", index=False)
+
+    logger.info(f"Trajectories: {len(traj):,} rows → {out_dir/'mutation_trajectories.tsv'}")
+
+
+# ───────────── CLI ─────────────
+if __name__ == "__main__":
+    p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p.add_argument("--mutation_file", required=True)
+    p.add_argument("--trends_file",    required=True)
+    p.add_argument("--metadata_file",  required=True)
+    p.add_argument("--output_dir",     required=True)
+    p.add_argument("--log_file")
+    args = p.parse_args()
+
+    if args.log_file:
+        logger = setup_logging(args.log_file)
+
+    prepare_trajectories_fast(Path(args.mutation_file),
+                              Path(args.trends_file),
+                              Path(args.metadata_file),
+                              Path(args.output_dir))

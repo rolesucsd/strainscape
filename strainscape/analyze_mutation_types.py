@@ -58,7 +58,7 @@ def get_mutation_type(row: pd.Series, sequences: Dict[str, str], translation_tab
     """
     # intergenic fast-exit
     if row.get("coding") == "intergenic":
-        return ("Silent", "Non-Coding")
+        return ("Intergenic", "Non-Coding")
 
     start = int(row["Matched_Start"])
     stop = int(row["Matched_Stop"])

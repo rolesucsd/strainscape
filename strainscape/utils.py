@@ -15,21 +15,21 @@ import pandas as pd
 from functools import lru_cache
 import time
 
-def setup_logging(log_file: Optional[Path] = None) -> None:
+def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
     """Set up logging configuration.
     
     Args:
         log_file: Optional path to write log file. If None, logs to stderr.
         
     Returns:
-        None. Configures the root logger with appropriate handlers.
+        Logger instance configured with appropriate handlers.
     """
     # Get the root logger
     logger = logging.getLogger()
     
     # If logger already has handlers, don't add more
     if logger.handlers:
-        return
+        return logger
         
     # Set basic configuration
     logger.setLevel(logging.INFO)
@@ -49,6 +49,8 @@ def setup_logging(log_file: Optional[Path] = None) -> None:
         file_handler = logging.FileHandler(log_file)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
+
+    return logger
 
 def get_logger(name: str) -> logging.Logger:
     """Get a logger instance for a module.

@@ -17,11 +17,8 @@ def test_filter_mutations():
     # Run the merge_snv_info function
     filter_mutations_file(
         snv_file=snv_file,
-        processed_scaffold_file=processed_scaffold_file,
         output_file=output_file,
-        threads=4,
-        chunksize=10000,
-        log_file=log_file
+        min_coverage=10
     )
 
     # Verify the output file exists
@@ -32,5 +29,4 @@ def test_filter_mutations():
     assert not df.empty, "Output file is empty."
 
     # Clean up
-    os.remove(output_file)
-    os.remove(log_file) 
+    os.remove(output_file) 

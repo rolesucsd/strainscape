@@ -52,13 +52,18 @@ def process(scaffold_info, stb_file, meta_csv, bin_dir, output_file, min_length=
         min_breadth: Minimum breadth
         log: Logger instance
     """
+    # Ensure bin_dir is a Path object
+    bin_dir = Path(bin_dir)
+
     # Define metadata columns to keep
-    meta_keep = [
+    essential_cols = [
         'External.ID',
         'week_num',
         'Participant ID',
+        'diagnosis'
+    ]
+    optional_cols = [
         'sex',
-        'diagnosis',
         'Height',
         'Weight',
         'BMI',
@@ -67,7 +72,19 @@ def process(scaffold_info, stb_file, meta_csv, bin_dir, output_file, min_length=
         'Antibiotics',
         'Immunosuppressants (e.g. oral corticosteroids)'
     ]
-    
+    # Read the header to determine which columns are present
+    with open(meta_csv, 'r') as f:
+        header = f.readline().strip().split(',')
+    meta_keep = [col for col in essential_cols if col in header]
+    missing_essentials = [col for col in essential_cols if col not in header]
+    if missing_essentials:
+        raise ValueError(f"Missing required metadata columns: {missing_essentials}")
+    # Add optional columns that are present
+    meta_keep += [col for col in optional_cols if col in header]
+    missing_optional = [col for col in optional_cols if col not in header]
+    if missing_optional:
+        log = log or logger
+        log.warning(f"Optional metadata columns missing and will be skipped: {missing_optional}")
     # Load metadata
     meta = pd.read_csv(meta_csv, usecols=meta_keep, dtype=str)
     

@@ -216,9 +216,9 @@ def test_load_config(tmp_path):
     assert "patient1" in config["samples"]
 
 def test_get_samples(monkeypatch):
-    monkeypatch.setattr("snakemake.scripts.utils.load_config", lambda _: {"samples": {"patient1": {"sample1": "file1.txt"}}})
-    samples = get_samples("patient1")
-    assert "sample1" in samples
+    monkeypatch.setattr("strainscape.utils.load_config", lambda _: {"samples": {"patient1": {"sample1": "file1.txt"}}})
+    result = get_samples("patient1")
+    assert result == {"sample1": "file1.txt"}
 
 def test_read_large_csv(tmp_path):
     csv_file = tmp_path / "big.csv"

@@ -1,7 +1,7 @@
 import pandas as pd
 import tempfile
 from pathlib import Path
-from snakemake.scripts.prepare_trajectories import prepare_trajectories_fast
+from strainscape.prepare_trajectories import prepare_trajectories_fast
 
 def test_prepare_trajectories_fast():
     with tempfile.TemporaryDirectory() as tmpdir:

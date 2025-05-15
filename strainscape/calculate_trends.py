@@ -16,16 +16,10 @@ from pathlib import Path
 import logging, argparse, sys
 import numpy as np, pandas as pd
 from scipy.stats import t
+from strainscape.utils import setup_logging, get_logger
 
-# ────────── logging ──────────
-def setup_logger(logfile=None):
-    fmt = "%(asctime)s %(levelname)s  %(message)s"
-    hdlr = logging.FileHandler(logfile) if logfile else logging.StreamHandler(sys.stderr)
-    logging.basicConfig(level=logging.INFO, format=fmt, handlers=[hdlr])
-    return logging.getLogger("trend")
-
-log = setup_logger()
-
+# Get module logger
+logger = get_logger(__name__)
 
 # ────────── main routine ──────────
 def calc_trends_fast(muts_f  : Path,
@@ -34,13 +28,13 @@ def calc_trends_fast(muts_f  : Path,
                      min_slope=0.01,
                      p_thr    =0.05):
 
-    log.info("Load metadata")
+    logger.info("Load metadata")
     meta = (pd.read_csv(meta_f, usecols=["External.ID", "week_num"])
               .rename(columns={"External.ID":"Sample"})
               .drop_duplicates("Sample"))
     meta["week_num"] = meta["week_num"].astype(int)
 
-    log.info("Load mutations")
+    logger.info("Load mutations")
     muts = pd.read_csv(muts_f, sep="\t",
                        usecols=["scaffold","position","Sample",
                                 "ref_base","position_coverage",
@@ -82,7 +76,7 @@ def calc_trends_fast(muts_f  : Path,
     mat  = mat[var>0]
     wide = wide.iloc[var>0]
 
-    log.info(f"Sites for regression: {len(wide):,}")
+    logger.info(f"Sites for regression: {len(wide):,}")
 
     # ── closed-form OLS y = a + b x ──
     x   = week_cols.astype(float)
@@ -120,9 +114,9 @@ def calc_trends_fast(muts_f  : Path,
 
     # ── filter by slope & p ──
     out = res[(np.abs(res["slope"])>=min_slope) & (res["p_value"]<=p_thr)]
-    log.info(f"Significant: {len(out):,}")
+    logger.info(f"Significant: {len(out):,}")
     out.to_csv(out_f, sep="\t", index=False)
-    log.info(f"Saved → {out_f}")
+    logger.info(f"Saved → {out_f}")
 
 
 # ───────────── CLI ─────────────
@@ -137,7 +131,7 @@ if __name__ == "__main__":
     args = ap.parse_args()
 
     if args.log_file:
-        log = setup_logger(args.log_file)
+        setup_logging(args.log_file)
 
     calc_trends_fast(Path(args.mutation_file),
                      Path(args.metadata_file),

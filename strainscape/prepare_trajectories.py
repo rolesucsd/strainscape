@@ -13,20 +13,10 @@ Outputs
 
 from pathlib import Path
 import numpy as np, pandas as pd, argparse, logging, sys, os
+from strainscape.utils import setup_logging, get_logger
 
-# ────────────── logging ──────────────
-def setup_logging(logfile=None):
-    fmt = "%(asctime)s %(levelname)s  %(message)s"
-    logging.basicConfig(
-        filename=logfile,
-        level=logging.INFO,
-        format=fmt,
-        datefmt="%H:%M:%S",
-        handlers=[logging.FileHandler(logfile) if logfile else logging.StreamHandler(sys.stderr)]
-    )
-    return logging.getLogger("prepare_trajectories")
-
-logger = setup_logging()
+# Get module logger
+logger = get_logger(__name__)
 
 # ─────────── main routine ────────────
 def prepare_trajectories_fast(muts_f, trends_f, meta_f, out_dir):
@@ -107,7 +97,7 @@ if __name__ == "__main__":
     args = p.parse_args()
 
     if args.log_file:
-        logger = setup_logging(args.log_file)
+        setup_logging(args.log_file)
 
     prepare_trajectories_fast(Path(args.mutation_file),
                               Path(args.trends_file),

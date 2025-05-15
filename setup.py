@@ -3,20 +3,13 @@ from setuptools import setup, find_packages
 setup(
     name="strainscape",
     version="0.1.0",
-    packages=find_packages(where="src/python"),
-    package_dir={"": "src/python"},
+    packages=find_packages(include=["strainscape", "strainscape.*"]),
     install_requires=[
         "pandas",
         "intervaltree",
         "numpy",
         "snakemake",
     ],
-    entry_points={
-        'console_scripts': [
-            'create-trees=strainscape.trees:main',
-            'summarize-coverage=strainscape.coverage:main',
-        ],
-    },
     author="Renee Oles",
     description="A toolkit for analyzing strain evolution in microbiome data",
     long_description=open("README.md").read(),

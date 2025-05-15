@@ -1,32 +1,80 @@
 #!/usr/bin/env python3
 """
 Fast mapping of SNVs to Bakta genes (+nearest upstream / downstream).
+
+This module provides functions to map mutations to genes and their surrounding
+regions using Bakta gene annotations. It identifies whether mutations are
+genic or intergenic and finds the nearest upstream and downstream genes.
 """
 
 from pathlib import Path
 import pandas as pd
 import numpy as np
 import logging, argparse, sys
+from typing import Dict, List, Optional, Tuple
+from strainscape.utils import setup_logging, get_logger
 
-# ───────────────────────── helpers ──────────────────────────
-def setup_logging():
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s  %(message)s",
-        datefmt="%H:%M:%S",
-        stream=sys.stderr,
-    )
-    return logging.getLogger("map_genes")
-
-logger = setup_logging()
-
+# Get module logger
+logger = get_logger(__name__)
 
 # ──────────────────────── core function ─────────────────────
 def map_genes_fast(mut_file: Path,
                    trend_file: Path,
                    gene_file: Path,
                    out_file: Path) -> None:
-    """Vectorised, memory-light mapping."""
+    """Map mutations to genes and their surrounding regions.
+    
+    Args:
+        mut_file: Path to TSV file containing mutation data with columns:
+            - Chromosome: str, chromosome/scaffold name
+            - Position: int, 1-based position
+            - ref_base: str, reference base
+            - new_base: str, alternate base
+            - A/C/G/T: int, base counts
+            - position_coverage: int, total coverage
+        trend_file: Path to TSV file containing trend data with columns:
+            - scaffold: str, chromosome/scaffold name
+            - position: int, 1-based position
+            - ref_base: str, reference base
+            - new_base: str, alternate base
+        gene_file: Path to Bakta gene annotation file with columns:
+            - Sequence Id: str, chromosome/scaffold name
+            - Type: str, feature type (e.g. "CDS")
+            - Start: int, gene start position
+            - Stop: int, gene stop position
+            - Strand: str, "+" or "-"
+            - Locus Tag: str, gene identifier
+            - Gene: str, gene name
+            - Product: str, gene product
+        out_file: Path to output TSV file.
+        
+    Returns:
+        None. Writes results to out_file with columns:
+            - Chromosome: str, chromosome/scaffold name
+            - Position: int, 1-based position
+            - ref_base: str, reference base
+            - new_base: str, alternate base
+            - gene_type: str, "genic" or "intergenic"
+            - Type: str, gene type
+            - Start: int, gene start position
+            - Stop: int, gene stop position
+            - Strand: str, "+" or "-"
+            - Locus Tag: str, gene identifier
+            - Gene: str, gene name
+            - Product: str, gene product
+            - Start_up: int, upstream gene start
+            - Stop_up: int, upstream gene stop
+            - Strand_up: str, upstream gene strand
+            - Locus Tag_up: str, upstream gene identifier
+            - Gene_up: str, upstream gene name
+            - Product_up: str, upstream gene product
+            - Start_dn: int, downstream gene start
+            - Stop_dn: int, downstream gene stop
+            - Strand_dn: str, downstream gene strand
+            - Locus Tag_dn: str, downstream gene identifier
+            - Gene_dn: str, downstream gene name
+            - Product_dn: str, downstream gene product
+    """
     logger.info("Loading data …")
     muts   = pd.read_csv(mut_file,   sep="\t")
     trends = pd.read_csv(trend_file, sep="\t")

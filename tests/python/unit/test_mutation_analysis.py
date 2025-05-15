@@ -8,8 +8,8 @@ import pandas as pd
 import numpy as np
 from Bio.Seq import Seq
 from pathlib import Path
-from snakemake.scripts.filter_mutations import filter_mutations_df
-from snakemake.scripts.analyze_mutation_types import get_mutation_type, analyze_mutation_types
+from strainscape.filter_mutations import filter_mutations_df
+from strainscape.analyze_mutation_types import get_mutation_type, analyze_mutation_types
 
 @pytest.fixture
 def sample_mutation_data():

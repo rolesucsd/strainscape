@@ -22,7 +22,7 @@ def combine_flagstats(base_dir, out_file):
     # Create/truncate output file
     with open(out_file, 'w') as out:
         # Write header
-        out.write("Percentage\tFilename\tSample\n")
+        out.write("MappedFraction\tFilename\tSample\n")
         
         # Loop through each flagstat file
         base_path = Path(base_dir)
@@ -33,14 +33,12 @@ def combine_flagstats(base_dir, out_file):
                     for line in f:
                         if 'mapped (' in line:
                             # Extract percentage
-                            match = re.search(r'\(([0-9.]+%)', line)
+                            match = re.search(r'\(([0-9.]+)\s*%\)', line)
                             if match:
-                                pct = match.group(1)
-                                # Get filename and sample folder
+                                pct_float = float(match.group(1)) / 100.0
                                 fname = flagstat_file.name
                                 folder = flagstat_file.parent.parent.name
-                                # Write to output
-                                out.write(f"{pct}\t{fname}\t{folder}\n")
+                                out.write(f"{pct_float}\t{fname}\t{folder}\n")
                             break
             except Exception as e:
                 print(f"Error processing {flagstat_file}: {e}", file=sys.stderr)

@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """
-Process inStrain scaffold_info + STB + sample metadata.
+Process scaffold information and map mutations to scaffolds.
 
-Steps
-─────
-1.  Build one small DF mapping scaffold ↦ bin (from *.fa in bin_dir)
-2.  Merge with STB  (adds Patient-/Sample-ID)
-3.  Merge with scaffold_info.tsv, apply length / coverage / breadth filters
-4.  Merge once with metadata (selected columns only)
-5.  Write filtered table + log summary stats
+This module provides functions to process scaffold information and map mutations
+to their corresponding scaffolds. It handles scaffold mapping files and
+generates detailed output about mutation locations relative to scaffolds.
+
+Inputs:
+  - scaffold_info.tsv: Scaffold mapping information
+  - snv_info.tsv: Mutation information
+  - assembly.stb: Scaffold to bin mapping
+Outputs:
+  - mapped_mutations.tsv: Mutations mapped to scaffolds with additional information
 """
 
 from pathlib import Path
@@ -16,15 +19,11 @@ import pandas as pd
 import numpy as np
 from Bio import SeqIO
 import argparse, logging, sys, textwrap
-from typing import Optional
+from typing import Dict, List, Optional, Tuple, Union
+from strainscape.utils import setup_logging, get_logger
 
-# ────────────────── logging ──────────────────
-def setup_logger(logf):
-    fmt = "%(asctime)s %(levelname)s  %(message)s"
-    h = logging.FileHandler(logf)
-    logging.basicConfig(level=logging.INFO, format=fmt, handlers=[h, logging.StreamHandler(sys.stderr)])
-    return logging.getLogger("scaff")
-
+# Get module logger
+logger = get_logger(__name__)
 
 # ────────── helper: build bin<->scaffold DF (no temp file) ──────────
 def bin_dataframe(bin_dir: Path, log: logging.Logger) -> pd.DataFrame:
@@ -79,7 +78,7 @@ def process(scaffold_info, stb_file, meta_csv, bin_dir, output_file, min_length=
     })
 
     if log is None:                         # Fallback logger
-        log = logging.getLogger("scaff")
+        log = logger
 
     # 1. bin map -------------------------------------------------------------
     bin_df = bin_dataframe(bin_dir, log)
@@ -151,9 +150,7 @@ def process_scaffolds(
         log_file: Optional path to log file
     """
     if log_file:
-        logger = setup_logger(log_file)
-    else:
-        logger = logging.getLogger("process_scaffolds")
+        setup_logging(log_file)
     
     process(
         scaffold_info=scaffold_file,

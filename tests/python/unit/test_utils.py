@@ -11,11 +11,8 @@ from pathlib import Path
 import tempfile
 import os
 
-# Add the directory containing the Snakemake scripts to the Python path
-sys.path.append(str(Path(__file__).parent.parent.parent / "snakemake" / "scripts"))
-
 # Import the functions to test
-from snakemake.scripts.utils import (
+from strainscape.utils import (
     load_data,
     save_data,
     filter_data,

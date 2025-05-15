@@ -1,14 +1,14 @@
 import os
 import pytest
 import pandas as pd
-from snakemake.scripts.filter_mutations import filter_mutations as filter_mutations_file
+from strainscape.filter_mutations import filter_mutations as filter_mutations_file
 
 def test_filter_mutations():
     # Sample input files
-    snv_file = 'data/instrain/M2042/combined/snv_info.tsv'
-    processed_scaffold_file = 'data/instrain/M2042/processed_scaffolds.tsv'
-    output_file = 'data/instrain/M2042/filtered_mutations_test.tsv'
-    log_file = 'logs/instrain/M2042/filter_mutations_test.log'
+    snv_file = 'tests/python/unit/data/instrain/M2042/combined/snv_info.tsv'
+    processed_scaffold_file = 'tests/python/unit/data/instrain/M2042/processed_scaffolds.tsv'
+    output_file = 'tests/python/unit/data/instrain/M2042/filtered_mutations_test.tsv'
+    log_file = 'tests/python/unit/logs/instrain/M2042/filter_mutations_test.log'
 
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_file), exist_ok=True)

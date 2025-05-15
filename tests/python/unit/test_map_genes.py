@@ -2,7 +2,7 @@ import pandas as pd
 import tempfile
 import os
 from pathlib import Path
-from snakemake.scripts.map_genes import map_genes_fast
+from strainscape.map_genes import map_genes_fast
 
 def test_map_genes_fast():
     # Create dummy mutation, trend, and gene files

@@ -1,11 +1,11 @@
 import os
 import pandas as pd
 import pytest
-from snakemake.scripts.process_scaffolds import process_scaffolds
+from strainscape.process_scaffolds import process_scaffolds
 import tempfile
 from pathlib import Path
 import logging
-from snakemake.scripts.process_scaffolds import process
+from strainscape.process_scaffolds import process
 
 def test_process_scaffolds():
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -69,12 +69,12 @@ def test_process_scaffolds():
         assert not df.empty
 
     # Sample input files
-    scaffold_file = 'data/instrain/M2042/combined/scaffold_info.tsv'
-    stb_file = 'data/assembly/M2042/assembly.stb'
-    metadata_file = 'input/metadata/hmp2_metadata_2018-08-20.csv'
-    bin_dir = 'data/bins/M2042'
-    output_file = 'data/instrain/M2042/processed_scaffolds_test.tsv'
-    log_file = 'logs/instrain/M2042/process_scaffolds_test.log'
+    scaffold_file = 'tests/python/unit/data/instrain/M2042/combined/scaffold_info.tsv'
+    stb_file = 'tests/python/unit/data/assembly/M2042/assembly.stb'
+    metadata_file = 'tests/python/unit/input/metadata/hmp2_metadata_2018-08-20.csv'
+    bin_dir = 'tests/python/unit/data/bins/M2042'
+    output_file = 'tests/python/unit/data/instrain/M2042/processed_scaffolds_test.tsv'
+    log_file = 'tests/python/unit/logs/instrain/M2042/process_scaffolds_test.log'
 
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_file), exist_ok=True)

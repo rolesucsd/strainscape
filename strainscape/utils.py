@@ -1,5 +1,9 @@
+#!/usr/bin/env python3
 """
-Utility functions and logging configuration for the iHMP pipeline.
+Utility functions for the strainscape package.
+
+This module provides common utility functions used across the strainscape package,
+including logging setup, file operations, and data processing helpers.
 """
 
 import logging
@@ -11,38 +15,113 @@ import pandas as pd
 from functools import lru_cache
 import time
 
-# Configure logging
-def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
-    """
-    Set up logging configuration for the pipeline.
+def setup_logging(log_file: Optional[Path] = None) -> None:
+    """Set up logging configuration.
     
     Args:
-        log_file: Optional path to log file. If None, logs to console only.
-        level: Logging level (default: INFO)
-    
+        log_file: Optional path to write log file. If None, logs to stderr.
+        
     Returns:
-        Logger instance
+        None. Configures the root logger with appropriate handlers.
     """
-    logger = logging.getLogger('ihmp_pipeline')
-    logger.setLevel(level)
+    # Get the root logger
+    logger = logging.getLogger()
+    
+    # If logger already has handlers, don't add more
+    if logger.handlers:
+        return
+        
+    # Set basic configuration
+    logger.setLevel(logging.INFO)
     
     # Create formatter
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    # Console handler
+    # Add console handler
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
     
-    # File handler if log_file specified
+    # Add file handler if log_file specified
     if log_file:
         file_handler = logging.FileHandler(log_file)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
+
+def get_logger(name: str) -> logging.Logger:
+    """Get a logger instance for a module.
     
-    return logger
+    Args:
+        name: Name of the module (typically __name__)
+        
+    Returns:
+        Logger instance configured with the module's name
+    """
+    return logging.getLogger(name)
+
+def ensure_dir(directory: Path) -> None:
+    """Ensure a directory exists, creating it if necessary.
+    
+    Args:
+        directory: Path to the directory to ensure exists
+        
+    Returns:
+        None. Creates the directory if it doesn't exist.
+    """
+    directory.mkdir(parents=True, exist_ok=True)
+
+def safe_divide(a: float, b: float) -> float:
+    """Safely divide two numbers, returning 0 if denominator is 0.
+    
+    Args:
+        a: Numerator
+        b: Denominator
+        
+    Returns:
+        a/b if b != 0, else 0
+    """
+    return a / b if b != 0 else 0
+
+def format_percentage(value: float) -> str:
+    """Format a float as a percentage string.
+    
+    Args:
+        value: Float to format (e.g. 0.123 for 12.3%)
+        
+    Returns:
+        String formatted as percentage with 1 decimal place
+    """
+    return f"{value * 100:.1f}%"
+
+def parse_float(value: str) -> Optional[float]:
+    """Parse a string to float, returning None if invalid.
+    
+    Args:
+        value: String to parse
+        
+    Returns:
+        Float value if valid, None if invalid
+    """
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return None
+
+def parse_int(value: str) -> Optional[int]:
+    """Parse a string to integer, returning None if invalid.
+    
+    Args:
+        value: String to parse
+        
+    Returns:
+        Integer value if valid, None if invalid
+    """
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return None
 
 # Performance monitoring
 class PerformanceMonitor:
@@ -201,7 +280,7 @@ def read_large_csv(file_path: str, chunksize: int = 10000) -> pd.DataFrame:
         chunks.append(chunk)
     return pd.concat(chunks, ignore_index=True)
 
-# Create logger instance
+# Create root logger instance
 logger = setup_logging()
 
 def get_output_path(base_path, patient, sample=None, suffix=None):

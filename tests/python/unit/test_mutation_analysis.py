@@ -44,24 +44,6 @@ def sample_sequences():
         'chr2': 'GCTAGCTAGCTAGCTAGCTA'
     }
 
-# def test_filter_mutations():
-#     """Test mutation filtering function."""
-#     # Create sample data
-#     mutations = pd.DataFrame({
-#         'mutation_id': ['mut1', 'mut2', 'mut3'],
-#         'coverage': [100, 50, 200],
-#         'frequency': [0.8, 0.3, 0.9]
-#     })
-#     
-#     # Test filtering
-#     filtered = filter_mutations_df(mutations, min_coverage=60, min_freq=0.4)
-#     
-#     # Check results
-#     assert len(filtered) == 2
-#     assert 'mut1' in filtered['mutation_id'].values
-#     assert 'mut3' in filtered['mutation_id'].values
-#     assert 'mut2' not in filtered['mutation_id'].values
-
 def test_get_mutation_type(sample_mutation_data, sample_sequences):
     """Test mutation type determination."""
     # Test silent mutation

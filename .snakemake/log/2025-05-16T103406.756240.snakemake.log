@@ -1,0 +1,3 @@
+NameError in file /Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk, line 109:
+name 'processed_scaffolds' is not defined
+  File "/Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk", line 109, in <module>

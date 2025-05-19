@@ -1,0 +1,4 @@
+Building DAG of jobs...
+WildcardError in rule all in file /Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk, line 16:
+Wildcards in input files cannot be determined from output files:
+'patient'

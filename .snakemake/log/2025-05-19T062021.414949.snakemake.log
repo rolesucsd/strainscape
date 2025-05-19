@@ -1,0 +1,29 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                       count
+----------------------  -------
+all                           1
+analyze_mutation_types        1
+calculate_trends              1
+map_genes                     1
+merge_snv_info                1
+prepare_trajectories          1
+total                         6
+
+Select jobs to execute...
+
+[Mon May 19 06:20:21 2025]
+rule merge_snv_info:
+    input: /Users/reneeoles/Desktop/input/instrain/M2069/combined_SNV_info.tsv, /Users/reneeoles/Desktop/input/hmp2_metadata_2018-08-20.csv, /Users/reneeoles/Desktop/input/instrain/M2069/processed_scaffolds.txt
+    output: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered.txt
+    log: /Users/reneeoles/Desktop/input/logs/merge_info_M2069.log
+    jobid: 3
+    reason: Forced execution
+    wildcards: patient=M2069
+    resources: tmpdir=/var/folders/mc/c6ndbtvn6kn2jyz7c6ymt42h0000gn/T, mem_mb=16000, mem_mib=15259, threads=4
+
+Terminating processes on user request, this might take some time.
+Cancelling snakemake on user request.

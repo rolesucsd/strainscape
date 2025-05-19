@@ -1,0 +1,48 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                       count
+----------------------  -------
+all                           1
+analyze_mutation_types        1
+calculate_trends              1
+map_genes                     1
+merge_snv_info                1
+prepare_trajectories          1
+process_scaffolds             1
+total                         7
+
+Select jobs to execute...
+
+[Mon May 19 06:00:31 2025]
+rule process_scaffolds:
+    input: /Users/reneeoles/Desktop/input/instrain/M2069/combined_scaffold_info.tsv, /Users/reneeoles/Desktop/input/bins/M2069/bin.txt
+    output: /Users/reneeoles/Desktop/input/instrain/M2069/processed_scaffolds.txt
+    log: /Users/reneeoles/Desktop/input/logs/process_scaffolds_M2069.log
+    jobid: 4
+    reason: Missing output files: /Users/reneeoles/Desktop/input/instrain/M2069/processed_scaffolds.txt
+    wildcards: patient=M2069
+    resources: tmpdir=/var/folders/mc/c6ndbtvn6kn2jyz7c6ymt42h0000gn/T, mem_mb=16000, mem_mib=15259, threads=4
+
+[Mon May 19 06:00:33 2025]
+Finished job 4.
+1 of 7 steps (14%) done
+Select jobs to execute...
+
+[Mon May 19 06:00:33 2025]
+rule merge_snv_info:
+    input: /Users/reneeoles/Desktop/input/instrain/M2069/combined_SNV_info.tsv, /Users/reneeoles/Desktop/input/hmp2_metadata_2018-08-20.csv, /Users/reneeoles/Desktop/input/instrain/M2069/processed_scaffolds.txt
+    output: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered.txt
+    log: /Users/reneeoles/Desktop/input/logs/merge_snv_info_M2069.log
+    jobid: 3
+    reason: Missing output files: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered.txt; Input files updated by another job: /Users/reneeoles/Desktop/input/instrain/M2069/processed_scaffolds.txt
+    wildcards: patient=M2069
+    resources: tmpdir=/var/folders/mc/c6ndbtvn6kn2jyz7c6ymt42h0000gn/T, mem_mb=16000, mem_mib=15259, threads=4
+
+RuleException in rule merge_snv_info in file /Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk, line 75:
+AttributeError: 'InputFiles' object has no attribute 'processed_scaffolds_file', when formatting the following:
+
+        python strainscape/filter_mutations.py             --snv-file {input.snv_file}             --output-file {output.filtered_file}             --metadata-file {input.metadata_file}             --processed-scaffolds-file {input.processed_scaffolds_file}             --log-file {log} 2>&1
+        

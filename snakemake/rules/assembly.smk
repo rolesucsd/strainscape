@@ -16,7 +16,7 @@ Dependencies:
 """
 
 # Import wildcard functions
-from scripts.wildcards import COASSEMBLY, FILTERED_CONTIGS, STB_FILE, ASSEMBLY_DIR, REF_BAKTA_DIR, BAKTA_TSV
+from scripts.wildcards import COASSEMBLY, FILTERED_CONTIGS, STB_FILE, ASSEMBLY_DIR, REF_BAKTA_DIR, BAKTA_TSV, BAKTA_FNA
 
 rule megahit_coassembly:
     """
@@ -115,19 +115,22 @@ rule bakta_coassembly:
     Annotate assembly using Bakta.
     
     This rule performs gene annotation on the filtered assembly using Bakta.
-   
+    It generates both a TSV file with gene annotations and a FNA file with
+    the annotated sequences.
     
     Input:
         fa: Filtered assembly file
     Output:
         tsv: Bakta annotation file
+        fna: Bakta annotated sequences file
     Resources:
         mem: 50GB
     """
     input: 
         fa = FILTERED_CONTIGS("{patient}")
     output: 
-        BAKTA_TSV("{patient}")
+        tsv = BAKTA_TSV("{patient}"),
+        fna = BAKTA_FNA("{patient}")
     params:
         db = config["reference"]["bakta_db"],
         outdir = REF_BAKTA_DIR("{patient}"),
@@ -136,5 +139,7 @@ rule bakta_coassembly:
         config['conda_envs']['annotation']
     resources: mem = "50G"
     shell:
-        "mkdir -p {params.outdir} && bakta --db {params.db} --output {params.outdir} "
-        "--prefix {params.prefix} --keep-contig-headers --force {input.fa}"
+        """
+        mkdir -p {params.outdir} && bakta --db {params.db} --output {params.outdir} \
+            --prefix {params.prefix} --keep-contig-headers --force {input.fa}
+        """

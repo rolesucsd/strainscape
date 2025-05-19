@@ -1,0 +1,70 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                       count
+----------------------  -------
+all                           1
+analyze_mutation_types        1
+calculate_trends              1
+map_genes                     1
+total                         4
+
+Select jobs to execute...
+
+[Mon May 19 07:05:00 2025]
+rule calculate_trends:
+    input: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered.txt
+    output: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend.txt
+    log: /Users/reneeoles/Desktop/input/logs/calculate_trends_M2069.log
+    jobid: 2
+    reason: Missing output files: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend.txt
+    wildcards: patient=M2069
+    resources: tmpdir=/var/folders/mc/c6ndbtvn6kn2jyz7c6ymt42h0000gn/T
+
+[Mon May 19 07:05:06 2025]
+Finished job 2.
+1 of 4 steps (25%) done
+Select jobs to execute...
+
+[Mon May 19 07:05:06 2025]
+rule map_genes:
+    input: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend.txt, /Users/reneeoles/Desktop/input/bakta/M2069/M2069.tsv
+    output: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend_trajectory_mapped.txt
+    log: /Users/reneeoles/Desktop/input/logs/map_genes_M2069.log
+    jobid: 1
+    reason: Missing output files: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend_trajectory_mapped.txt; Input files updated by another job: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend.txt
+    wildcards: patient=M2069
+    resources: tmpdir=/var/folders/mc/c6ndbtvn6kn2jyz7c6ymt42h0000gn/T, mem_mb=16000, mem_mib=15259, threads=4
+
+[Mon May 19 07:05:12 2025]
+Finished job 1.
+2 of 4 steps (50%) done
+Select jobs to execute...
+
+[Mon May 19 07:05:12 2025]
+rule analyze_mutation_types:
+    input: /Users/reneeoles/Desktop/input/bakta/M2069/M2069.fna, /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend_trajectory_mapped.txt
+    output: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend_trajectory_mapped_types.txt
+    jobid: 5
+    reason: Missing output files: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend_trajectory_mapped_types.txt; Input files updated by another job: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend_trajectory_mapped.txt
+    wildcards: patient=M2069
+    resources: tmpdir=/var/folders/mc/c6ndbtvn6kn2jyz7c6ymt42h0000gn/T
+
+[Mon May 19 07:05:13 2025]
+Finished job 5.
+3 of 4 steps (75%) done
+Select jobs to execute...
+
+[Mon May 19 07:05:13 2025]
+localrule all:
+    input: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend_trajectory_mapped.txt, /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend_trajectory_mapped_types.txt
+    jobid: 0
+    reason: Input files updated by another job: /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend_trajectory_mapped_types.txt, /Users/reneeoles/Desktop/input/instrain/M2069/SNV_filtered_trend_trajectory_mapped.txt
+    resources: tmpdir=/var/folders/mc/c6ndbtvn6kn2jyz7c6ymt42h0000gn/T
+
+[Mon May 19 07:05:13 2025]
+Finished job 0.
+4 of 4 steps (100%) done
+Complete log: .snakemake/log/2025-05-19T070500.535506.snakemake.log

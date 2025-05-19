@@ -1,0 +1,3 @@
+NameError in file /Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk, line 57:
+name 'PROCESSED_SCAFFOLD' is not defined
+  File "/Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk", line 57, in <module>

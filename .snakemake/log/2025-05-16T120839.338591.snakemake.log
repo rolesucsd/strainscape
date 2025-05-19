@@ -1,0 +1,73 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                       count
+----------------------  -------
+all                           1
+analyze_mutation_types        1
+calculate_trends              1
+map_genes                     1
+merge_snv_info                1
+prepare_trajectories          1
+process_scaffolds             1
+total                         7
+
+Select jobs to execute...
+
+[Fri May 16 12:08:39 2025]
+rule process_scaffolds:
+    input: /Users/reneeoles/Desktop/input/instrain/H4020/combined_scaffold_info.tsv, /Users/reneeoles/Desktop/input/assembly/H4020/assembly.stb, /Users/reneeoles/Desktop/input/hmp2_metadata_2018-08-20.csv, /Users/reneeoles/Desktop/input/bins/H4020/bin.txt
+    output: /Users/reneeoles/Desktop/input/instrain/H4020/processed_scaffolds.txt
+    log: /Users/reneeoles/Desktop/input/logs/process_scaffolds_H4020.log
+    jobid: 4
+    reason: Missing output files: /Users/reneeoles/Desktop/input/instrain/H4020/processed_scaffolds.txt
+    wildcards: patient=H4020
+    resources: tmpdir=/var/folders/mc/c6ndbtvn6kn2jyz7c6ymt42h0000gn/T, mem_mb=16000, mem_mib=15259, threads=4
+
+[Fri May 16 12:08:41 2025]
+Finished job 4.
+1 of 7 steps (14%) done
+Select jobs to execute...
+
+[Fri May 16 12:08:41 2025]
+rule merge_snv_info:
+    input: /Users/reneeoles/Desktop/input/instrain/H4020/combined_SNV_info.tsv, /Users/reneeoles/Desktop/input/assembly/H4020/assembly.stb, /Users/reneeoles/Desktop/input/hmp2_metadata_2018-08-20.csv, /Users/reneeoles/Desktop/input/instrain/H4020/processed_scaffolds.txt
+    output: /Users/reneeoles/Desktop/input/instrain/H4020/SNV_filtered.txt
+    log: /Users/reneeoles/Desktop/input/logs/merge_snv_info_H4020.log
+    jobid: 3
+    reason: Missing output files: /Users/reneeoles/Desktop/input/instrain/H4020/SNV_filtered.txt; Input files updated by another job: /Users/reneeoles/Desktop/input/instrain/H4020/processed_scaffolds.txt
+    wildcards: patient=H4020
+    resources: tmpdir=/var/folders/mc/c6ndbtvn6kn2jyz7c6ymt42h0000gn/T, mem_mb=16000, mem_mib=15259, threads=4
+
+[Fri May 16 12:08:53 2025]
+Finished job 3.
+2 of 7 steps (29%) done
+Select jobs to execute...
+
+[Fri May 16 12:08:53 2025]
+rule calculate_trends:
+    input: /Users/reneeoles/Desktop/input/instrain/H4020/SNV_filtered.txt, /Users/reneeoles/Desktop/input/hmp2_metadata_2018-08-20.csv
+    output: /Users/reneeoles/Desktop/input/instrain/H4020/SNV_filtered_trend.txt
+    log: /Users/reneeoles/Desktop/input/logs/calculate_trends_H4020.log
+    jobid: 5
+    reason: Missing output files: /Users/reneeoles/Desktop/input/instrain/H4020/SNV_filtered_trend.txt; Input files updated by another job: /Users/reneeoles/Desktop/input/instrain/H4020/SNV_filtered.txt
+    wildcards: patient=H4020
+    resources: tmpdir=/var/folders/mc/c6ndbtvn6kn2jyz7c6ymt42h0000gn/T, mem_mb=16000, mem_mib=15259, threads=4
+
+[Fri May 16 12:08:54 2025]
+Error in rule calculate_trends:
+    jobid: 5
+    input: /Users/reneeoles/Desktop/input/instrain/H4020/SNV_filtered.txt, /Users/reneeoles/Desktop/input/hmp2_metadata_2018-08-20.csv
+    output: /Users/reneeoles/Desktop/input/instrain/H4020/SNV_filtered_trend.txt
+    log: /Users/reneeoles/Desktop/input/logs/calculate_trends_H4020.log (check log file(s) for error details)
+    shell:
+        
+        python strainscape/calculate_trends.py             --mutation_file /Users/reneeoles/Desktop/input/instrain/H4020/SNV_filtered.txt             --metadata_file /Users/reneeoles/Desktop/input/hmp2_metadata_2018-08-20.csv             --output_file /Users/reneeoles/Desktop/input/instrain/H4020/SNV_filtered_trend.txt             --min_slope 0.01             --p_value 0.05             --log_file /Users/reneeoles/Desktop/input/logs/calculate_trends_H4020.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-05-16T120839.338591.snakemake.log

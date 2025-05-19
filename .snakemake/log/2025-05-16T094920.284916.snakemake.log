@@ -1,0 +1,8 @@
+Building DAG of jobs...
+MissingInputException in rule process_scaffolds in file /Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk, line 20:
+Missing input files for rule process_scaffolds:
+    output: data/instrain/H4020/SNV_filtered.txt
+    wildcards: patient=H4020
+    affected files:
+        data/assembly/H4020/assembly.stb
+        bins/H4020/bin.txt

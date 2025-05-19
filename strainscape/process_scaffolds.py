@@ -25,105 +25,38 @@ from strainscape.utils import setup_logging, get_logger
 # Get module logger
 logger = get_logger(__name__)
 
-# ────────── helper: build bin<->scaffold DF (no temp file) ──────────
-def bin_dataframe(bin_dir: Path, log: logging.Logger) -> pd.DataFrame:
-    rows = []
-    for fa in bin_dir.glob("*.fa"):
-        bin_name = fa.stem
-        for record in SeqIO.parse(fa, "fasta"):
-            rows.append((record.id, bin_name))
-    df = pd.DataFrame(rows, columns=["scaffold", "bin"])
-    log.info(f"Collected {len(df):,} scaffold↦bin mappings from {bin_dir}")
-    return df
-
-
 # ────────── main pipeline ──────────
-def process(scaffold_info, stb_file, meta_csv, bin_dir, output_file, min_length=1000, min_coverage=5.0, min_breadth=0.4, log=None):
-    """Process scaffolds with quality filters and metadata.
+def process(scaffold_info, bin_file, output_file, min_length=1000, min_coverage=5.0, min_breadth=0.4, log=None):
+    """Process scaffolds with quality filters.
     
     Args:
         scaffold_info: Path to scaffold info file
-        stb_file: Path to STB file
-        meta_csv: Path to metadata CSV
-        bin_dir: Directory containing bin files
+        bin_file: Path to bin.txt file (scaffold-bin mapping)
         output_file: Path to output file
         min_length: Minimum scaffold length
         min_coverage: Minimum coverage
         min_breadth: Minimum breadth
         log: Logger instance
     """
-    # Ensure bin_dir is a Path object
-    bin_dir = Path(bin_dir)
-
-    # Define metadata columns to keep
-    essential_cols = [
-        'External.ID',
-        'week_num',
-        'Participant ID',
-        'diagnosis'
-    ]
-    optional_cols = [
-        'sex',
-        'Height',
-        'Weight',
-        'BMI',
-        'fecalcal_ng_ml',
-        'Alcohol (beer, brandy, spirits, hard liquor, wine, aperitif, etc.)',
-        'Antibiotics',
-        'Immunosuppressants (e.g. oral corticosteroids)'
-    ]
-    # Read the header to determine which columns are present
-    with open(meta_csv, 'r') as f:
-        header = f.readline().strip().split(',')
-    meta_keep = [col for col in essential_cols if col in header]
-    missing_essentials = [col for col in essential_cols if col not in header]
-    if missing_essentials:
-        raise ValueError(f"Missing required metadata columns: {missing_essentials}")
-    # Add optional columns that are present
-    meta_keep += [col for col in optional_cols if col in header]
-    missing_optional = [col for col in optional_cols if col not in header]
-    if missing_optional:
-        log = log or logger
-        log.warning(f"Optional metadata columns missing and will be skipped: {missing_optional}")
-    # Load metadata
-    meta = pd.read_csv(meta_csv, usecols=meta_keep, dtype=str)
-    
-    # Rename columns to match test data
-    meta = meta.rename(columns={
-        'Alcohol': 'Alcohol (beer, brandy, spirits, hard liquor, wine, aperitif, etc.)',
-        'Immunosuppressants': 'Immunosuppressants (e.g. oral corticosteroids)'
-    })
-
     if log is None:                         # Fallback logger
         log = logger
 
     # 1. bin map -------------------------------------------------------------
-    bin_df = bin_dataframe(bin_dir, log)
-
-    # 2. STB ----------------------------------------------------------------
-    stb_df = pd.read_csv(stb_file, sep="\t",
-                         names=["scaffold", "Sample"],  # Sample == External.ID
-                         dtype={"scaffold": str, "Sample": str})
-
-    stb_df = stb_df.merge(bin_df, on="scaffold", how="left")
+    bin_df = pd.read_csv(bin_file, sep="\t", names=["scaffold", "bin"], dtype={"scaffold": str, "bin": str})
+    log.info(f"Loaded {len(bin_df):,} scaffold↦bin mappings from {bin_file}")
 
     # 3. scaffold_info ------------------------------------------------------
-    usecols = ["scaffold", "length", "coverage", "breadth"]
+    usecols = ["scaffold", "length", "coverage", "breadth", "nucl_diversity", "Sample"]
     dtypes  = {"scaffold": str,
                "length":   np.int32,
                "coverage": np.float32,
                "breadth":  np.float32}
     scaff = pd.read_csv(scaffold_info, sep="\t", usecols=usecols, dtype=dtypes)
+    scaff = scaff.merge(bin_df, on="scaffold", how="left")
 
     log.info(f"Scaffolds loaded: {len(scaff):,}")
     scaff = scaff.query("length >= @min_length and coverage >= @min_coverage and breadth >= @min_breadth")
     log.info(f"After quality filters: {len(scaff):,}")
-
-    # 4. merge scaff <- stb+bin --------------------------------------------
-    scaff = scaff.merge(stb_df, on="scaffold", how="inner")
-
-    # 5. metadata  ----------------------------------------------------------
-    scaff = scaff.merge(meta, left_on="Sample", right_on="External.ID", how="left")
 
     # 6. summary ------------------------------------------------------------
     summary = (scaff
@@ -139,31 +72,23 @@ def process(scaffold_info, stb_file, meta_csv, bin_dir, output_file, min_length=
 
 def process_scaffolds(
     scaffold_file: str,
-    stb_file: str,
-    metadata_file: str,
-    bin_dir: str,
+    bin_file: str,
     output_file: str,
     min_length: int = 1000,
     min_coverage: float = 5.0,
     min_breadth: float = 0.4,
-    threads: int = 4,
-    chunksize: int = 10000,
     log_file: Optional[str] = None
 ) -> None:
     """
-    Process scaffolds with quality filters and metadata.
+    Process scaffolds with quality filters.
     
     Args:
         scaffold_file: Path to scaffold info TSV
-        stb_file: Path to STB file
-        metadata_file: Path to metadata CSV
-        bin_dir: Path to bin directory
+        bin_file: Path to bin.txt file
         output_file: Path to output file
         min_length: Minimum scaffold length
         min_coverage: Minimum coverage
         min_breadth: Minimum breadth
-        threads: Number of threads
-        chunksize: Size of chunks for processing
         log_file: Optional path to log file
     """
     if log_file:
@@ -171,9 +96,7 @@ def process_scaffolds(
     
     process(
         scaffold_info=scaffold_file,
-        stb_file=stb_file,
-        meta_csv=metadata_file,
-        bin_dir=bin_dir,
+        bin_file=bin_file,
         output_file=output_file,
         min_length=min_length,
         min_coverage=min_coverage,
@@ -186,15 +109,13 @@ def process_scaffolds(
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description=textwrap.dedent("""\
-            Merge inStrain scaffold_info with STB, bin FASTAs and sample metadata.
+        description=textwrap.dedent("""
+            Merge inStrain scaffold_info with STB, bin.txt
             Provides the same output as the original script but with less I/O
             and no intermediate files.
         """))
     ap.add_argument("--scaffold_file", required=True)
-    ap.add_argument("--stb_file",      required=True)
-    ap.add_argument("--metadata_file", required=True)
-    ap.add_argument("--bin_dir",       required=True)
+    ap.add_argument("--bin_file",      required=True)
     ap.add_argument("--output_file",   required=True)
     ap.add_argument("--min_length",   type=int,   default=1000)
     ap.add_argument("--min_coverage", type=float, default=5.0)
@@ -204,9 +125,7 @@ if __name__ == "__main__":
 
     process_scaffolds(
         scaffold_file=args.scaffold_file,
-        stb_file=args.stb_file,
-        metadata_file=args.metadata_file,
-        bin_dir=args.bin_dir,
+        bin_file=args.bin_file,
         output_file=args.output_file,
         min_length=args.min_length,
         min_coverage=args.min_coverage,

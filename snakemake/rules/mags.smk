@@ -15,6 +15,7 @@ Dependencies:
 
 # Import wildcard functions
 from scripts.wildcards import FILTERED_CONTIGS, SORT_BAM, DEPTH_FILE, PATIENT_BIN_DIR
+import os
 
 rule jgi_summarize_depths:
     """
@@ -80,4 +81,30 @@ rule metabat2_binning:
         metabat2 -i {input.contig} -a {input.depth} -o {params.outdir}/bin \
                  -s 1500 -m 1500 --maxP 95 --minS 60 --maxEdges 200 \
                  --seed 1 --saveCls
+        """
+
+rule make_bin_txt:
+    """
+    Generate a bin.txt file from a bin folder for each patient.
+
+    This rule runs the make_bin_txt.py script to read all FASTA files in the bin folder
+    and write a tab-separated bin.txt file (with columns: scaffold, bin) to the bins/{patient} folder.
+
+    Input:
+        bin_dir: Path to the bin folder containing FASTA files
+    Output:
+        bin_txt: Path to the output bin.txt file in bins/{patient}
+    """
+    input:
+        bin_dir = "bins/{patient}"
+    output:
+        bin_txt = "bins/{patient}/bin.txt"
+    log:
+        os.path.join(config['paths']['log_dir'], "make_bin_txt_{patient}.log")
+    shell:
+        """
+        python ../strainscape/make_bin_txt.py \
+            --bin_dir {input.bin_dir} \
+            --output_file {output.bin_txt} \
+            --log_file {log} 2>&1
         """

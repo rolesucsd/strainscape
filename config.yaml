@@ -2,11 +2,8 @@
 
 # Input/Output Paths
 paths:
-  raw_data: "data/raw"
-  processed_data: "data/processed"
-  results: "results"
-  intermediate: "results/intermediate"
-  final: "results/final"
+  data_dir: "/Users/reneeoles/Desktop/input"
+  log_dir: "/Users/reneeoles/Desktop/input/logs"
 
 # Snakemake Configuration
 snakemake:
@@ -26,6 +23,7 @@ python:
   max_frequency: 0.99
   min_reads: 5
   threads: 4
+  p_threshold: 0.05
 
 # R Analysis Parameters
 r:
@@ -38,13 +36,52 @@ r:
 
 # Reference Data
 reference:
-  genome_db: "reference/genomes"
-  annotation_db: "reference/annotations"
-  taxonomy_db: "reference/taxonomy"
+  bakta_db: "data/reference/bakta_db"
+
+# Metadata files
+metadata:
+  file: "/Users/reneeoles/Desktop/input/hmp2_metadata_2018-08-20.csv"
 
 # Logging
 logging:
   level: "INFO"
   file: "pipeline.log"
   max_size: "100MB"
-  backup_count: 3 
+  backup_count: 3
+
+# Analysis parameters
+params:
+  # InStrain
+  min_coverage: 5
+  min_freq: 0.1
+  min_scaffold_length: 1000
+  min_scaffold_coverage: 5.0
+  min_scaffold_breadth: 0.4
+  
+  # SNP tracking
+  snp_tracking:
+    min_coverage: 10
+    min_freq: 0.05
+    p_threshold: 0.05
+    min_freq_change: 0.1
+    min_trajectory_change: 0.2
+    min_slope: 0.01
+    min_abs_change: 0.1
+
+# Conda environments
+conda_envs:
+  qc: "envs/qc.yaml"
+  assembly: "envs/assembly.yaml"
+  mapping: "envs/mapping.yaml"
+  mags: "envs/mags.yaml"
+  annotation: "envs/annotation.yaml"
+  instrain: "envs/instrain.yaml"
+
+# Resource limits
+resources:
+  threads: 8
+  memory: "32G"
+  time: "24:00:00"
+
+# Test patient
+patients: ["M2069"] 

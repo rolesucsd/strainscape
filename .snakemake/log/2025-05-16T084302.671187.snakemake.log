@@ -1,0 +1,3 @@
+ImportError in file /Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk, line 7:
+cannot import name 'ENV_INSTRAIN' from 'strainscape.wildcards' (/Users/reneeoles/Desktop/strainscape/strainscape/wildcards.py)
+  File "/Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk", line 7, in <module>

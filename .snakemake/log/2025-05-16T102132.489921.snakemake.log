@@ -1,0 +1,14 @@
+Building DAG of jobs...
+WorkflowError:
+MissingInputException: Missing input files for rule process_scaffolds:
+    output: data/instrain/H4020/trajectories/SNV_filtered.txt
+    wildcards: patient=H4020/trajectories
+    affected files:
+        data/assembly/H4020/trajectories/assembly.stb
+        data/instrain/H4020/trajectories/combined/scaffold_info.tsv
+        data/bins/H4020/trajectories/bin.txt
+MissingInputException: Missing input files for rule merge_snv_info:
+    output: data/instrain/H4020/SNV_filtered_trend.txt
+    wildcards: patient=H4020
+    affected files:
+        data/assembly/H4020/assembly.stb

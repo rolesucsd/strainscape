@@ -1,0 +1,3 @@
+WorkflowError in file /Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk, line 45:
+Rule make_stb is not defined in this workflow. Available rules: 
+  File "/Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk", line 45, in <module>

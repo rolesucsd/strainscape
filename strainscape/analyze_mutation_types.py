@@ -48,21 +48,22 @@ def get_mutation_type(row: pd.Series, sequences: Dict[str, str], translation_tab
             - ref_base: str, reference base
             - new_base: str, alternate base
             - coding: str, "genic" or "intergenic"
-            - Matched_Start: int, gene start position
-            - Matched_Stop: int, gene stop position
-            - Matched_Strand: str, "+" or "-"
+            - Start: int, gene start position
+            - Stop: int, gene stop position
+            - Strand: str, "+" or "-"
         sequences: Dictionary mapping chromosome names to DNA sequences.
         translation_table: Optional codon->amino acid translation table.
     Returns:
         Tuple (Mutation_Type, Coding_Status)
     """
     # intergenic fast-exit
-    if row.get("coding") == "intergenic":
+    if row.get("gene_type") == "intergenic":
         return ("Intergenic", "Non-Coding")
 
-    start = int(row["Matched_Start"])
-    stop = int(row["Matched_Stop"])
-    strand = row["Matched_Strand"]
+    # Convert positions to float first, then int to handle decimal points
+    start = int(float(row["Start"]))
+    stop = int(float(row["Stop"]))
+    strand = row["Strand"]
     pos1 = int(row["Position"])  # 1-based
     ref_b = row["ref_base"].upper()
     alt_b = row["new_base"].upper()
@@ -117,9 +118,9 @@ def analyze_mutation_types(mutations: pd.DataFrame, sequences: Dict[str, str]) -
             - ref_base: str, reference base
             - new_base: str, alternate base
             - coding: str, "genic" or "intergenic"
-            - Matched_Start: int, gene start position
-            - Matched_Stop: int, gene stop position
-            - Matched_Strand: str, "+" or "-"
+            - Start: int, gene start position
+            - Stop: int, gene stop position
+            - Strand: str, "+" or "-"
         sequences: Dictionary mapping chromosome names to DNA sequences.
         
     Returns:

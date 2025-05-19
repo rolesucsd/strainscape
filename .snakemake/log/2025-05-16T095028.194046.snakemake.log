@@ -1,0 +1,7 @@
+Building DAG of jobs...
+MissingInputException in rule merge_snv_info in file /Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk, line 83:
+Missing input files for rule merge_snv_info:
+    output: data/instrain/H4020/SNV_filtered_trend.txt
+    wildcards: patient=H4020
+    affected files:
+        data/assembly/H4020/assembly.stb

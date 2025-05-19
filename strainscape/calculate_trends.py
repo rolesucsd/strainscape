@@ -23,25 +23,16 @@ logger = get_logger(__name__)
 
 # ────────── main routine ──────────
 def calc_trends_fast(muts_f  : Path,
-                     meta_f  : Path,
                      out_f   : Path,
                      min_slope=0.01,
                      p_thr    =0.05):
-
-    logger.info("Load metadata")
-    meta = (pd.read_csv(meta_f, usecols=["External.ID", "week_num"])
-              .rename(columns={"External.ID":"Sample"})
-              .drop_duplicates("Sample"))
-    meta["week_num"] = meta["week_num"].astype(int)
 
     logger.info("Load mutations")
     muts = pd.read_csv(muts_f, sep="\t",
                        usecols=["scaffold","position","Sample",
                                 "ref_base","position_coverage",
-                                "A","C","G","T"])
+                                "week_num","A","C","G","T"])
 
-    # ── join + compute alt-allele frequencies
-    muts = muts.merge(meta, on="Sample", how="inner")
     bases = np.array(["A","C","G","T"])
     base_idx = muts["ref_base"].map({b:i for i,b in enumerate(bases)}).to_numpy()
     cov = muts["position_coverage"].to_numpy(float)
@@ -53,14 +44,14 @@ def calc_trends_fast(muts_f  : Path,
     for i, base in enumerate(bases):
         mask = base_idx != i
         if not mask.any(): continue
-        sub  = muts.loc[mask, ["scaffold","position","week_num"]].copy()
+        sub  = muts.loc[mask, ["scaffold","position","week_num", "ref_base"]].copy()
         sub["nucleotide"] = base
         sub["frequency"]  = freqs[mask,i]
         rows.append(sub)
     long = pd.concat(rows, ignore_index=True)
 
     # ── pivot to wide
-    wide = (long.pivot_table(index=["scaffold","position","nucleotide"],
+    wide = (long.pivot_table(index=["scaffold","position","nucleotide","ref_base"],
                              columns="week_num",
                              values="frequency",
                              aggfunc="first")
@@ -123,7 +114,6 @@ def calc_trends_fast(muts_f  : Path,
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     ap.add_argument("--mutation_file",  required=True)
-    ap.add_argument("--metadata_file",  required=True)
     ap.add_argument("--output_file",    required=True)
     ap.add_argument("--min_slope",  type=float, default=0.01)
     ap.add_argument("--p_value",    type=float, default=0.05)
@@ -134,7 +124,6 @@ if __name__ == "__main__":
         setup_logging(args.log_file)
 
     calc_trends_fast(Path(args.mutation_file),
-                     Path(args.metadata_file),
                      Path(args.output_file),
                      min_slope=args.min_slope,
                      p_thr=args.p_value)

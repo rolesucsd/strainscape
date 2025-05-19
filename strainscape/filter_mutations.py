@@ -24,9 +24,7 @@ import logging
 from strainscape.utils import (
     setup_logging,
     get_logger,
-    PerformanceMonitor,
-    validate_file_exists,
-    read_large_csv
+    PerformanceMonitor
 )
 
 # Set up logging
@@ -65,14 +63,70 @@ def filter_by_coverage(mutations: pd.DataFrame,
     logger.info(f"Filtering mutations by minimum coverage of {min_coverage}")
     return mutations[mutations['position_coverage'] >= min_coverage]
 
+def load_metadata(meta_csv, log=None):
+    """Load and process metadata from CSV file.
+    
+    Args:
+        meta_csv: Path to metadata CSV file
+        log: Logger instance
+        
+    Returns:
+        DataFrame containing processed metadata
+    """
+    # Define metadata columns to keep
+    essential_cols = [
+        'External.ID',
+        'week_num',
+        'Participant ID',
+        'diagnosis'
+    ]
+    optional_cols = [
+        'sex',
+        'Height',
+        'Weight',
+        'BMI',
+        'fecalcal_ng_ml',
+        'Alcohol (beer, brandy, spirits, hard liquor, wine, aperitif, etc.)',
+        'Antibiotics',
+        'Immunosuppressants (e.g. oral corticosteroids)',
+        'hbi',
+        'sccai'
+    ]
+    # Read the header to determine which columns are present
+    with open(meta_csv, 'r') as f:
+        header = f.readline().strip().split(',')
+    meta_keep = [col for col in essential_cols if col in header]
+    missing_essentials = [col for col in essential_cols if col not in header]
+    if missing_essentials:
+        raise ValueError(f"Missing required metadata columns: {missing_essentials}")
+    # Add optional columns that are present
+    meta_keep += [col for col in optional_cols if col in header]
+    missing_optional = [col for col in optional_cols if col not in header]
+    if missing_optional:
+        log = log or logger
+        log.warning(f"Optional metadata columns missing and will be skipped: {missing_optional}")
+    # Load metadata
+    meta = pd.read_csv(meta_csv, usecols=meta_keep, dtype=str)
+    
+    # Rename columns to match test data
+    meta = meta.rename(columns={
+        'Alcohol': 'Alcohol (beer, brandy, spirits, hard liquor, wine, aperitif, etc.)',
+        'Immunosuppressants': 'Immunosuppressants (e.g. oral corticosteroids)'
+    })
+    return meta
+
 def filter_mutations(snv_file: Path,
                     output_file: Path,
+                    metadata_file: Path,
+                    processed_scaffolds_file: Path,
                     min_coverage: int = 10) -> None:
     """Filter mutations based on coverage and frequency criteria.
     
     Args:
         snv_file: Path to TSV file containing mutation data and coverage data
         output_file: Path to write filtered mutations
+        metadata_file: Path to metadata CSV file
+        processed_scaffolds_file: Path to processed scaffolds file
         min_coverage: Minimum required coverage (default: 10)
         
     Returns:
@@ -80,9 +134,32 @@ def filter_mutations(snv_file: Path,
     """
     # Load data
     mutations = load_mutation_data(snv_file)
+    logger.info(f"Reading {len(mutations):,}")
     
     # Apply filters
     mutations = filter_by_coverage(mutations, min_coverage)
+    logger.info(f"Number of mutations after filtering: {len(mutations):,}")
+
+    # Load processed scaffolds
+    processed_scaffolds = pd.read_csv(processed_scaffolds_file, sep='\t')
+    # Merge with processed scaffolds using inner join on both scaffold and Sample
+    mutations = mutations.merge(processed_scaffolds, on=["scaffold", "Sample"], how="inner")
+    logger.info(f"Number of mutations after merging: {len(mutations):,}")
+    
+    # Load and merge metadata
+    meta = load_metadata(metadata_file)
+    
+    # Check for duplicates before merge
+    logger.info(f"Number of unique Sample values in mutations: {mutations['Sample'].nunique():,}")
+    logger.info(f"Number of unique External.ID values in metadata: {meta['External.ID'].nunique():,}")
+    
+    # Merge with metadata
+    mutations = mutations.merge(meta, left_on="Sample", right_on="External.ID", how="inner")
+    logger.info(f"Number of mutations after merging: {len(mutations):,}")
+    
+    # Drop duplicates keeping the first occurrence
+    mutations = mutations.drop_duplicates(subset=['scaffold', 'position', 'Sample'], keep='first')
+    logger.info(f"Number of mutations after dropping duplicates: {len(mutations):,}")
     
     # Write output
     logger.info(f"Writing {len(mutations):,} filtered mutations to {output_file}")
@@ -97,6 +174,10 @@ def main():
                       help='Path to SNV information TSV file')
     parser.add_argument('--output-file', type=Path, required=True,
                       help='Path to write filtered mutations')
+    parser.add_argument('--metadata-file', type=Path, required=True,
+                      help='Path to metadata CSV file')
+    parser.add_argument('--processed-scaffolds-file', type=Path, required=True,
+                      help='Path to processed scaffolds file')
     parser.add_argument('--min-coverage', type=int, default=10,
                       help='Minimum required coverage')
     parser.add_argument('--log-file', type=Path,
@@ -112,8 +193,10 @@ def main():
     filter_mutations(
         args.snv_file,
         args.output_file,
+        args.metadata_file,
+        args.processed_scaffolds_file,
         args.min_coverage
     )
 
 if __name__ == '__main__':
-    main() 
+    main()

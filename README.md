@@ -1,9 +1,5 @@
 <!-- README.md – StrainScape -->
 
-<p align="center">
-  <img src="docs/img/strainscape_logo.svg" alt="StrainScape logo" height="120">
-</p>
-
 <h1 align="center">StrainScape</h1>
 <p align="center">
   <em>End-to-end Snakemake workflow for strain-level analysis of the iHMP microbiome cohort</em>
@@ -17,153 +13,147 @@
 
 ---
 
-## ✨ What is StrainScape?
+Below is a proposed overhaul of your `README.md`. It’s organized into clear sections, includes a concise summary up front, and reflects the core components of the Strainscape pipeline.
 
-StrainScape is a reproducible pipeline that:
-
-1. **Assembles metagenomes** per participant (MEGAHIT)  
-2. **Maps reads** and filters alignments (BWA + SAMtools)  
-3. **Profiles strains** (inStrain)  
-4. **Bins genomes** (MetaBAT2)  
-5. **Annotates genes** (Bakta)  
-6. **Performs downstream population genetics** in Python/R  
-7. Generates publication-ready figures and summary tables.
-
-It was built to explore evolutionary dynamics in the **Integrative Human
-Microbiome Project (iHMP)** but is easily adapted to any time-series
-metagenome dataset.
+> **Note:** Be sure to update any placeholder URLs, author names, or contact info as appropriate for your project.
 
 ---
 
-## 📂 Repository layout
+## 🚀 Summary
 
+Strainscape is an end‐to‐end Snakemake-powered workflow for strain-level analysis of metagenomic datasets, originally built around the iHMP cohort. It automates everything from raw FASTQ processing through assembly, mapping, and InStrain profiling to downstream mutation tracking, trend analysis, and visualization. The pipeline leverages Conda environments for reproducible software stacks, Python for data wrangling and mutation analysis, and R for statistical summaries and plots.
+
+---
+
+## 📦 Features
+
+* **Modular Snakemake rules** for assembly, mapping, binning, InStrain profiling, and mutation tracking
+* **Conda-managed environments** for each major toolset (e.g., InStrain, Bakta)
+* Automatic **merging** of per-sample scaffolds and SNV tables
+* **Trend and trajectory** computation of mutation frequencies over time
+* **Gene mapping** and **mutation-type classification** (synonymous, non-synonymous, etc.)
+* **Configurable** via a single YAML file with patient IDs, paths, and resource parameters
+* **Logging** and **flagstat** summaries for mapping QC
+
+---
+
+## 📝 Requirements
+
+* Linux / macOS
+* [Snakemake ≥ 8.4.8](https://github.com/snakemake/snakemake)
+* [Conda](https://docs.conda.io) (Mamba recommended)
+* Python 3.8+ (with pandas, numpy, etc.)
+* R 4.0+ (for optional downstream plotting)
+
+---
+
+## 🛠️ Installation
+
+1. **Clone the repo**
+
+   ```bash
+   git clone https://github.com/rolesucsd/strainscape.git
+   cd strainscape
+   ```
+
+   ([GitHub][1])
+
+2. **Create a top-level Conda env** (optional)
+
+   ```bash
+   mamba create -n strainscape python=3.10 snakemake=8.4.8 -c conda-forge -c bioconda
+   conda activate strainscape
+   ```
+
+   ([GitHub][1])
+
+3. **Install per-rule environments**
+   Snakemake will automatically build/use the environments defined under `snakemake/envs/` during the run (via `--use-conda`).
+
+---
+
+## ⚙️ Configuration
+
+All settings live in **`config/config.yaml`**:
+
+* `patient_ids`: list of patient identifiers
+* `paths`: base directories for raw data, logs, and outputs
+* `metadata`: path to sample metadata file
+* Conda environment mappings for each rule
+
+*Edit `config/config.yaml` to point at your data directories and metadata.*
+
+---
+
+## ▶️ Usage
+
+### 1. Dry-run
+
+```bash
+snakemake --use-conda --cores 1 --configfile config/config.yaml --dry-run
 ```
 
+### 2. Full execution
+
+```bash
+snakemake --use-conda --cores 16 --configfile config/config.yaml
+```
+
+*Sample log messages* will appear in `logs/` and a summary report in `pipeline.log`. ([GitHub][1])
+
+---
+
+## 📂 Directory Structure
+
+```
 .
-├── snakemake/           # workflow rules, envs/, config/
-├── docs/                # user guide, figures, logo
-├── scripts/             # helper bash / python utilities
-├── src/
-│   ├── python/          # analysis & plotting modules
-│   └── r/               # statistical models & ggplot themes
-├── config.yaml          # top-level user settings
-└── run\_pipeline.sh      # one-liner launcher
-
-````
-
----
-
-## ⚡ Quick start
-
-> Tested on Linux / macOS, Conda ≥ 23.1, Snakemake ≥ 7.30
-
-```bash
-# 1. clone
-git clone https://github.com/rolesucsd/strainscape.git
-cd strainscape
-
-# 2. set paths & parameters
-nano config.yaml         # edit input FASTQ locations, sample sheet…
-
-# 3. create the base env with Snakemake + Mamba
-conda env create -f snakemake/envs/core.yml
-conda activate strainscape
-
-# 4. run the whole workflow on 32 cores
-./run_pipeline.sh --cores 32
-````
-
-Outputs land in `results/`:
-
-```
-results/
-├── assembly/
-├── mapping/
-├── instrain/
-├── bins/
-├── figures/         # PNG / PDF plots
-└── tables/          # TSV / CSV summary files
+├── config/
+│   └── config.yaml          # Pipeline settings
+├── docs/                    # Documentation and examples
+├── snakemake/
+│   ├── rules/               # Individual rule files (.smk)
+│   ├── wildcards.smk        # Path–wildcard definitions
+│   └── utils.py             # Shared Python helpers
+├── snakemake/envs/          # Conda env YAMLs for each rule
+├── run_pipeline.sh          # Convenience wrapper script
+├── src/                     # Python scripts for merging, analysis
+├── results/                 # Final outputs (InStrain tables, trends)
+└── logs/                    # Snakemake logs and flagstat outputs
 ```
 
 ---
 
-## 🛠️ Advanced usage
+## 🔄 Pipeline Overview
 
-| Task                        | Command                                           |
-| --------------------------- | ------------------------------------------------- |
-| Dry-run the DAG             | `snakemake -n`                                    |
-| Resume failed jobs          | `snakemake --keep-going`                          |
-| Clean intermediates         | `snakemake --delete-temp-output`                  |
-| Override a rule’s resources | `snakemake map_reads_bwa --resources mem_mb=8000` |
-| Render an HTML report       | `snakemake --report report.html`                  |
+1. **Assembly** (`assembly.smk`): de novo contig generation with MEGAHIT
+2. **Mapping** (`mapping.smk`): BWA indexing, read alignment, BAM sorting, and flagstat QC
+3. **MAGS** (`mags.smk`): binning with MetaBAT2 and JGI summarization
+4. **InStrain** (`instrain.smk`): per‐sample SNV/scaffold profiling
+5. **SNP Tracking** (`snp_tracking.smk`): combine tables, filter, compute trends, map to genes, classify mutation types
 
 ---
 
-## 🔬 Workflow diagram
+## 🤝 Contributing
 
-```
-FASTQ → assembly → mapping ┐
-                           ├─► inStrain profile ─► population tables
-bins  ◄────────────────────┘
-```
-
-*(see `docs/workflow.svg` for the full DAG)*
+1. Fork the repository
+2. Create a feature branch
+3. Add/modify Snakemake rules or Python scripts
+4. Update `config/config.yaml` examples as needed
+5. Open a pull request
 
 ---
 
-## 📑 Configuration keys (excerpt)
+## 📜 License
 
-| Key                | Description                       | Example                           |
-| ------------------ | --------------------------------- | --------------------------------- |
-| `samples:`         | TSV mapping `sample_id  fastq_R1` | `CSM67UB9  /path/sample.fastq.gz` |
-| `threads:`         | Default threads per rule          | `8`                               |
-| `instrain.min_cov` | Minimum read depth                | `10`                              |
-| `filters.length`   | Keep contigs ≥ bp                 | `1000`                            |
-
-Full reference in [`docs/config_reference.md`](docs/config_reference.md).
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details. ([GitHub][1])
 
 ---
 
-## 🚀 Development
+## ✉️ Contact
 
-```bash
-# create dev env with pre-commit, pytest, coverage…
-conda env create -f environment-dev.yml
-conda activate strainscape-dev
-pre-commit install
-```
+For questions or issues, please open an issue on GitHub or contact **[roles@ucsd.edu](mailto:roles@ucsd.edu)**.
 
-* **Unit tests:** `pytest -q`
-* **Linting & black:** automatically run by pre-commit
-* **Docs:** `mkdocs serve`
-
-Contributions via pull request are welcome – please open an issue first
-if you plan a large change.
-
----
-
-## 📖 Citing StrainScape
-
-If StrainScape helps your research, please cite:
-
-```bibtex
-@software{olles_scape_2025,
-  author       = {Renee A. Oles and contributors},
-  title        = {StrainScape: a reproducible pipeline for strain-level
-                  microbiome analysis},
-  year         = {2025},
-  publisher    = {GitHub},
-  journal      = {Zenodo},
-  doi          = {10.5281/zenodo.12345678},
-  url          = {https://github.com/rolesucsd/strainscape}
-}
-```
-
----
-
-## 📝 License
-
-This project is released under the MIT License – see [`LICENSE`](LICENSE) for details.
+[1]: https://github.com/rolesucsd/strainscape "GitHub - rolesucsd/strainscape"
 
 ---
 

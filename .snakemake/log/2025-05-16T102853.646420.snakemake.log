@@ -1,5 +1,0 @@
-Building DAG of jobs...
-MissingInputException in rule all in file /Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk, line 17:
-Missing input files for rule all:
-    affected files:
-        data/instrain/H4020/mutation_types.txt

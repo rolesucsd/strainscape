@@ -1,7 +1,0 @@
-Building DAG of jobs...
-MissingInputException in rule analyze_mutation_types in file /Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk, line 211:
-Missing input files for rule analyze_mutation_types:
-    output: /Users/reneeoles/Desktop/strainscape/instrain/H4020/SNV_filtered_trend_trajectory_mapped_types.txt
-    wildcards: patient=H4020
-    affected files:
-        /Users/reneeoles/Desktop/strainscape/bakta/H4020/H4020.fna

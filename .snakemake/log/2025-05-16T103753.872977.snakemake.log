@@ -1,7 +1,0 @@
-Building DAG of jobs...
-MissingInputException in rule map_genes in file /Users/reneeoles/Desktop/strainscape/snakemake/rules/snp_tracking.smk, line 191:
-Missing input files for rule map_genes:
-    output: /Users/reneeoles/Desktop/strainscape/instrain/H4020/SNV_filtered_trend_trajectory_mapped.txt
-    wildcards: patient=H4020
-    affected files:
-        /Users/reneeoles/Desktop/strainscape/bakta/H4020/H4020.tsv

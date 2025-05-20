@@ -1,0 +1,89 @@
+#!/bin/sh
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# Converts PMC article XML to BioC collection XML - WORK IN PROGRESS
+
+# efetch -db pmc -id 6260607,9205847 -format xml | pmc2bioc
+#  OR
+# tar -xOzf oa_..._xml.PMC...tar.gz --to-stdout | pmc2bioc
+
+xtract -mixed -set Set -rec Rec -pattern article \
+  -division article/front -pkg UI \
+    -group article-id -if "@pub-id-type" -equals pmc \
+      -branch article-id -if article-id -starts-with PMC -element "article-id[PMC|]" \
+      -branch article-id -unless article-id -starts-with PMC -element "article-id" \
+  -division article/front -pkg ID \
+    -group article-meta \
+      -branch article-id -pfx "article-id_" -AIDKY "@pub-id-type" \
+        -subset article-id -if article-id -starts-with PMC \
+          -tag infon -atr key "&AIDKY" -cls -element "article-id[PMC|]" -end infon \
+        -subset article-id -unless article-id -starts-with PMC \
+          -tag infon -atr key "&AIDKY" -cls -element article-id -end infon \
+  -division article/front -pkg JR \
+    -branch journal-meta \
+      -block journal-title \
+        -subset journal-title -tag infon -att key journal -cls -plain journal-title -end infon \
+  -division article/front -pkg CT \
+    -branch article-meta \
+      -subset article-meta -if year -tag infon -att key year -cls -min year -end infon \
+      -subset volume -tag infon -att key volume -cls -element volume -end infon \
+      -subset issue -tag infon -att key issue -cls -element issue -end infon \
+      -subset fpage -tag infon -att key fpage -cls -element fpage -end infon \
+      -subset lpage -tag infon -att key lpage -cls -element lpage -end infon \
+  -division article/front -pkg NM \
+    -group contrib-group/contrib -if "@contrib-type" -equals author \
+      -branch name -pkg Name -AUTH surname -GIVN given-names \
+        -section name \
+          -wrp Last -author "&AUTH" -wrp Initials -initials "&GIVN"  -wrp Given -author "&GIVN" \
+          -rst -pfx "surname:" -SURNM "&AUTH" -pfx ";given-names:" -GIVNM "&GIVN" \
+          -rst -sep "" -SRGV "&SURNM,&GIVNM" -wrp Infon -author "&SRGV" \
+  -division article/front -pkg KY \
+    -branch article-meta -sep " " --KYWDS kwd \
+      -subset article-meta -tag infon -att key kwd -cls -plain "&KYWDS" -end infon \
+  -division article/front -pkg LI \
+    -branch permissions/license \
+      -subset license-p -tag infon -att key license -cls -prose license-p -end infon \
+  -division article/front -pkg TI \
+    -branch title-group \
+      -subset article-title -wrp text -prose article-title \
+  -division article/front -pkg AB \
+    -group "abstract/*" \
+      -section "*" -pkg passage \
+        -subset p -tag infon -att key section_type -cls -lbl ABSTRACT -end infon \
+        -subset p -tag infon -att key type -cls -lbl abstract -end infon \
+        -subset p -wrp text -prose p \
+  -division body -pkg BD \
+    -element "*" |
+xtract -mixed -set collection -rec document -pattern Rec \
+  -division UI -wrp id -element UI \
+  -division Rec -pkg passage \
+    -subset Rec -tag infon -att key section_type -cls -lbl TITLE -end infon \
+    -subset Rec -tag infon -att key type -cls -lbl front -end infon \
+    -group "ID/*" -element "*" \
+    -group "JR/*" -element "*" \
+    -group "CT/*" -element "*" \
+    -group NM \
+      -branch Name -pfx "name_" -ANUM "+" \
+        -subset Name -tag infon -atr key "&ANUM" -cls -element Infon -end infon \
+    -group NM \
+      -branch Name -sep " " -AUTH Last,Initials -sep ", " --ATHRS "&AUTH" \
+      -branch NM \
+        -subset NM -tag infon -att key authors -cls -author "&ATHRS" -end infon \
+    -group "KY/*" -element "*" \
+    -group "LI/*" -element "*" \
+    -group "TI/*" -element "*" \
+  -division Rec \
+    -group "AB/*" -element "*" \
+  -division BD/body \
+    -group "sec/*" \
+      -branch sec/title \
+        -section title -pkg passage \
+          -subset title -tag infon -att key type -cls -lbl title -end infon \
+          -subset title -wrp text -prose title \
+      -branch sec/p \
+        -section p -pkg passage \
+          -subset p -tag infon -att key type -cls -lbl paragraph -end infon \
+          -subset p -wrp text -prose p |
+transmute -mixed -format

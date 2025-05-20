@@ -11,12 +11,6 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy environment files
-COPY snakemake/envs/*.yml /app/envs/
-
-# Create conda environment
-RUN conda env create -f envs/instrain.yml
-
 # Install R and required packages
 RUN conda install -c conda-forge r-base r-essentials r-renv
 

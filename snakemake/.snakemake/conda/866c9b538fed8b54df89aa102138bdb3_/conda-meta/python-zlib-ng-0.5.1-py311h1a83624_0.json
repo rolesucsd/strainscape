@@ -1,0 +1,215 @@
+{
+  "build": "py311h1a83624_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+  "constrains": [],
+  "depends": [
+    "__glibc >=2.17,<3.0.a0",
+    "libgcc >=13",
+    "python_abi 3.11.* *_cp311",
+    "python >=3.11,<3.12.0a0",
+    "zlib-ng >=2.2.2,<2.3.0a0"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/python-zlib-ng-0.5.1-py311h1a83624_0",
+  "features": "",
+  "files": [
+    "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/INSTALLER",
+    "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/LICENSE",
+    "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/METADATA",
+    "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/RECORD",
+    "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/REQUESTED",
+    "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/WHEEL",
+    "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/direct_url.json",
+    "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/top_level.txt",
+    "lib/python3.11/site-packages/zlib_ng/__init__.py",
+    "lib/python3.11/site-packages/zlib_ng/__pycache__/__init__.cpython-311.pyc",
+    "lib/python3.11/site-packages/zlib_ng/__pycache__/_version.cpython-311.pyc",
+    "lib/python3.11/site-packages/zlib_ng/__pycache__/gzip_ng.cpython-311.pyc",
+    "lib/python3.11/site-packages/zlib_ng/__pycache__/gzip_ng_threaded.cpython-311.pyc",
+    "lib/python3.11/site-packages/zlib_ng/_version.py",
+    "lib/python3.11/site-packages/zlib_ng/_version.pyi",
+    "lib/python3.11/site-packages/zlib_ng/gzip_ng.py",
+    "lib/python3.11/site-packages/zlib_ng/gzip_ng_threaded.py",
+    "lib/python3.11/site-packages/zlib_ng/py.typed",
+    "lib/python3.11/site-packages/zlib_ng/zlib-ng/LICENSE.md",
+    "lib/python3.11/site-packages/zlib_ng/zlib-ng/README.md",
+    "lib/python3.11/site-packages/zlib_ng/zlib_ng.cpython-311-x86_64-linux-gnu.so",
+    "lib/python3.11/site-packages/zlib_ng/zlib_ng.pyi"
+  ],
+  "fn": "python-zlib-ng-0.5.1-py311h1a83624_0.conda",
+  "license": "PSF-2.0",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/python-zlib-ng-0.5.1-py311h1a83624_0",
+    "type": 1
+  },
+  "md5": "ca9cb959add21f37a2bfe303ca23ce8d",
+  "name": "python-zlib-ng",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/python-zlib-ng-0.5.1-py311h1a83624_0.conda",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/INSTALLER",
+        "path_type": "hardlink",
+        "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "size_in_bytes": 5
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/LICENSE",
+        "path_type": "hardlink",
+        "sha256": "83b042fc7d6aca0f10d68e45efa56b9bc0a1496608e7e7728fe09d1a534a054a",
+        "sha256_in_prefix": "83b042fc7d6aca0f10d68e45efa56b9bc0a1496608e7e7728fe09d1a534a054a",
+        "size_in_bytes": 2484
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/METADATA",
+        "path_type": "hardlink",
+        "sha256": "56bc489c16639d5c47da19692d48a535b9b711a79d1db554d64c0414172a2623",
+        "sha256_in_prefix": "56bc489c16639d5c47da19692d48a535b9b711a79d1db554d64c0414172a2623",
+        "size_in_bytes": 6778
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/RECORD",
+        "path_type": "hardlink",
+        "sha256": "2929d56529d7013850c621ca7e752b90cb4845906cd70ce804bfceafbc654dab",
+        "sha256_in_prefix": "2929d56529d7013850c621ca7e752b90cb4845906cd70ce804bfceafbc654dab",
+        "size_in_bytes": 1675
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/REQUESTED",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/WHEEL",
+        "path_type": "hardlink",
+        "sha256": "6b5274ddb54ad0f24b0f8615329a881cc441a42704e389649cdc803bf22d4c51",
+        "sha256_in_prefix": "6b5274ddb54ad0f24b0f8615329a881cc441a42704e389649cdc803bf22d4c51",
+        "size_in_bytes": 104
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/direct_url.json",
+        "path_type": "hardlink",
+        "sha256": "5a92540545384494250a2eec5a5eee2762f21c3d3ccdf0f7491131027c24d94a",
+        "sha256_in_prefix": "5a92540545384494250a2eec5a5eee2762f21c3d3ccdf0f7491131027c24d94a",
+        "size_in_bytes": 110
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng-0.5.1.dist-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "4d3dbc3ca987b5b98dc68ba62e93fefb78e59a241554c0aec78e5d515b3f85eb",
+        "sha256_in_prefix": "4d3dbc3ca987b5b98dc68ba62e93fefb78e59a241554c0aec78e5d515b3f85eb",
+        "size_in_bytes": 8
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "07de13b991867e447952c72f8727c92f956ff10ef8b338166aa0500deffb5baf",
+        "sha256_in_prefix": "07de13b991867e447952c72f8727c92f956ff10ef8b338166aa0500deffb5baf",
+        "size_in_bytes": 385
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/__pycache__/__init__.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "a6f13d0834be333d54e6e7cb4fff3bf9c7a260c3c35498f351ce7d8043af2606",
+        "sha256_in_prefix": "a6f13d0834be333d54e6e7cb4fff3bf9c7a260c3c35498f351ce7d8043af2606",
+        "size_in_bytes": 242
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/__pycache__/_version.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "9e15a95454d32878b810c3422efa1704988c5b4213266675d7e89326fb751cb7",
+        "sha256_in_prefix": "9e15a95454d32878b810c3422efa1704988c5b4213266675d7e89326fb751cb7",
+        "size_in_bytes": 177
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/__pycache__/gzip_ng.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "549355a62d2c49a7abcdbd8c5a7f7b97daabd1d5289c72db61f2080d9523728c",
+        "sha256_in_prefix": "549355a62d2c49a7abcdbd8c5a7f7b97daabd1d5289c72db61f2080d9523728c",
+        "size_in_bytes": 14334
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/__pycache__/gzip_ng_threaded.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "6c090bc30194afddd6f4ba4a6a9d02581d66e12f16b67785130736444d102c5c",
+        "sha256_in_prefix": "6c090bc30194afddd6f4ba4a6a9d02581d66e12f16b67785130736444d102c5c",
+        "size_in_bytes": 24235
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/_version.py",
+        "path_type": "hardlink",
+        "sha256": "799d5b3ae9f50c3555d182ce056e308f614fd5a8d178b8db22b1a6ccdec0481c",
+        "sha256_in_prefix": "799d5b3ae9f50c3555d182ce056e308f614fd5a8d178b8db22b1a6ccdec0481c",
+        "size_in_bytes": 22
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/_version.pyi",
+        "path_type": "hardlink",
+        "sha256": "27f1db32f5c4c90155b3a49387ba912669a9c7ca21a0318aeb26a476c6ceb98b",
+        "sha256_in_prefix": "27f1db32f5c4c90155b3a49387ba912669a9c7ca21a0318aeb26a476c6ceb98b",
+        "size_in_bytes": 334
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/gzip_ng.py",
+        "path_type": "hardlink",
+        "sha256": "a4b59414593a47ff1c4ad64eb0209a607c6efd154da632617909b4cde62be414",
+        "sha256_in_prefix": "a4b59414593a47ff1c4ad64eb0209a607c6efd154da632617909b4cde62be414",
+        "size_in_bytes": 12450
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/gzip_ng_threaded.py",
+        "path_type": "hardlink",
+        "sha256": "21411f1d8bb8c96e26bcc62d76c5e95ec4501cae6504ebe30d41273f17ceb9a6",
+        "sha256_in_prefix": "21411f1d8bb8c96e26bcc62d76c5e95ec4501cae6504ebe30d41273f17ceb9a6",
+        "size_in_bytes": 15889
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/py.typed",
+        "path_type": "hardlink",
+        "sha256": "6d67b0f661e0332f0ba8cbbb46ea905c55cb071876091c747546d2c7edf0138f",
+        "sha256_in_prefix": "6d67b0f661e0332f0ba8cbbb46ea905c55cb071876091c747546d2c7edf0138f",
+        "size_in_bytes": 27
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/zlib-ng/LICENSE.md",
+        "path_type": "hardlink",
+        "sha256": "d3c80be055d94d798eaa786116e84fa0b010bc11420b5d2060d978ea77845436",
+        "sha256_in_prefix": "d3c80be055d94d798eaa786116e84fa0b010bc11420b5d2060d978ea77845436",
+        "size_in_bytes": 867
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/zlib-ng/README.md",
+        "path_type": "hardlink",
+        "sha256": "5e1032d7f44647ce88475872a4fff9bd1671e3bedf8bdca43925dd8fde97c8b3",
+        "sha256_in_prefix": "5e1032d7f44647ce88475872a4fff9bd1671e3bedf8bdca43925dd8fde97c8b3",
+        "size_in_bytes": 14891
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/zlib_ng.cpython-311-x86_64-linux-gnu.so",
+        "path_type": "hardlink",
+        "sha256": "7188359e0735b453910789d2d46dd2beaac3badab7e12ccdde1c40a99546b53b",
+        "sha256_in_prefix": "7188359e0735b453910789d2d46dd2beaac3badab7e12ccdde1c40a99546b53b",
+        "size_in_bytes": 64200
+      },
+      {
+        "_path": "lib/python3.11/site-packages/zlib_ng/zlib_ng.pyi",
+        "path_type": "hardlink",
+        "sha256": "53a90fb440de8b93f3d023432548b58f32b78f5a071c74b0f0c015457859af72",
+        "sha256_in_prefix": "53a90fb440de8b93f3d023432548b58f32b78f5a071c74b0f0c015457859af72",
+        "size_in_bytes": 2763
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "6fa5d99b84c3df1db51fc23f4b47972b68baa44b9fe397db968349045b0dc2ac",
+  "size": 57502,
+  "subdir": "linux-64",
+  "timestamp": 1727277263000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/linux-64/python-zlib-ng-0.5.1-py311h1a83624_0.conda",
+  "version": "0.5.1"
+}

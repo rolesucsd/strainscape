@@ -1,0 +1,358 @@
+{
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/conda-forge/noarch",
+  "constrains": [],
+  "depends": [
+    "python >=3.9",
+    "pandas >=1.3.5",
+    "numpy >=1.21.1",
+    "matplotlib-base >=3.6.3",
+    "biopython >=1.80"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/pycirclize-1.9.1-pyhd8ed1ab_0",
+  "features": "",
+  "files": [
+    "lib/python3.11/site-packages/pycirclize-1.9.1.dist-info/INSTALLER",
+    "lib/python3.11/site-packages/pycirclize-1.9.1.dist-info/METADATA",
+    "lib/python3.11/site-packages/pycirclize-1.9.1.dist-info/RECORD",
+    "lib/python3.11/site-packages/pycirclize-1.9.1.dist-info/REQUESTED",
+    "lib/python3.11/site-packages/pycirclize-1.9.1.dist-info/WHEEL",
+    "lib/python3.11/site-packages/pycirclize-1.9.1.dist-info/direct_url.json",
+    "lib/python3.11/site-packages/pycirclize-1.9.1.dist-info/licenses/LICENSE",
+    "lib/python3.11/site-packages/pycirclize/__init__.py",
+    "lib/python3.11/site-packages/pycirclize/circos.py",
+    "lib/python3.11/site-packages/pycirclize/config.py",
+    "lib/python3.11/site-packages/pycirclize/parser/__init__.py",
+    "lib/python3.11/site-packages/pycirclize/parser/bed.py",
+    "lib/python3.11/site-packages/pycirclize/parser/genbank.py",
+    "lib/python3.11/site-packages/pycirclize/parser/gff.py",
+    "lib/python3.11/site-packages/pycirclize/parser/matrix.py",
+    "lib/python3.11/site-packages/pycirclize/parser/table.py",
+    "lib/python3.11/site-packages/pycirclize/patches.py",
+    "lib/python3.11/site-packages/pycirclize/sector.py",
+    "lib/python3.11/site-packages/pycirclize/track.py",
+    "lib/python3.11/site-packages/pycirclize/tree.py",
+    "lib/python3.11/site-packages/pycirclize/utils/__init__.py",
+    "lib/python3.11/site-packages/pycirclize/utils/dataset.py",
+    "lib/python3.11/site-packages/pycirclize/utils/example_data/images/python_logo.png",
+    "lib/python3.11/site-packages/pycirclize/utils/example_data/trees/alphabet.nwk",
+    "lib/python3.11/site-packages/pycirclize/utils/example_data/trees/large_example.nwk",
+    "lib/python3.11/site-packages/pycirclize/utils/example_data/trees/medium_example.nwk",
+    "lib/python3.11/site-packages/pycirclize/utils/example_data/trees/small_example.nwk",
+    "lib/python3.11/site-packages/pycirclize/utils/helper.py",
+    "lib/python3.11/site-packages/pycirclize/utils/plot.py",
+    "lib/python3.11/site-packages/pycirclize/__pycache__/__init__.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/__pycache__/circos.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/__pycache__/config.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/parser/__pycache__/__init__.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/parser/__pycache__/bed.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/parser/__pycache__/genbank.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/parser/__pycache__/gff.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/parser/__pycache__/matrix.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/parser/__pycache__/table.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/__pycache__/patches.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/__pycache__/sector.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/__pycache__/track.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/__pycache__/tree.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/utils/__pycache__/__init__.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/utils/__pycache__/dataset.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/utils/__pycache__/helper.cpython-311.pyc",
+    "lib/python3.11/site-packages/pycirclize/utils/__pycache__/plot.cpython-311.pyc"
+  ],
+  "fn": "pycirclize-1.9.1-pyhd8ed1ab_0.conda",
+  "license": "MIT",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/pycirclize-1.9.1-pyhd8ed1ab_0",
+    "type": 1
+  },
+  "md5": "ec0a71e2a95892703af248d210f2a066",
+  "name": "pycirclize",
+  "noarch": "python",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/pycirclize-1.9.1-pyhd8ed1ab_0.conda",
+  "package_type": "noarch_python",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "site-packages/pycirclize-1.9.1.dist-info/INSTALLER",
+        "path_type": "hardlink",
+        "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "size_in_bytes": 5
+      },
+      {
+        "_path": "site-packages/pycirclize-1.9.1.dist-info/METADATA",
+        "path_type": "hardlink",
+        "sha256": "30eb772f88b2672c5e50b099f3f1ddc7cf3b0a261189d34da72e40f02cb2f49a",
+        "sha256_in_prefix": "30eb772f88b2672c5e50b099f3f1ddc7cf3b0a261189d34da72e40f02cb2f49a",
+        "size_in_bytes": 10331
+      },
+      {
+        "_path": "site-packages/pycirclize-1.9.1.dist-info/RECORD",
+        "path_type": "hardlink",
+        "sha256": "1593a631f0f64f6a53fe65fc1c1eadb5209f926a780964e6a506523ba86da2f3",
+        "sha256_in_prefix": "1593a631f0f64f6a53fe65fc1c1eadb5209f926a780964e6a506523ba86da2f3",
+        "size_in_bytes": 3419
+      },
+      {
+        "_path": "site-packages/pycirclize-1.9.1.dist-info/REQUESTED",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "site-packages/pycirclize-1.9.1.dist-info/WHEEL",
+        "path_type": "hardlink",
+        "sha256": "aad0b0a12256807936d52d4a6f88a1773236ae527564a688bab4e3fe780e8724",
+        "sha256_in_prefix": "aad0b0a12256807936d52d4a6f88a1773236ae527564a688bab4e3fe780e8724",
+        "size_in_bytes": 87
+      },
+      {
+        "_path": "site-packages/pycirclize-1.9.1.dist-info/direct_url.json",
+        "path_type": "hardlink",
+        "sha256": "c51e50f74770769cd396e0c0c7ed5886a8b51532443a0bf65972340dd325d534",
+        "sha256_in_prefix": "c51e50f74770769cd396e0c0c7ed5886a8b51532443a0bf65972340dd325d534",
+        "size_in_bytes": 106
+      },
+      {
+        "_path": "site-packages/pycirclize-1.9.1.dist-info/licenses/LICENSE",
+        "path_type": "hardlink",
+        "sha256": "79bc0aeefb753bda03fe3484e2bc958419b1e42130f0c99e31b243c173fa6cd4",
+        "sha256_in_prefix": "79bc0aeefb753bda03fe3484e2bc958419b1e42130f0c99e31b243c173fa6cd4",
+        "size_in_bytes": 1062
+      },
+      {
+        "_path": "site-packages/pycirclize/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "197f711d358a52a2c93e390fa2e61ecb7ee6324d732b3b4eece2e74577339fa0",
+        "sha256_in_prefix": "197f711d358a52a2c93e390fa2e61ecb7ee6324d732b3b4eece2e74577339fa0",
+        "size_in_bytes": 89
+      },
+      {
+        "_path": "site-packages/pycirclize/circos.py",
+        "path_type": "hardlink",
+        "sha256": "bf9b15e6b37671350e06209c961e1e94aff3b0eb3a6ab5350c9593db301a9f4c",
+        "sha256_in_prefix": "bf9b15e6b37671350e06209c961e1e94aff3b0eb3a6ab5350c9593db301a9f4c",
+        "size_in_bytes": 52449
+      },
+      {
+        "_path": "site-packages/pycirclize/config.py",
+        "path_type": "hardlink",
+        "sha256": "404a87bbc4e57caa1146ab94236319ce117a4fe96fa371815f9790a44a241ad0",
+        "sha256_in_prefix": "404a87bbc4e57caa1146ab94236319ce117a4fe96fa371815f9790a44a241ad0",
+        "size_in_bytes": 4554
+      },
+      {
+        "_path": "site-packages/pycirclize/parser/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "4372a412d1bfc3b137e3a84c8d8c53a4786c8f5b8ec9a24d03b59c2c6750e270",
+        "sha256_in_prefix": "4372a412d1bfc3b137e3a84c8d8c53a4786c8f5b8ec9a24d03b59c2c6750e270",
+        "size_in_bytes": 337
+      },
+      {
+        "_path": "site-packages/pycirclize/parser/bed.py",
+        "path_type": "hardlink",
+        "sha256": "9ce05b5d30e3a44eb9158b2912ae8efa06767d26c7dc2f8d92e5c2428e2eebe3",
+        "sha256_in_prefix": "9ce05b5d30e3a44eb9158b2912ae8efa06767d26c7dc2f8d92e5c2428e2eebe3",
+        "size_in_bytes": 1702
+      },
+      {
+        "_path": "site-packages/pycirclize/parser/genbank.py",
+        "path_type": "hardlink",
+        "sha256": "803cf4a88e77202a71375543e5a082e1496cd9210662d82e652e96347c492423",
+        "sha256_in_prefix": "803cf4a88e77202a71375543e5a082e1496cd9210662d82e652e96347c492423",
+        "size_in_bytes": 16453
+      },
+      {
+        "_path": "site-packages/pycirclize/parser/gff.py",
+        "path_type": "hardlink",
+        "sha256": "1d545eef55202ac6d68754796c2cad5d3977702dec0880ff5018e62d2fffac07",
+        "sha256_in_prefix": "1d545eef55202ac6d68754796c2cad5d3977702dec0880ff5018e62d2fffac07",
+        "size_in_bytes": 17741
+      },
+      {
+        "_path": "site-packages/pycirclize/parser/matrix.py",
+        "path_type": "hardlink",
+        "sha256": "03852cf7e64998b40c2a14c6b49699b257535645dd430d9a780a8808e48debfa",
+        "sha256_in_prefix": "03852cf7e64998b40c2a14c6b49699b257535645dd430d9a780a8808e48debfa",
+        "size_in_bytes": 8106
+      },
+      {
+        "_path": "site-packages/pycirclize/parser/table.py",
+        "path_type": "hardlink",
+        "sha256": "1a219a94c90907ce835264f2a3efdd6252a29274df393eb7221fa73c1fd3b820",
+        "sha256_in_prefix": "1a219a94c90907ce835264f2a3efdd6252a29274df393eb7221fa73c1fd3b820",
+        "size_in_bytes": 6185
+      },
+      {
+        "_path": "site-packages/pycirclize/patches.py",
+        "path_type": "hardlink",
+        "sha256": "f7e1810f370e9f8c3b6c371b8c8c8d11f8c328127bf40cf2b583d722b7de0cfe",
+        "sha256_in_prefix": "f7e1810f370e9f8c3b6c371b8c8c8d11f8c328127bf40cf2b583d722b7de0cfe",
+        "size_in_bytes": 16325
+      },
+      {
+        "_path": "site-packages/pycirclize/sector.py",
+        "path_type": "hardlink",
+        "sha256": "bffb7c53b10a7f5a70c28a2de32a650d134a1ecd5875b2d01225b0ec4901e4d1",
+        "sha256_in_prefix": "bffb7c53b10a7f5a70c28a2de32a650d134a1ecd5875b2d01225b0ec4901e4d1",
+        "size_in_bytes": 16957
+      },
+      {
+        "_path": "site-packages/pycirclize/track.py",
+        "path_type": "hardlink",
+        "sha256": "a6c2bb3b9c91cd5dba4de2402672cd91ee7a2baf7324cd8fa387804685d2bbff",
+        "sha256_in_prefix": "a6c2bb3b9c91cd5dba4de2402672cd91ee7a2baf7324cd8fa387804685d2bbff",
+        "size_in_bytes": 57370
+      },
+      {
+        "_path": "site-packages/pycirclize/tree.py",
+        "path_type": "hardlink",
+        "sha256": "1f0de58f93f1e1d023887a0d6e1a1f73e9b950395c7a4123c13117b0fe4bc7bf",
+        "sha256_in_prefix": "1f0de58f93f1e1d023887a0d6e1a1f73e9b950395c7a4123c13117b0fe4bc7bf",
+        "size_in_bytes": 25431
+      },
+      {
+        "_path": "site-packages/pycirclize/utils/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "aab0c1e18ab9edda9145567a418a1947acd9f163cbede834863aaf8516752f2d",
+        "sha256_in_prefix": "aab0c1e18ab9edda9145567a418a1947acd9f163cbede834863aaf8516752f2d",
+        "size_in_bytes": 628
+      },
+      {
+        "_path": "site-packages/pycirclize/utils/dataset.py",
+        "path_type": "hardlink",
+        "sha256": "b6d2cbf958c64f2fc73e59b99080844a527ed84778bd5b7ef86848a2d6b10e11",
+        "sha256_in_prefix": "b6d2cbf958c64f2fc73e59b99080844a527ed84778bd5b7ef86848a2d6b10e11",
+        "size_in_bytes": 7832
+      },
+      {
+        "_path": "site-packages/pycirclize/utils/example_data/images/python_logo.png",
+        "path_type": "hardlink",
+        "sha256": "314ea70dbb88566678efd5e1855e35ea2b7d133af16e4c33bc574df6f80ba80a",
+        "sha256_in_prefix": "314ea70dbb88566678efd5e1855e35ea2b7d133af16e4c33bc574df6f80ba80a",
+        "size_in_bytes": 9955
+      },
+      {
+        "_path": "site-packages/pycirclize/utils/example_data/trees/alphabet.nwk",
+        "path_type": "hardlink",
+        "sha256": "d1044b3b3dfd278b86ef5fb0f782a13bb118ecbd033d326d318e06165df0052d",
+        "sha256_in_prefix": "d1044b3b3dfd278b86ef5fb0f782a13bb118ecbd033d326d318e06165df0052d",
+        "size_in_bytes": 565
+      },
+      {
+        "_path": "site-packages/pycirclize/utils/example_data/trees/large_example.nwk",
+        "path_type": "hardlink",
+        "sha256": "f4c26aec737c078ee8b60a2b680a573b19e9adb0f7549a0e952737d571af7a0d",
+        "sha256_in_prefix": "f4c26aec737c078ee8b60a2b680a573b19e9adb0f7549a0e952737d571af7a0d",
+        "size_in_bytes": 7112
+      },
+      {
+        "_path": "site-packages/pycirclize/utils/example_data/trees/medium_example.nwk",
+        "path_type": "hardlink",
+        "sha256": "d7ab67d5ba4b2de1d89b742fcf389a8e3e5d5af353bbeb0ce9a60b432ca337a9",
+        "sha256_in_prefix": "d7ab67d5ba4b2de1d89b742fcf389a8e3e5d5af353bbeb0ce9a60b432ca337a9",
+        "size_in_bytes": 778
+      },
+      {
+        "_path": "site-packages/pycirclize/utils/example_data/trees/small_example.nwk",
+        "path_type": "hardlink",
+        "sha256": "81e9c248fa50a2157ed5df8cc9c320b9234682d4cc9f221fcdee68b8636b1a8a",
+        "sha256_in_prefix": "81e9c248fa50a2157ed5df8cc9c320b9234682d4cc9f221fcdee68b8636b1a8a",
+        "size_in_bytes": 227
+      },
+      {
+        "_path": "site-packages/pycirclize/utils/helper.py",
+        "path_type": "hardlink",
+        "sha256": "e25ffa10f82ca20fc837e9c43d4b96195ff09795a99bfcddea9db6cbfd6bea74",
+        "sha256_in_prefix": "e25ffa10f82ca20fc837e9c43d4b96195ff09795a99bfcddea9db6cbfd6bea74",
+        "size_in_bytes": 4967
+      },
+      {
+        "_path": "site-packages/pycirclize/utils/plot.py",
+        "path_type": "hardlink",
+        "sha256": "46910a3a580669ede43bd15db28059353c80597a4238750314bb71bb6309323a",
+        "sha256_in_prefix": "46910a3a580669ede43bd15db28059353c80597a4238750314bb71bb6309323a",
+        "size_in_bytes": 5365
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/__pycache__/__init__.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/__pycache__/circos.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/__pycache__/config.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/parser/__pycache__/__init__.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/parser/__pycache__/bed.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/parser/__pycache__/genbank.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/parser/__pycache__/gff.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/parser/__pycache__/matrix.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/parser/__pycache__/table.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/__pycache__/patches.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/__pycache__/sector.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/__pycache__/track.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/__pycache__/tree.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/utils/__pycache__/__init__.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/utils/__pycache__/dataset.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/utils/__pycache__/helper.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pycirclize/utils/__pycache__/plot.cpython-311.pyc",
+        "path_type": "pyc_file"
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "c0505e98323f684fe513ceb814b89c6b7043503d74ad62e6bc5c615efb9c6864",
+  "size": 67580,
+  "subdir": "noarch",
+  "timestamp": 1745023901000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/noarch/pycirclize-1.9.1-pyhd8ed1ab_0.conda",
+  "version": "1.9.1"
+}

@@ -1,0 +1,3 @@
+NameError in file "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/Snakefile", line 72:
+name 'COASSEMBLY' is not defined
+  File "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/Snakefile", line 72, in <module>

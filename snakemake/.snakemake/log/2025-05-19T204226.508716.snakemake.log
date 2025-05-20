@@ -1,0 +1,5 @@
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+WorkflowError:
+Failed to open source file /ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/rules/envs/megahit.yml
+FileNotFoundError: [Errno 2] No such file or directory: '/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/rules/envs/megahit.yml'

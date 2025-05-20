@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+limit=1
+
+if [ $# -gt 0 ]
+then
+  limit=$1
+  shift
+fi
+
+awk -v limit=$limit -F '\t' '(NR == 1) { key = $1 } ($1 != key) { key = $1; limit-- } (limit < 1) { exit } { print }'

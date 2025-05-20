@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+xtract -rec Rec -pattern Seq-entry \
+  -division seq/id -position first -ACCN accession \
+  -division pub \
+    -group article -pkg CITATION -tab "" -wrp ACCN -element "&ACCN" \
+      -branch article/authors/names \
+        -block name/name -position first \
+          -tab "" -wrp "FAUT" -sep " " -auth "last,initials" \
+        -block name/name -position last \
+          -tab "" -wrp "LAUT" -sep " " -auth "last,initials" \
+      -branch article/title -tab "" -wrp "TITL" -element name \
+      -branch article/from/journal \
+        -block journal/title -tab "" -wrp "JOUR" -first iso-jta,ml-jta,name,issn \
+        -block imp/volume -tab "" -wrp "VOL" -element volume \
+        -block imp/issue -tab "" -wrp "ISS" -element issue \
+        -block imp/pages -tab "" -wrp "PAGE" -page pages \
+        -block imp/date -tab "" -wrp "YEAR" -year "std/*"

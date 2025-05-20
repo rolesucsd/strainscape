@@ -1,0 +1,33 @@
+#!/bin/bash -norc
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# Usage:
+#
+#  echo ATGAAACCCGGGTTTTAG | systematic-mutations
+#
+#  echo RCCGGY | disambiguate-nucleotides | systematic-mutations
+
+while read seq pat
+do
+  seq=$( echo "$seq" | tr a-z A-Z )
+  for (( i=0; i<${#seq}; i++ ))
+  do
+    ch="${seq:$i:1}"
+    for sub in A C G T
+    do
+      mod=$(
+        echo "$seq" |
+        transmute -replace -offset "$i" -delete "$ch" -insert "$sub"
+      )
+      if [ -n "$pat" ]
+      then
+        echo "$mod:$pat"
+      else
+        echo "$mod"
+      fi
+    done
+  done
+done |
+sort -f | uniq -i

@@ -1,0 +1,76 @@
+#!/bin/bash -norc
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# cat smear.asn | gm2segs -1-based
+
+oneBased=true
+zeroBased=false
+ucscBased=false
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    -0-based | -zero-based )
+      zeroBased=true
+      oneBased=false
+      ucscBased=false
+      shift
+      ;;
+    -1-based | -one-based )
+      zeroBased=false
+      oneBased=true
+      ucscBased=false
+      shift
+      ;;
+    -ucsc-based | -ucsc-based )
+      zeroBased=false
+      oneBased=false
+      ucscBased=true
+      shift
+      ;;
+    * )
+      break
+      ;;
+  esac
+done
+
+processAlignments() {
+
+  xtract -pattern annot_E -select label/str -equals "BLASTN - mrna" |
+  xtract -rec One -pattern align_E \
+    -block denseg -wrp Accn -sep "." -element accession,version \
+    -block score_E -if id/str -equals score \
+      -wrp Score -element value/int \
+    -block starts -wrp Start -odd starts_E \
+    -block lens -wrp Length -element lens_E \
+    -block strands -wrp Strand -odd strands_E |
+  xtract -rec Two -pattern One \
+    -wrp Accn -element Accn -wrp Score -element Score \
+    -wrp FirstPos -first Start -wrp LastPos -last Start \
+    -wrp FirstLen -first Length -wrp LastLen -last Length \
+    -wrp Strand -first Strand |
+  xtract -pattern Two \
+    -block Two -if Strand -equals plus -def "-" \
+      -element Accn Score FirstPos LastPos LastLen Strand \
+    -block Two -if Strand -equals minus -def "-" \
+      -element Accn Score LastPos FirstPos FirstLen Strand |
+  print-columns '$1, $2, $3, $4 + $5 - 1, $4 + $5 - $3, $6' |
+  sort-table -k 6,6fr -k 3,3n -k 4,4nr -k 1,1f
+}
+
+if [ "$zeroBased" = true ]
+then
+  processAlignments
+elif [ "$oneBased" = true ]
+then
+  processAlignments |
+  print-columns '$1, $2, $3 + 1, $4 + 1, $5, $6'
+elif [ "$ucscBased" = true ]
+then
+  processAlignments |
+  print-columns '$1, $2, $3, $4 + 1, $5, $6'
+else
+  processAlignments
+fi

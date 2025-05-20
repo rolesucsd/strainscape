@@ -1,0 +1,503 @@
+#!/bin/bash
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# sample query:
+
+# cit2pmid -local \
+#   -title "nucleotide sequences required for tn3 transposition immunity" \
+#   -author "Kans JA" -author "Casadaban MJ" \
+#   -journal "J Bacteriol" -year 1989 -volume 171 -issue 4 -page 1904-14
+
+# initialize variables
+
+debug=false
+strict=false
+mode="remote"
+
+# read mode flags
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    -debug )
+      debug=true
+      shift
+      ;;
+    -strict )
+      strict=true
+      shift
+      ;;
+    -remote )
+      # use nquire -citmatch remote service
+      mode="remote"
+      shift
+      ;;
+    -eutils )
+      # use EDirect call to esearch
+      mode="eutils"
+      shift
+      ;;
+    -local )
+      # use transmute -r2p for relaxed search with local archive
+      mode="local"
+      shift
+      ;;
+    -exact )
+      # use phrase-search for strict matching with local archive
+      mode="exact"
+      shift
+      ;;
+    -verify )
+      # first calls -local, then calls -remote to confirm candidates
+      mode="verify"
+      shift
+      ;;
+    * )
+      # break without shift to get data arguments
+      break
+      ;;
+  esac
+done
+
+if [ "$mode" = "local" ] || [ "$mode" = "exact" ]
+then
+  # get local master and working volumes from database
+  ev=$( rchive -local pubmed )
+  if [ -n "$ev" ]
+  then
+    # only care about master volume and its Postings subfolder
+    target="${ev%:*}"
+  fi
+
+  if [ -z "$target" ]
+  then
+    echo "ERROR: Must supply path to local data by setting EDIRECT_LOCAL_MASTER environment variable" >&2
+    exit 1
+  fi
+
+  osname=`uname -s | sed -e 's/_NT-.*$/_NT/; s/^MINGW[0-9]*/CYGWIN/'`
+  if [ "$osname" = "CYGWIN_NT" -a -x /bin/cygpath ]
+  then
+    target=`cygpath -w "$target"`
+  fi
+
+  # remove trailing slash
+  target=${target%/}
+
+  if [ ! -d "$target" ]
+  then
+    echo "ERROR: Local archive ${target} is not mounted" >&2
+    exit 1
+  fi
+
+  target=$( echo "${target}/Postings")
+
+  if [ ! -d "$target" ]
+  then
+    echo "ERROR: Postings directory ${target} is not present" >&2
+    exit 1
+  fi
+fi
+
+# initialize citation fields
+
+titl=""
+faut=""
+laut=""
+jour=""
+year=""
+volu=""
+issu=""
+page=""
+
+# copied from ecommon.sh
+ParseMessage() {
+
+  mesg=$1
+  objc=$2
+  shift 2
+
+  if [ -z "$mesg" ]
+  then
+    return 1
+  fi
+
+  object=$( echo "$mesg" | tr -d '\n' | sed -n "s|.*<$objc>\\(.*\\)</$objc>.*|\\1|p" )
+  if [ -z "$object" ]
+  then
+    return 2
+  fi
+
+  err=$( echo "$object" | sed -n 's|.*<Error>\(.*\)</Error>.*|\1|p' )
+  if [ -z "$err" ]
+  then
+    while [ $# -gt 0 ]
+    do
+      var=$1
+      fld=$2
+      shift 2
+      value=$( echo "$object" | sed -n "s|.*<$fld>\\(.*\\)</$fld>.*|\\1|p" )
+      eval "$var=\$value"
+    done
+  fi
+
+  return 0
+}
+
+# -asn reads CPub ASN.1
+if [ $# -eq 2 ] && [ "$1" = "-asn" ]
+then
+  asn="$2"
+  shift
+  shift
+  if [ "$asn" = "-" ]
+  then
+    # read from stdin
+    asn=$( cat )
+  fi
+  vals=$(
+    echo "$asn" |
+    xtract -rec Rec -pattern article -pkg CIT \
+      -group article/title -wrp "Title" -element name \
+      -group article/authors/names \
+        -block name/name -position first \
+          -wrp "Faut" -sep " " -auth "last,initials" \
+        -block name/name -position last \
+          -wrp "Laut" -sep " " -auth "last,initials" \
+      -group article/from/journal \
+        -block title/name -wrp "Journal" -element name \
+        -block imp/date -wrp "Year" -year "std/*" \
+        -block imp/volume -wrp "Volume" -element volume \
+        -block imp/issue -wrp "Issue" -element issue \
+        -block imp/pages -wrp "Pages" -page pages |
+    transmute -format
+  )
+
+  ParseMessage "$vals" CIT \
+                titl Title faut Faut laut Laut jour Journal \
+                year Year volu Volume issu Issue page Pages
+fi
+
+# -cit reads CITATION XML
+if [ $# -eq 2 ] && [ "$1" = "-cit" ]
+then
+  cit="$2"
+  shift
+  shift
+  if [ "$cit" = "-" ]
+  then
+    # read from stdin
+    cit=$( cat )
+  fi
+  vals=$(
+    echo "$cit" |
+    xtract -rec CIT -pattern CITATION \
+      -wrp "Title" -element TITL \
+      -wrp "First" -element FAUT \
+      -wrp "Last" -element LAUT \
+      -wrp "Journal" -element JOUR \
+      -wrp "Year" -element YEAR \
+      -wrp "Volume" -element VOL \
+      -wrp "Issue" -element ISS \
+      -wrp "Pages" -page PAGE |
+    transmute -format
+  )
+
+  ParseMessage "$vals" CIT \
+                titl Title faut First laut Last jour Journal \
+                year Year volu Volume issu Issue page Pages
+fi
+
+# read individual field and value arguments
+
+isAtStart=yes
+while [ $# -gt 0 ]
+do
+  typ="$1"
+
+  case "$typ:$isAtStart" in
+    -* ) 
+      ;;
+    *:yes )
+      echo "ERROR: Missing type for $typ" >&2
+      exit 1
+      ;;
+    * )
+      echo "ERROR: Missing type for $typ - please remember to quote multi-word values" >&2
+      exit 1
+      ;;
+  esac
+  isAtStart=no
+
+  shift
+  if [ $# -lt 1 ]
+  then
+    echo "ERROR: Missing ${typ} argument" >&2
+    exit 1
+  fi
+  # trim flanking whitespace, compress internal runs of whitespace
+  tag=$( echo "$1" | awk '{$1=$1;print}' )
+  shift
+
+  case "${typ}" in
+    -title | -TITL )
+      # incomplete title may need other fields to disambiguate
+      titl="${tag}"
+      ;;
+    -author )
+      # can add first and last authors in separate arguments
+      auth="${tag}"
+      if [ -z "$faut" ]
+      then
+        faut="${auth}"
+      else
+        laut="${auth}"
+      fi
+      ;;
+    -FAUT )
+      faut="${tag}"
+      ;;
+    -LAUT )
+      laut="${tag}"
+      ;;
+    -journal | -JOUR )
+      jour="${tag}"
+      ;;
+    -year | -YEAR | -PDAT )
+      year="${tag}"
+      ;;
+    -volume | -VOL )
+      volu="${tag}"
+      ;;
+    -issue | -ISS )
+      issu="${tag}"
+      ;;
+    -page | -pages | -PAGE )
+      # only keep first page
+      page=$( echo "${tag}" | sed -e 's/-.*//' )
+      ;;
+    * )
+      echo "ERROR: Unrecognized command '${typ}'" >&2
+      exit 1
+      ;;
+  esac
+done
+
+# clean up parentheses
+titl=$( echo "$titl" | tr -d '(' | tr -d ')' | tr -d '.' )
+jour=$( echo "$jour" | tr -d '(' | tr -d ')' | tr -d '.' )
+
+# echo "titl $titl"
+# echo "faut $faut"
+# echo "laut $laut"
+# echo "jour $jour"
+# echo "year $year"
+# echo "volu $volu"
+# echo "issu $issu"
+# echo "page $page"
+
+# initialize query variable
+
+query=""
+
+CleanAuthor() {
+
+  athr=$( echo "$1" | tr 'A-Z' 'a-z' )
+  lins=$( echo "$athr" | wc -w )
+  if [ $lins -gt 2 ]
+  then
+    fst=$( echo "$athr" | cut -d ' ' -f 1 )
+    scd=$( echo "$athr" | cut -d ' ' -f 2 )
+    thd=$( echo "$athr" | cut -d ' ' -f 3 )
+    if [ "$thd" = "jr" ] || [ "$thd" = "sr" ]
+    then
+      athr=$( echo "${fst} ${scd}" )
+    fi
+  fi
+  lins=$( echo "$athr" | wc -w )
+  if [ $lins -eq 2 ]
+  then
+    fst=$( echo "$athr" | cut -d ' ' -f 1 )
+    scd=$( echo "$athr" | cut -d ' ' -f 2 )
+    scd=${scd:0:1}
+    athr=$( echo "${fst} ${scd}" )
+  fi
+  echo "$athr"
+}
+
+if [ "$mode" = "eutils" ]
+then
+  titl=$( echo "${titl}" | sed -e 's/[^A-Za-z0-9]/ /g' | tr -s ' ' )
+  faut=$( CleanAuthor "$faut" )
+  laut=$( CleanAuthor "$laut" )
+fi
+
+# query construction function
+
+AppendOneArg() {
+
+  qry="$1"
+  arg="$2"
+  fld="$3"
+
+  sep=""
+  spc=""
+  if [ -n "$qry" ]
+  then
+    sep=" AND "
+    spc=" "
+  fi
+
+  if [ -n "$arg" ]
+  then
+    case "$mode" in
+      remote )
+        qry=$( echo "${qry}${spc}${arg}" )
+        ;;
+      eutils )
+        qry=$( echo "${qry}${sep}${arg} [${fld}]" )
+        ;;
+      local )
+        qry=$( echo "${qry}<${fld}>${arg}</${fld}>" )
+        ;;
+      exact )
+        qry=$( echo "${qry}${sep}${arg} [${fld}]" )
+        ;;
+      verify )
+        qry=$( echo "${qry} -${fld} \"${arg}\"" )
+        ;;
+    esac
+  fi
+
+  echo "$qry"
+}
+
+# citation fields appended in fixed order after title and authors
+
+if [ "$mode" = "local" ]
+then
+  query="<CITATION>"
+fi
+
+# add in order of GenBank format REFERENCE for citmatch expectation
+
+if [ "$mode" != "eutils" ]
+then
+  query=$( AppendOneArg "$query" "${faut}" "FAUT" )
+  query=$( AppendOneArg "$query" "${laut}" "LAUT" )
+else
+  query=$( echo "${query}(${faut} [FAUT] OR ${laut} [LAUT])" )
+fi
+if [ "$mode" != "eutils" ]
+then
+  query=$( AppendOneArg "$query" "${titl}" "TITL" )
+fi
+query=$( AppendOneArg "$query" "${jour}" "JOUR" )
+query=$( AppendOneArg "$query" "${volu}" "VOL" )
+query=$( AppendOneArg "$query" "${issu}" "ISS" )
+query=$( AppendOneArg "$query" "${page}" "PAGE" )
+if [ "$mode" = "eutils" ]
+then
+  query=$( AppendOneArg "$query" "${year}" "PDAT" )
+else
+  query=$( AppendOneArg "$query" "${year}" "YEAR" )
+fi
+
+if [ "$mode" = "local" ]
+then
+  query=$( echo "$query</CITATION>" )
+fi
+
+# execute search, print matched PMIDs
+
+result=""
+
+case "$mode" in
+  remote )
+    if [ "$debug" = true ]
+    then
+      echo ""
+      echo "nquire -citmatch \"${query}\""
+      echo ""
+    fi
+    result=$(
+      nquire -citmatch "${query}" |
+      xtract -pattern opt -sep "\n" -element uids/pubmed |
+      head -n 20
+    )
+    ;;
+  eutils )
+    if [ "$debug" = true ]
+    then
+      echo ""
+      echo "QURY ${query}"
+      echo "TITL ${titl}"
+      echo ""
+    fi
+    result=$( esearch -db pubmed -query "${query}" -title "${titl}" < /dev/null |
+              efetch -format uid )
+    ;;
+  local )
+    if [ "$debug" = true ]
+    then
+      echo "${query}"
+      if [ "$strict" = true ]
+      then
+        result=$( echo "${query}" | ref2pmid -options strict debug )
+      else
+        result=$( echo "${query}" | ref2pmid -options debug )
+      fi
+    elif [ "$strict" = true ]
+    then
+      result=$( echo "${query}" | ref2pmid -options strict |
+                xtract -mixed -pattern CITATION -sep "\n" -element PMID )
+    else
+      result=$( echo "${query}" | ref2pmid |
+                xtract -mixed -pattern CITATION -sep "\n" -element PMID )
+    fi
+    ;;
+  exact )
+    if [ "$debug" = true ]
+    then
+      echo "${query}"
+    fi
+    result=$( phrase-search -query "${query}" | head -n 20 )
+    ;;
+  verify )
+    if [ "$debug" = true ]
+    then
+      echo "${query}"
+    fi
+    # first query against local archive with strict matching
+    first=$( cit2pmid -local -strict \
+      "-FAUT" "${faut}" "-LAUT" "${laut}" \
+      "-TITL" "${titl}" \
+      "-JOUR" "${jour}" "-VOL" "${volu}" \
+      "-ISS" "${issu}" "-PAGE" "${page}" \
+      "-YEAR" "${year}" )
+    if [ -n "$first" ]
+    then
+      # then confirm positive candidates with call to citmatch
+      second=$( cit2pmid -remote \
+      "-FAUT" "${faut}" "-LAUT" "${laut}" \
+      "-TITL" "${titl}" \
+      "-JOUR" "${jour}" "-VOL" "${volu}" \
+      "-ISS" "${issu}" "-PAGE" "${page}" \
+      "-YEAR" "${year}" )
+      if [ -n "$second" ] && [ "$first" = "$second" ]
+      then
+        result=$( echo "$second" )
+      fi
+    fi
+    ;;
+esac
+
+# only print results if 5 or fewer candidate matches
+
+num=$( echo "$result" | wc -l )
+if [ $num -lt 6 ]
+then
+  echo "$result"
+fi

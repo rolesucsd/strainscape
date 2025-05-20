@@ -1,0 +1,67 @@
+{
+  "build": "h1fcc475_2",
+  "build_number": 2,
+  "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+  "constrains": [],
+  "depends": [
+    "libgcc-ng >=12",
+    "libstdcxx-ng >=12",
+    "bzip2 >=1.0.8,<2.0a0"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/pbzip2-1.1.13-h1fcc475_2",
+  "features": "",
+  "files": [
+    "bin/pbunzip2",
+    "bin/pbzcat",
+    "bin/pbzip2",
+    "share/man/man1/pbzip2.1"
+  ],
+  "fn": "pbzip2-1.1.13-h1fcc475_2.conda",
+  "license": "pbzip2",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/pbzip2-1.1.13-h1fcc475_2",
+    "type": 1
+  },
+  "md5": "e1bf3c0868789f3ddf5d1aeb47bc60a6",
+  "name": "pbzip2",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/pbzip2-1.1.13-h1fcc475_2.conda",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "bin/pbunzip2",
+        "path_type": "softlink",
+        "sha256": "35090a48f3d73dcc65373dcae6af85546d497a761fcd00b64d5a676b29afde60",
+        "size_in_bytes": 94208
+      },
+      {
+        "_path": "bin/pbzcat",
+        "path_type": "softlink",
+        "sha256": "35090a48f3d73dcc65373dcae6af85546d497a761fcd00b64d5a676b29afde60",
+        "size_in_bytes": 94208
+      },
+      {
+        "_path": "bin/pbzip2",
+        "path_type": "hardlink",
+        "sha256": "35090a48f3d73dcc65373dcae6af85546d497a761fcd00b64d5a676b29afde60",
+        "sha256_in_prefix": "35090a48f3d73dcc65373dcae6af85546d497a761fcd00b64d5a676b29afde60",
+        "size_in_bytes": 94208
+      },
+      {
+        "_path": "share/man/man1/pbzip2.1",
+        "path_type": "hardlink",
+        "sha256": "5622dd23c391014361cbd072491881c1323a5088d1cd8831ab1ece7a985fe061",
+        "sha256_in_prefix": "5622dd23c391014361cbd072491881c1323a5088d1cd8831ab1ece7a985fe061",
+        "size_in_bytes": 5569
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "ac60def440634fc822c9279ce205527ed8d08d6776f5320c56ba78ec0919401e",
+  "size": 42312,
+  "subdir": "linux-64",
+  "timestamp": 1696006783000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/linux-64/pbzip2-1.1.13-h1fcc475_2.conda",
+  "version": "1.1.13"
+}

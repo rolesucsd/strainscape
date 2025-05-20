@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+fetch-local -db pubmed -tag PubmedArticle -set PubmedArticleSet \
+  -xml '<?xml version="1.0" encoding="UTF-8" ?>' \
+  -doctype '<!DOCTYPE PubmedArticleSet PUBLIC "-//NLM//DTD PubMedArticle, 1st January 2019//EN" "https://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_190101.dtd">'

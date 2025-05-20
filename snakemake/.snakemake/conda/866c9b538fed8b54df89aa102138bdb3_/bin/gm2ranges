@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# cat smear.asn | blst2gm | gm2ranges | grep minus | cut -f 2- | fuse-ranges
+# minus    5599    5731    133
+# minus    5740    6520    781
+# minus    6609    7098    490
+# minus    9055    9679    625
+
+import sys
+
+def getRanges(zipped):
+    for start, span, strand in zipped:
+        if start == -1:
+            continue
+        stop = start + span - 1
+        if strand == "minus":
+            start, stop = stop, start
+        yield f'{start}..{stop}'
+
+def getStrand(col):
+    if "plus" in col and "minus" in col:
+        return "mixed"
+    elif "minus" in col:
+        return "minus"
+    return "plus"
+
+def doLine(cols):
+    zipped = zip(map(int, cols[2].split("|")),
+                 map(int, cols[3].split("|")),
+                 cols[4].split("|"))
+    ranges = list(getRanges(zipped))
+    num = str(len(ranges))
+    strand = getStrand(cols[4])
+    ivals = ",".join(ranges)
+    fields = [cols[0], cols[1], num, strand, ivals]
+    print("\t".join(fields))
+
+for line in sys.stdin:
+    line = line.rstrip()
+    if len(line) < 1:
+        continue
+    cols = line.split()
+    if len(cols) < 5:
+        continue
+    doLine(cols)

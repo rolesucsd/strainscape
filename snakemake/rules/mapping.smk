@@ -15,9 +15,6 @@ Dependencies:
 - BWA and SAMtools tools
 """
 
-# Import wildcard functions
-from scripts.wildcards import FILTERED_CONTIGS, MAP_BAM, SORT_BAM, FLAGSTAT, COMBINED_FLAGSTAT
-
 rule bwa_index:
     """
     Create BWA index for reference genome.
@@ -114,7 +111,7 @@ rule combine_flagstats:
     """
     input:
         flagstats = expand(FLAGSTAT("{patient}", "{sample}"),
-                         patient=config["patients"],
+                         patient=config["patient_ids"],
                          sample=lambda wc: get_samples(wc.patient).keys())
     output:
         combined = COMBINED_FLAGSTAT()

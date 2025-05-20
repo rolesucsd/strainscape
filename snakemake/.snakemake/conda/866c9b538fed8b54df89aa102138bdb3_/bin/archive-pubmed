@@ -1,0 +1,1179 @@
+#!/bin/bash
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# archive-pubmed
+
+total_start=$(date "+%s")
+
+pth=$( dirname "$0" )
+
+case "$pth" in
+  /* )
+    ;; # already absolute
+  *  )
+    pth=$(cd "$pth" && pwd)
+    ;;
+esac
+
+case ":$PATH:" in
+  *:"$pth":* )
+    ;;
+  * )
+    PATH="$PATH:$pth"
+    export PATH
+    ;;
+esac
+
+# database-specific parameters
+
+dbase="pubmed"
+recname="PubmedArticle"
+dotmax="200"
+subdirs="00-24,25-49,50-74,75-99"
+fields="AUTH FAUT LAUT ANUM INVR INUM CSRT JOUR LANG VOL ISS PAGE DATE YEAR DOI MESH CODE TREE SUBH KYWD PAIR PROP PTYP RDAT SIZE TIAB TITL UID"
+
+# control flags set by command-line arguments
+
+useFtp=true
+useHttps=false
+stem=false
+
+info=false
+
+clean=false
+scrub=false
+scour=false
+zap=false
+
+datafiles=true
+download=true
+populate=true
+
+e2index=false
+e2invert=false
+e2merge=false
+e2post=false
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    daily | -daily )
+      e2index=true
+      e2invert=true
+      datafiles=true
+      shift
+      ;;
+    index | -index | reindex | -reindex )
+      e2index=true
+      e2invert=true
+      e2merge=true
+      e2post=true
+      datafiles=true
+      shift
+      ;;
+    stem | -stem | stemmed | -stemmed )
+      stem=true
+      shift
+      ;;
+    clean | -clean | clear | -clear )
+      # delete Indices contents and Increment files
+      clean=true
+      shift
+      ;;
+    scrub | -scrub )
+      clean=true
+      # and delete Postings directories
+      scrub=true
+      shift
+      ;;
+    scour | -scour )
+      clean=true
+      scrub=true
+      # and delete Data, Archive, and Sentinels directories
+      scour=true
+      shift
+      ;;
+    zap | -zap )
+      clean=true
+      scrub=true
+      scour=true
+      # and delete Source records and all remaining directories
+      zap=true
+      shift
+      ;;
+    -info )
+      info=true
+      shift
+      ;;
+    -ftp )
+      useFtp=true
+      useHttps=false
+      shift
+      ;;
+    -http | -https )
+      useFtp=false
+      useHttps=true
+      shift
+      ;;
+    * )
+      break
+      ;;
+  esac
+done
+
+if [ "$clean" == true ] && [ "$e2index" == true ]
+then
+  echo "ERROR: Cleaning and indexing must be done in separate commands, EXITING" >&2
+  exit 1
+fi
+
+if [ "$zap" = true ]
+then
+  pm-clean -db "$dbase" -zap
+  exit 0
+fi
+
+if [ "$scour" = true ]
+then
+  pm-clean -db "$dbase" -scour
+  exit 0
+fi
+
+if [ "$scrub" = true ]
+then
+  pm-clean -db "$dbase" -scrub
+  exit 0
+fi
+
+if [ "$clean" = true ]
+then
+  pm-clean -db "$dbase" -clean
+  exit 0
+fi
+
+if [ "$stem" = true ]
+then
+  fields=$( echo "$fields STEM" )
+fi
+
+date
+echo "" >&2
+
+MASTER=""
+WORKING=""
+
+# get local master and working volumes from database, creating subfolders if necessary
+ev=$( pm-setup -db "$dbase" )
+
+if [ -z "$ev" ]
+then
+  echo "ERROR: Must supply path to local data by setting EDIRECT_LOCAL_MASTER environment variable" >&2
+  exit 1
+fi
+
+MASTER="${ev%:*}"
+WORKING="${ev#*:}"
+
+# remove trailing slash
+MASTER=${MASTER%/}
+WORKING=${WORKING%/}
+
+# report data locations
+echo "ARCHIVE $MASTER" >&2
+echo "WORKING $WORKING" >&2
+echo "" >&2
+
+echo "Preparing Drives" >&2
+pm-prepare "$MASTER" "$WORKING"
+echo "" >&2
+
+DAT=""
+DWN=""
+POP=""
+
+IDX=""
+INV=""
+MRG=""
+PST=""
+
+if [ "$info" = true ]
+then
+  if [ -d "$WORKING/Source" ]
+  then
+    cd "$WORKING/Source"
+
+    current=$(
+      for fl in *.xml.gz
+      do
+        echo "$fl" | grep ".xml.gz"
+      done |
+      cut -c 7-8 | sort -n | tail -n 1
+    )
+
+    latest=$(
+      nquire -lst ftp://ftp.ncbi.nlm.nih.gov/pubmed/baseline |
+      grep ".xml.gz" | grep -v ".md5" |
+      cut -c 7-8 | sort -n | tail -n 1
+    )
+
+    if [ "$current" != "$latest" ]
+    then
+      echo "ERROR: Need to update PubMed release files from 20${current} to 20${latest} by first running archive-pubmed -zap" >&2
+    else
+      echo "PubMed release files for 20${current} are up to date" >&2
+    fi
+  fi
+
+  exit 0
+fi
+
+DoMeSHTree() {
+
+  year=$(
+    nquire -get https://nlmpubs.nlm.nih.gov projects/mesh/MESH_FILES/xmlmesh |
+    xtract -mixed -pattern body -block a -if a -contains ".xml" -tab "\n" -terms a |
+    sort -Vr | head -n 1 | sed 's/[a-z.]//g'
+  )
+
+  if [ -z "$year" ]
+  then
+    year="$(date +%Y)"
+  fi
+
+  if [ ! -f "desc${year}.xml" ]
+  then
+    echo "desc${year}.xml"
+    if [ "$useFtp" = true ]
+    then
+      nquire -dwn "ftp://nlmpubs.nlm.nih.gov" "online/mesh/MESH_FILES/xmlmesh" "desc${year}.gz"
+    elif [ "$useHttps" = true ]
+    then
+      nquire -bulk -get https://nlmpubs.nlm.nih.gov projects/mesh/MESH_FILES/xmlmesh desc${year}.gz > desc${year}.gz
+    fi
+    sleep 1
+    if [ ! -f "desc${year}.gz" ]
+    then
+      echo "ERROR - Problem downloading desc${year}.gz" >&2
+    else
+      gunzip -q desc${year}.gz
+    fi
+    sleep 1
+    if [ ! -f "desc${year}.xml" ] && [ -f "desc${year}" ]
+    then
+      mv desc${year} desc${year}.xml
+    fi
+    if [ ! -f "desc${year}.xml" ]
+    then
+      echo "ERROR - Problem converting desc${year}.xml" >&2
+    else
+      chmod og-wx desc${year}.xml
+      chmod u-x desc${year}.xml
+    fi
+  fi
+
+  if [ ! -f "pa${year}.xml" ]
+  then
+    echo "pa${year}.xml"
+    if [ "$useFtp" = true ]
+    then
+      nquire -dwn "ftp://nlmpubs.nlm.nih.gov" "online/mesh/MESH_FILES/xmlmesh" "pa${year}.xml"
+    elif [ "$useHttps" = true ]
+    then
+      nquire -bulk -get https://nlmpubs.nlm.nih.gov/projects mesh/MESH_FILES/xmlmesh pa${year}.xml > pa${year}.xml
+    fi
+  fi
+
+  if [ ! -f "qual${year}.xml" ]
+  then
+    echo "qual${year}.xml"
+    if [ "$useFtp" = true ]
+    then
+      nquire -dwn "ftp://nlmpubs.nlm.nih.gov" "online/mesh/MESH_FILES/xmlmesh" "qual${year}.xml"
+    elif [ "$useHttps" = true ]
+    then
+      nquire -bulk -get https://nlmpubs.nlm.nih.gov/projects mesh/MESH_FILES/xmlmesh qual${year}.xml > qual${year}.xml
+    fi
+  fi
+
+  if [ ! -f "supp${year}.xml" ]
+  then
+    echo "supp${year}.xml"
+    if [ "$useFtp" = true ]
+    then
+      nquire -dwn "ftp://nlmpubs.nlm.nih.gov" "online/mesh/MESH_FILES/xmlmesh" "supp${year}.zip"
+    elif [ "$useHttps" = true ]
+    then
+      nquire -bulk -get https://nlmpubs.nlm.nih.gov/projects mesh/MESH_FILES/xmlmesh supp${year}.zip > supp${year}.zip
+    fi
+
+    if [ -f "supp${year}.zip" ]
+    then
+      unzip -qq supp${year}.zip
+      rm supp${year}.zip
+      chmod og-wx supp${year}.xml
+      chmod u-x supp${year}.xml
+    fi
+  fi
+
+  if [ ! -f "meshconv.xml" ]
+  then
+    rm -f meshtemp.xml
+    if [ -f "supp${year}.xml" ]
+    then
+      cat supp${year}.xml |
+      xtract -wrp "Set,Rec" -pattern SupplementalRecord \
+        -if "SupplementalRecord@SCRClass" -eq 1 \
+        -or "SupplementalRecord@SCRClass" -eq 3 \
+          -wrp "Code" -element "SupplementalRecord/SupplementalRecordUI" \
+          -wrp "Name" -encode "SupplementalRecordName/String" \
+          -wrp "Term" -encode "Term/String" > meshtemp.xml
+    fi
+
+    if [ -f "desc${year}.xml" ]
+    then
+      cat desc${year}.xml |
+      xtract -wrp "Set,Rec" -pattern DescriptorRecord \
+        -wrp "Code" -element "DescriptorRecord/DescriptorUI" \
+        -wrp "Name" -first "DescriptorName/String" \
+        -wrp "Term" -encode "Term/String" \
+        -wrp "Tree" -element "TreeNumberList/TreeNumber" >> meshtemp.xml
+    fi
+
+    if [ -f "meshtemp.xml" ]
+    then
+      cat meshtemp.xml | xtract -wrp Set -pattern Rec -sort Code |
+      transmute -format indent > meshconv.xml
+      rm meshtemp.xml
+    fi
+  fi
+
+  if [ -f "meshconv.xml" ]
+  then
+    if [ ! -f "meshtree.txt" ]
+    then
+      cat meshconv.xml |
+      xtract -pattern Rec -if Tree -element Code -sep "," -element Tree > meshtree.txt
+    fi
+
+    if [ ! -f "meshname.txt" ]
+    then
+      cat meshconv.xml |
+      xtract -pattern Rec -if Name -element Code -sep "," -element Name > meshname.txt
+    fi
+  fi
+}
+
+DoSerials() {
+
+  year=""
+
+  files=$(
+    # obtain names of base and update files for several years
+    nquire -bulk -get https://ftp.nlm.nih.gov projects/serfilelease |
+    sed -ne 's,.* href="\([^/"]*\)".*,\1,p' | grep -v marcxml
+  )
+
+  if [ -n "$files" ]
+  then
+    year=$(
+      # get latest year embedded in file names
+      echo "$files" | grep serfilebase | sort -Vr | head -n 1 |
+      sed -e 's/serfilebase.//' -e 's/.xml//'
+    )
+    if [ -n "$year" ]
+    then
+      # limit to serfilebase and serfile updates for current year
+      files=$( echo "$files" | grep "$year" )
+    fi
+  fi
+
+  basefile="serfilebase.${year}.xml"
+  updates=$( echo "$files" | grep -v serfilebase | sort -V )
+
+  if [ ! -f "serials.txt" ] && [ ! -s "$basefile" ]
+  then
+    echo "$basefile" >&2
+    nquire -bulk -get https://ftp.nlm.nih.gov projects/serfilelease "${basefile}" > $basefile
+  fi
+
+  if [ ! -f "serials.txt" ] && [ -s "$basefile" ]
+  then
+    echo "# ${basefile}" >> serials.txt
+    cat "$basefile" |
+    xtract -pattern NLMCatalogRecord -def "-" -element NlmUniqueID PublicationInfo/Country >> serials.txt
+    cat "$basefile" |
+    xtract -pattern DeleteCatalogRecord -block NlmUniqueID -element NlmUniqueID -lbl "-" -deq "\n" >> serials.txt
+  fi
+
+  if [ -f "serials.txt" ] && [ -n "$updates" ]
+  then
+    echo "$updates" |
+    while read serfile
+    do
+      if [ ! -s "$serfile" ]
+      then
+        echo "$serfile" >&2
+        nquire -bulk -get https://ftp.nlm.nih.gov projects/serfilelease "${serfile}" > $serfile
+      fi
+      if [ -s "$serfile" ]
+      then
+        if ! grep -Fq "$serfile" serials.txt
+        then
+          echo "# ${serfile}" >> serials.txt
+          cat "$serfile" |
+          xtract -pattern NLMCatalogRecord -def "-" -element NlmUniqueID PublicationInfo/Country >> serials.txt
+          cat "$serfile" |
+          xtract -pattern DeleteCatalogRecord -block NlmUniqueID -element NlmUniqueID -lbl "-" -deq "\n" >> serials.txt
+        fi
+      fi
+    done
+  fi
+}
+
+finish_jtas() {
+
+  tr -s ' ' |
+  sed -e 's/^ *//g' -e 's/ *$//g' |
+  sort-table -k 1,1f -k 3,3n -k 4,4nr -k 2,2f |
+  uniq -i |
+  awk -F '\t' '(NR == 1  ||  $1 != prev_key) { if (NR > 1) { print prev_line }; prev_key = $1; prev_line = $0 } END { print prev_line }' |
+  cut -f 1,2
+}
+
+multi_jtas() {
+
+  tr -s ' ' |
+  sed -e 's/^ *//g' -e 's/ *$//g' |
+  sort-table -k 1,1f -k 3,3n -k 4,4nr -k 2,2f |
+  uniq -i |
+  awk -F '\t' '(NR > 1 && $1 == prev_key && $4 == prev_flag) { print } (NR == 1 || $1 != prev_key) { print; prev_key = $1; prev_flag = $4 }' |
+  cut -f 1,2 | sort | uniq |
+  awk -F '\t' '{ if (NR == 1 || $1 != prev_key) { if (NR > 1) { print saved }; prev_key = $1; saved = $1 "\t" $2 } else { saved = saved " | " $2 } } END { print saved }'
+}
+
+JourCache() {
+
+  if [ "$useFtp" = true ]
+  then
+    nquire -ftp ftp.ncbi.nlm.nih.gov pubmed jourcache.xml
+  elif [ "$useHttps" = true ]
+  then
+    nquire -bulk -get https://ftp.ncbi.nlm.nih.gov pubmed jourcache.xml
+  fi
+}
+
+DoJournals() {
+
+  if [ ! -f "jourconv.xml" ]
+  then
+    if [ ! -f "jourcache.xml" ]
+    then
+      if [ -f "serials.txt" ]
+      then
+        JourCache |
+        grep -v DOCTYPE | grep -v ELEMENT | grep -v ATTLIST |
+        xtract -transfigure serials.txt \
+          -head "<JournalCache>" -tail "</JournalCache>" \
+          -pattern Journal -pkg Journal \
+            -block "Journal/*" -element "*" \
+            -block Journal -wrp Country -translate NlmUniqueID |
+        transmute -format > jourcache.xml
+      else
+        JourCache |
+        grep -v DOCTYPE | grep -v ELEMENT | grep -v ATTLIST |
+        transmute -format > jourcache.xml
+      fi
+    fi
+
+    if [ -f "jourcache.xml" ]
+    then
+      cat jourcache.xml |
+      xtract -set Set -pattern Journal \
+        -if Name -and MedAbbr \
+          -NAME Name -ABRV MedAbbr -ACTV ActivityFlag \
+          -group Name -pkg Rec \
+            -wrp Key -jour Name -wrp Abrv -jour "&ABRV" \
+            -wrp Indx -jour "&NAME" -wrp Name -element "&NAME" \
+            -wrp Type -lbl "1" -wrp Flag -element "&ACTV" \
+          -group MedAbbr -pkg Rec \
+            -wrp Key -jour MedAbbr -wrp Abrv -jour "&ABRV" \
+            -wrp Indx -jour "&NAME" -wrp Name -element "&NAME" \
+            -wrp Type -lbl "2" -wrp Flag -element "&ACTV" \
+          -group Alias \
+            -block Alias -pkg Rec \
+              -wrp Key -jour Alias -wrp Abrv -jour "&ABRV" \
+              -wrp Indx -jour "&NAME" -wrp Name -element "&NAME" \
+              -wrp Type -lbl "3" -wrp Flag -element "&ACTV" \
+          -group Journal -if "&ABRV" -equals "bioRxiv" \
+            -block Journal -pkg Rec \
+              -wrp Key -lbl "biorxiv.org" -wrp Abrv -jour "&ABRV" \
+              -wrp Indx -jour "&NAME" -wrp Name -element "&NAME" \
+              -wrp Type -lbl "3" -wrp Flag -element "&ACTV" \
+            -block Journal -pkg Rec \
+              -wrp Key -lbl "biorxivorg" -wrp Abrv -jour "&ABRV" \
+              -wrp Indx -jour "&NAME" -wrp Name -element "&NAME" \
+              -wrp Type -lbl "3" -wrp Flag -element "&ACTV" |
+      xtract -set Set -pattern Rec \
+        -group Rec \
+          -block Rec -pkg Rec \
+            -wrp Key -lower Key -wrp Abrv -element Abrv \
+            -wrp Indx -element Indx -wrp Name -element Name \
+            -wrp Type -element Type -wrp Flag -element Flag |
+      xtract -set Set -pattern Rec \
+        -group Rec \
+          -block Rec -pkg Rec \
+            -wrp Key -element Key -wrp Abrv -element Abrv \
+            -wrp Indx -element Indx -wrp Name -element Name \
+            -wrp Type -element Type -wrp Flag -element Flag \
+          -block Rec -if Key -starts-with "journal " -pkg Rec \
+            -wrp Key -pfx "<Key>the " -element Key -wrp Abrv -element Abrv \
+            -wrp Indx -element Indx -wrp Name -element Name \
+            -wrp Type -element Type -wrp Flag -element Flag \
+          -block Rec -if Key -starts-with "the journal " -pkg Rec \
+            -wrp Key -element "Key[5:]" -wrp Abrv -element Abrv \
+            -wrp Indx -element Indx -wrp Name -element Name \
+            -wrp Type -element Type -wrp Flag -element Flag |
+      transmute -format > jourconv.xml
+    fi
+  fi
+
+  if [ -f "jourconv.xml" ]
+  then
+    if [ ! -f "jourabrv.txt" ]
+    then
+      cat jourconv.xml | xtract -pattern Rec -element Key Abrv Type Flag | finish_jtas > jourabrv.txt
+    fi
+    if [ ! -f "jourindx.txt" ]
+    then
+      cat jourconv.xml | xtract -pattern Rec -element Key Indx Type Flag | finish_jtas > jourindx.txt
+    fi
+    if [ ! -f "journame.txt" ]
+    then
+      cat jourconv.xml | xtract -pattern Rec -element Key Name Type Flag | finish_jtas > journame.txt
+    fi
+    if [ ! -f "joursets.txt" ]
+    then
+      cat jourconv.xml | xtract -pattern Rec -element Key Name Type Flag | multi_jtas > joursets.txt
+    fi
+    if [ ! -f "jourmaps.xml" ] && [ -f "jourindx.txt" ]
+    then
+      cat jourindx.txt | tbl2xml -set JournalMaps -rec Journal Key Indx > jourmaps.xml
+    fi
+  fi
+}
+
+if [ "$datafiles" = true ]
+then
+  seconds_start=$(date "+%s")
+
+  if [ -d "$WORKING/Extras" ]
+  then
+    cd "$WORKING/Extras"
+
+    echo "Downloading MeSH Tree" >&2
+    DoMeSHTree
+
+    echo "Downloading Serials" >&2
+    DoSerials
+
+    echo "Downloading Journals" >&2
+    DoJournals
+  fi
+
+  echo "Copying to Data Directory"
+  for fl in jourabrv.txt jourindx.txt journame.txt joursets.txt meshconv.xml meshname.txt meshtree.txt
+  do
+    if [ ! -f "$MASTER/Data/$fl" ] && [ -f "$WORKING/Extras/$fl" ]
+    then
+      cp "$WORKING/Extras/$fl" "$MASTER/Data/$fl"
+    fi
+  done
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  DAT=$seconds
+  echo "DAT $DAT seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+DownloadOneByFTP() {
+
+  dir="$1"
+  fl="$2"
+
+  url="ftp.ncbi.nlm.nih.gov/pubmed/${dir}"
+
+  echo "$fl" |
+  nquire -asp "${url}"
+
+  # delete if file is present but empty
+  if [ -f "$fl" ] && [ ! -s "$fl" ]
+  then
+    rm -f "$fl"
+  fi
+
+  # retry if no file
+  if [ ! -f "$fl" ]
+  then
+    sleep 10
+    echo "First Failed Download Retry" >&2
+    echo "$fl" |
+    nquire -asp "${url}"
+  fi
+
+  # retry again if still no file
+  if [ ! -f "$fl" ]
+  then
+    sleep 20
+    echo "Second Failed Download Retry" >&2
+    echo "$fl" |
+    nquire -asp "${url}"
+  fi
+
+  # retry once more if still no file, using -dwn instead of -asp
+  if [ ! -f "$fl" ]
+  then
+    sleep 30
+    echo "Third Failed Download Retry" >&2
+    echo "$fl" |
+    nquire -dwn "${url}"
+  fi
+
+  # verify contents
+  if [ -s "$fl" ]
+  then
+    errs=$( (gunzip -c "$fl" | xtract -mixed -verify) 2>&1 )
+    if [ -n "$errs" ]
+    then
+      # delete and retry one more time
+      rm -f "$fl"
+      sleep 10
+      echo "Invalid Contents Retry" >&2
+      echo "$fl" |
+      nquire -asp "${url}"
+      if [ -s "$fl" ]
+      then
+        errs=$( (gunzip -c "$fl" | xtract -mixed -verify) 2>&1 )
+        if [ -n "$errs" ]
+        then
+          rm -f "$fl"
+          frst=$( echo "$errs" | head -n 1 )
+          echo "ERROR invalid file '$fl' deleted, errors start with '$frst'" >&2
+        fi
+      else
+        echo "Download Attempts Failed" >&2
+      fi
+    fi
+  else
+    rm -f "$fl"
+    echo "Download of '$fl' Failed" >&2
+  fi
+}
+
+DownloadOneByHTTPS() {
+
+  dir="$1"
+  fl="$2"
+
+  url="https://ftp.ncbi.nlm.nih.gov/pubmed/${dir}"
+
+  nquire -bulk -get "${url}" "$fl" > "$fl"
+
+  # delete if file is present but empty
+  if [ -f "$fl" ] && [ ! -s "$fl" ]
+  then
+    rm -f "$fl"
+  fi
+
+  # retry if no file
+  if [ ! -f "$fl" ]
+  then
+    sleep 10
+    echo "First Failed Download Retry" >&2
+    nquire -bulk -get "${url}" "$fl" > "$fl"
+  fi
+
+  # retry again if still no file
+  if [ ! -f "$fl" ]
+  then
+    sleep 20
+    echo "Second Failed Download Retry" >&2
+    nquire -bulk -get "${url}" "$fl" > "$fl"
+  fi
+
+  # retry once more if still no file
+  if [ ! -f "$fl" ]
+  then
+    sleep 30
+    echo "Third Failed Download Retry" >&2
+    nquire -bulk -get "${url}" "$fl" > "$fl"
+  fi
+
+  # verify contents
+  if [ -s "$fl" ]
+  then
+    errs=$( (gunzip -c "$fl" | xtract -mixed -verify) 2>&1 )
+    if [ -n "$errs" ]
+    then
+      # delete and retry one more time
+      rm -f "$fl"
+      sleep 10
+      echo "Invalid Contents Retry" >&2
+      nquire -bulk -get "${url}" "$fl" > "$fl"
+      if [ -s "$fl" ]
+      then
+        errs=$( (gunzip -c "$fl" | xtract -mixed -verify) 2>&1 )
+        if [ -n "$errs" ]
+        then
+          rm -f "$fl"
+          frst=$( echo "$errs" | head -n 1 )
+          echo "ERROR invalid file '$fl' deleted, errors start with '$frst'" >&2
+        fi
+      fi
+    fi
+  else
+    rm -f "$fl"
+    echo "Download of '$fl' Failed" >&2
+  fi
+}
+
+DownloadSection() {
+
+  dir="$1"
+
+  if [ "$useFtp" = true ]
+  then
+    nquire -lst ftp.ncbi.nlm.nih.gov pubmed "$dir" |
+    grep -v ".md5" | grep "xml.gz" |
+    skip-if-file-exists |
+    while read fl
+    do
+      sleep 1
+      echo "$fl" >&2
+      DownloadOneByFTP "$dir" "$fl"
+    done
+  elif [ "$useHttps" = true ]
+  then
+    nquire -get https://ftp.ncbi.nlm.nih.gov pubmed "$dir" |
+    xtract -pattern a -if a -starts-with pubmed -and a -ends-with ".xml.gz" -element a |
+    skip-if-file-exists |
+    while read fl
+    do
+      sleep 1
+      echo "$fl" >&2
+      DownloadOneByHTTPS "$dir" "$fl"
+    done
+  fi
+}
+
+if [ "$download" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Downloading New PubMed Files" >&2
+
+  if [ -d "$WORKING/Source" ]
+  then
+    cd "$WORKING/Source"
+
+    DownloadSection "baseline"
+    if [ $? -ne 0 ]
+    then
+      DownloadSection "baseline"
+    fi
+    DownloadSection "updatefiles"
+    if [ $? -ne 0 ]
+    then
+      DownloadSection "updatefiles"
+    fi
+  fi
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  DWN=$seconds
+  echo "DWN $DWN seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+ReportVersioned() {
+  inp="$1"
+  pmidlist=.TO-REPORT
+  xtract -input "$inp" -pattern PubmedArticle \
+    -block MedlineCitation/PMID -if "@Version" -gt 1 -element "PMID" < /dev/null |
+  sort -n | uniq > $pmidlist
+  if [ -s $pmidlist ]
+  then
+    cat "$pmidlist" >> "$MASTER/Archive/versioned.uid"
+  fi
+  rm $pmidlist
+}
+
+PMStash() {
+
+  fl="$1"
+
+  rm -f "versioned.xml.gz"
+  rm -f "versioned.snt"
+
+  needToReport=true
+  timeout=100
+  if [ "$pma2pme" = true ]
+  then
+    timeout=200
+  fi
+
+  base=${fl%.xml.gz}
+  secnds_start=$(date "+%s")
+  echo "$base.xml"
+
+  gunzip -c "$fl" |
+  transmute -strict -normalize pubmed |
+  transmute -compress -strict -wrp PubmedArticleSet \
+    -pattern "PubmedArticleSet/*" -format flush > "$base.xml"
+  rchive -gzip -db "$dbase" -input "$base.xml" \
+    -archive "$MASTER/Archive" "$WORKING/Index" "$WORKING/Invert" \
+    -index MedlineCitation/PMID^Version -pattern PubmedArticle < /dev/null
+
+  cat "$base.xml" |
+  xtract -pattern DeleteCitation -block PMID -tab "\n" -sep "." -element "PMID" |
+  sort -n | uniq |
+  rchive -gzip -db "$dbase" -delete "$MASTER/Archive" "$WORKING/Index" "$WORKING/Invert"
+
+  ReportVersioned "$base.xml"
+
+  touch "$MASTER/Archive/Sentinels/$base.snt"
+  rm "$base.xml"
+
+  secnds_end=$(date "+%s")
+  secnds=$((secnds_end - secnds_start))
+  if [ "$needToReport" = true ]
+  then
+    if [ "$secnds" -gt "$timeout" ]
+    then
+      echo ""
+      echo "ARCHIVING IS SLOWER THAN EXPECTED."
+      echo ""
+      echo "PLEASE ENSURE THAT ANTIVIRUS SCANNING AND CONTENT INDEXING ARE DISABLED,"
+      echo "AND THAT TRIM SUPPORT IS ENABLED FOR THE SOLID STATE DRIVE."
+      echo ""
+      if [ "$osname" = "Darwin" ]
+      then
+        master=${archive%/Archive/}
+        echo "  sudo mdutil -i off ${master}"
+        echo "  sudo mdutil -E ${master}"
+        echo "  sudo touch ${master}/.fseventsd/no_log"
+        echo ""
+      fi
+      needToReport=false
+    fi
+  fi
+}
+
+if [ "$populate" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Populating PubMed Archive" >&2
+
+  if [ -d "$WORKING/Source" ]
+  then
+    cd "$WORKING/Source"
+
+    first=""
+    last=""
+
+    for fl in *.xml.gz
+    do
+      base=${fl%.xml.gz}
+      if [ -z "$first" ]
+      then
+        first="$base"
+      fi
+      last="$base"
+    done
+
+    if [ -n "$first" ] && [ -n "$last" ]
+    then
+      fst=$( echo "$first" | cut -c 7-8 )
+      lst=$( echo "$last" | cut -c 7-8 )
+      if [ -n "$fst" ] && [ -n "$lst" ] && [ "$fst" != "$lst" ]
+      then
+        echo "" >&2
+        echo "ERROR: Local PubMed archive contains a mixture of years, from 20${fst} to 20${lst}" >&2
+        echo "Please remove files from previous years, and run archive-pubmed -scour to clear stale data," >&2
+        echo "before rerunning archive-pubmed -index" >&2
+        echo "" >&2
+      fi
+    fi
+
+    for fl in *.xml.gz
+    do
+      base=${fl%.xml.gz}
+      if [ -f "$MASTER/Archive/Sentinels/$base.snt" ]
+      then
+        continue
+      fi
+      PMStash "$fl"
+    done
+  fi
+
+  echo "Refreshing Versioned Records"
+  pm-refresh "$MASTER/Archive" "$WORKING/Index" "$WORKING/Invert"
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  POP=$seconds
+  echo "POP $POP seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+# check archive, printing "OK" from "OK Adeyemo" if record is successfully retrieved
+okay=$( echo 18810966 |
+fetch-pubmed -path "$MASTER/Archive" |
+xtract -pattern Author -if Affiliation -contains Medicine -element Initials )
+if [ "$okay" = "OK" ]
+then
+  echo "Archive is $okay" >&2
+  echo "" >&2
+fi
+
+currentDate=$(date +%Y)
+
+# variable contains pubmed-database-specific xtract indexing instructions
+# do not quote EOS, or it will suppress expansion of currentDate variable within the "here" document
+# no double quotes needed around $currentDate
+read -r -d '' idxtxt <<- EOS
+xtract -set IdxDocumentSet -rec IdxDocument \
+  -pattern PubmedArticle -UID MedlineCitation/PMID -LEN -len "*" \
+    -wrp IdxUid -element "&UID" -clr -rst -tab "" \
+    -group PubmedArticle -pkg IdxSearchFields \
+      -block PubmedArticle -wrp UID -pad "&UID" \
+      -block PubmedArticle -wrp SIZE -inc "&LEN" \
+      -block PubmedArticle -wrp YEAR -year "PubDate/*" \
+      -block PubmedArticle -if PubDate/Month -unit PubDate -wrp DATE -reg "/" -exp " " -date "*" \
+      -block PubmedArticle -unless PubDate/Month \
+        -subset PubMedPubDate -if "@PubStatus" -equals pubmed -unit PubMedPubDate -wrp DATE -reg "/" -exp " " -date "*" \
+      -block PubmedArticle -unit DateRevised -wrp RDAT -reg "/" -exp " " -date "*" \
+      -block MedlineJournalInfo -wrp JOUR -element MedlineTA NlmUniqueID ISSNLinking \
+      -block Article/Journal -wrp JOUR -jour Title ISOAbbreviation -element ISSN -wrp VOL -element Volume -wrp ISS -element Issue \
+      -block Article/Pagination -wrp PAGE -page MedlinePgn \
+      -block Article/Language -wrp LANG -element Language \
+      -block AuthorList -wrp ANUM -num Author/LastName \
+      -block AuthorList/Author -position first -wrp FAUT -sep " " -author LastName,Initials \
+      -block AuthorList/Author -if LastName -sep " " -LAST LastName,Initials \
+      -block PubmedArticle -if "&LAST" -wrp LAUT -author "&LAST" \
+      -block AuthorList/Author -wrp CSRT -prose CollectiveName \
+      -block AuthorList/Author -wrp AUTH -sep " " -author LastName,Initials \
+      -block InvestigatorList/Investigator -wrp INVR -sep " " -author LastName,Initials \
+      -block PubmedArticle -wrp TITL -indexer ArticleTitle \
+      -block PubmedArticle -wrp TIAB -indexer ArticleTitle,Abstract/AbstractText \
+      -block PubmedArticle -wrp KYWD -element KeywordList/Keyword \
+      -block PubmedArticle -wrp PAIR -pairx ArticleTitle \
+      -block PublicationType -wrp PTYP -element PublicationType \
+      -block CommentsCorrections -wrp PROP -prop "@RefType" \
+      -block PublicationStatus -wrp PROP -prop PublicationStatus \
+      -block Abstract -if AbstractText -wrp PROP -lbl "Has Abstract" \
+      -block MedlineCitation -if CoiStatement -wrp PROP -lbl "Conflict of Interest Statement" \
+      -block Journal -if MedlineDate -wrp PROP -lbl "Medline Date" \
+        -subset MedlineDate -if "%MedlineDate" -lt 4 -wrp PROP -lbl "Bad Date" \
+      -block PubDate -if Year -and "%Year" -lt 4 -wrp PROP -lbl "Bad Date" \
+      -block PubMedPubDate -if "%Year" -lt 4 -wrp PROP -lbl "Bad Date" \
+      -block JournalIssue -if "@CitedMedium" -is-not Internet \
+        -subset PubDate -if Year -gt $currentDate -wrp PROP -lbl "Future Date" \
+      -block PubMedPubDate -if Year -gt $currentDate -and "@PubStatus" -is-not pmc-release -wrp PROP -lbl "Future Date" \
+      -block MedlineCitation -if "PMID@Version" -gt 1 -wrp PROP -lbl "Versioned" \
+      -block PubmedData/ArticleIdList/ArticleId -if "@IdType" -equals doi -ALN -alnum ArticleId -wrp DOI -mirror "&ALN" \
+      -block PubmedArticle -meshcode "MeshHeading/DescriptorName@UI,Chemical/NameOfSubstance@UI,SupplMeshName@UI" \
+      -block MeshHeading/QualifierName -wrp SUBH -element QualifierName \
+      -block MeshHeading/DescriptorName -wrp MESH -element DescriptorName
+EOS
+
+if [ "$e2index" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Incremental Indexing" >&2
+
+  if [ "$stem" = true ]
+  then
+    idxtxt=$( echo "$idxtxt -block PubmedArticle -wrp STEM -indexer ArticleTitle,Abstract/AbstractText" )
+  fi
+
+  temp=$(mktemp /tmp/INDEX_TEMP.XXXXXXXXX)
+  # generate file with xtract indexing arguments, split onto separate lines, skipping past xtract command itself
+  echo "${idxtxt}" | xargs -n1 echo | tail -n +2 > $temp
+  rchive -db "$dbase" -e2incIndex "$MASTER/Archive" "$WORKING/Index" -idxargs "$temp" -dotmax "$dotmax" -transform "$WORKING/Extras/meshtree.txt" -e2index
+  rm "$temp"
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  IDX=$seconds
+  echo "IDX $IDX seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+if [ "$e2invert" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Incremental Inversion" >&2
+
+  rchive -db "$dbase" -subdirs "$subdirs" -e2incInvert "$WORKING/Index" "$WORKING/Invert"
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  INV=$seconds
+  echo "INV $INV seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+if [ "$e2merge" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Merging Inverted Indices" >&2
+
+  if [ -d "$WORKING/Invert" ]
+  then
+    cd "$WORKING/Invert"
+
+    rchive -gzip -db "$dbase" -merge "$WORKING/Merged" *.inv.gz
+  fi
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  MRG=$seconds
+  echo "MRG $MRG seconds" >&2
+  echo "" >&2
+  sleep 1
+  if [ ! -f "$WORKING/Merged/zz.mrg.gz" ]
+  then
+    echo "ERROR: Merge failed to complete - missing zz.mrg.gz file" >&2
+    echo "" >&2
+    echo "EXITING DUE TO BUILD FAILURE" >&2
+    echo "" >&2
+    # do not continue
+    e2post=false
+  fi
+fi
+
+if [ "$e2post" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Producing Postings Files" >&2
+
+  if [ -d "$WORKING/Merged" ]
+  then
+    cd "$WORKING/Merged"
+
+    for fl in *.mrg.gz
+    do
+      echo "$fl"
+    done |
+    sort |
+    xargs -n 100 echo |
+    while read files
+    do
+      rchive -db "$dbase" -promote "$MASTER/Postings" "$fields" $files
+    done
+  fi
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  PST=$seconds
+  echo "PST $PST seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+wait
+
+# check postings
+okay=""
+if [ "$e2post" = true ]
+then
+  okay=$( phrase-search -path "$MASTER/Postings" -query "mapping of spatio-temporal pollution status [TIAB] AND 2008 [YEAR]" |
+  fetch-pubmed -path "$MASTER/Archive" |
+  xtract -pattern Author -if Affiliation -contains Medicine -element Initials )
+  if [ "$okay" = "OK" ]
+  then
+    echo "Archive and Index are $okay" >&2
+    echo "" >&2
+  fi
+fi
+
+if [ "$e2post" = true ] && [ "$okay" = "OK" ] && [ -d "$WORKING/Merged" ]
+then
+  target="$WORKING/Merged"
+  find "$target" -name "*.mrg" -delete
+  find "$target" -name "*.mrg.gz" -delete
+fi
+
+cd
+
+echo "ARCHIVE-PUBMED" >&2
+
+echo "" >&2
+
+PrintTime() {
+
+  if [ "$1" = true ]
+  then
+    echo "$2 $3 seconds" >&2
+  fi
+}
+
+PrintTime "$datafiles" "DAT" "$DAT"
+PrintTime "$download" "DWN" "$DWN"
+PrintTime "$populate" "POP" "$POP"
+
+PrintTime "$e2index" "IDX" "$IDX"
+PrintTime "$e2invert" "INV" "$INV"
+PrintTime "$e2merge" "MRG" "$MRG"
+PrintTime "$e2post" "PST" "$PST"
+
+echo "" >&2
+
+function PrintTotalElapsedTime {
+  local L=$1
+  local T=$2
+  local D=$((T/60/60/24))
+  local H=$((T/60/60%24))
+  local M=$((T/60%60))
+  local S=$((T%60))
+  printf '%s %d second' "$L" $T 1>&2
+  (( $T > 1 )) && printf 's' 1>&2
+  if [ "$T" -gt 59 ]
+  then
+    printf ', or' 1>&2
+    (( $D > 0 )) && printf ' %d day' $D 1>&2
+    (( $D > 1 )) && printf 's' 1>&2
+    (( $H > 0 )) && printf ' %d hour' $H 1>&2
+    (( $H > 1 )) && printf 's' 1>&2
+    (( $M > 0 )) && printf ' %d minute' $M 1>&2
+    (( $M > 1 )) && printf 's' 1>&2
+    (( $S > 0 )) && printf ' %d second' $S 1>&2
+    (( $S > 1 )) && printf 's' 1>&2
+  fi
+  printf '\n' 1>&2
+}
+
+total_end=$(date "+%s")
+total=$((total_end - total_start))
+TOT=$total
+PrintTotalElapsedTime "TOT" "$TOT"
+echo "" >&2
+
+if [ "$e2merge" = false ]
+then
+  echo "TO BUILD LOCAL SEARCH INDICES, RUN:" >&2
+  echo "" >&2
+  echo "  archive-pubmed -index" >&2
+  echo "" >&2
+  echo "TO SEE LOCAL QUERY EXAMPLES, RUN:" >&2
+  echo "" >&2
+  echo "  phrase-search -help" >&2
+  echo "" >&2
+fi

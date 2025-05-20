@@ -1,0 +1,44 @@
+{
+  "build": "h9948957_6",
+  "build_number": 6,
+  "channel": "https://conda.anaconda.org/bioconda/linux-64",
+  "constrains": [],
+  "depends": [
+    "libgcc >=13",
+    "libstdcxx >=13"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/piler-cr-1.06-h9948957_6",
+  "features": "",
+  "files": [
+    "bin/pilercr"
+  ],
+  "fn": "piler-cr-1.06-h9948957_6.tar.bz2",
+  "license": "Public Domain",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/piler-cr-1.06-h9948957_6",
+    "type": 1
+  },
+  "md5": "25cf472bf889d7d875ab913446886c42",
+  "name": "piler-cr",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/piler-cr-1.06-h9948957_6.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "bin/pilercr",
+        "path_type": "hardlink",
+        "sha256": "c26b2ebe23201d8fc91343a34b4638f2266343d305527dc19b4d14d198054fff",
+        "sha256_in_prefix": "c26b2ebe23201d8fc91343a34b4638f2266343d305527dc19b4d14d198054fff",
+        "size_in_bytes": 212120
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "d378e28f98af7b4d23c2b5df197108551185a8db9f3e82e0afd112075db4e328",
+  "size": 110394,
+  "subdir": "linux-64",
+  "timestamp": 1739268747000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/bioconda/linux-64/piler-cr-1.06-h9948957_6.tar.bz2",
+  "version": "1.06"
+}

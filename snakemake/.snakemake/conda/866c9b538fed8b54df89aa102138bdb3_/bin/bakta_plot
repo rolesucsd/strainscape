@@ -1,0 +1,11 @@
+#!/bin/sh
+'''exec' "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/.snakemake/conda/866c9b538fed8b54df89aa102138bdb3_/bin/python3.11" "$0" "$@" #'''
+# -*- coding: utf-8 -*-
+import re
+import sys
+
+from bakta.plot import main
+
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
+    sys.exit(main())

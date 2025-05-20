@@ -1,0 +1,192 @@
+#!/bin/sh
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+useFtp=true
+useHttps=false
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    -ftp )
+      useFtp=true
+      useHttps=false
+      shift
+      ;;
+    -http | -https )
+      useFtp=false
+      useHttps=true
+      shift
+      ;;
+    * )
+      break
+      ;;
+  esac
+done
+
+DownloadOneByFTP() {
+
+  dir="$1"
+  fl="$2"
+
+  url="ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/${dir}/xml"
+
+  echo "$fl" |
+  nquire -asp "${url}"
+
+  # delete if file is present but empty
+  if [ -f "$fl" ] && [ ! -s "$fl" ]
+  then
+    rm -f "$fl"
+  fi
+
+  # retry if no file
+  if [ ! -f "$fl" ]
+  then
+    sleep 10
+    echo "First Failed Download Retry" >&2
+    echo "$fl" |
+    nquire -asp "${url}"
+  fi
+
+  # retry again if still no file
+  if [ ! -f "$fl" ]
+  then
+    sleep 10
+    echo "Second Failed Download Retry" >&2
+    echo "$fl" |
+    nquire -asp "${url}"
+  fi
+
+  # verify contents
+  if [ -s "$fl" ]
+  then
+    errs=$( (tar -xOzf "$fl" --to-stdout | xtract -mixed -verify -max 180) 2>&1 )
+    if [ -n "$errs" ]
+    then
+      # delete and retry one more time
+      rm -f "$fl"
+      sleep 10
+      echo "Invalid Contents Retry" >&2
+      echo "$fl" |
+      nquire -asp "${url}"
+      if [ -s "$fl" ]
+      then
+        errs=$( (tar -xOzf "$fl" --to-stdout | xtract -mixed -verify -max 180) 2>&1 )
+        if [ -n "$errs" ]
+        then
+          rm -f "$fl"
+          frst=$( echo "$errs" | head -n 1 )
+          echo "ERROR invalid file '$fl' deleted, errors start with '$frst'" >&2
+        fi
+      else
+        echo "Download Attempts Failed" >&2
+      fi
+    fi
+  else
+    rm -f "$fl"
+    echo "Download of '$fl' Failed" >&2
+  fi
+}
+
+DownloadOneByHTTPS() {
+
+  dir="$1"
+  fl="$2"
+
+  url="https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/${dir}/xml"
+
+  nquire -bulk -get "${url}" "$fl" > "$fl"
+
+  # delete if file is present but empty
+  if [ -f "$fl" ] && [ ! -s "$fl" ]
+  then
+    rm -f "$fl"
+  fi
+
+  # retry if no file
+  if [ ! -f "$fl" ]
+  then
+    sleep 10
+    echo "First Failed Download Retry" >&2
+    nquire -bulk -get "${url}" "$fl" > "$fl"
+  fi
+
+  # retry again if still no file
+  if [ ! -f "$fl" ]
+  then
+    sleep 10
+    echo "Second Failed Download Retry" >&2
+    nquire -bulk -get "${url}" "$fl" > "$fl"
+  fi
+
+  # verify contents
+  if [ -s "$fl" ]
+  then
+    errs=$( (tar -xOzf "$fl" --to-stdout | xtract -mixed -verify -max 180) 2>&1 )
+    if [ -n "$errs" ]
+    then
+      # delete and retry one more time
+      rm -f "$fl"
+      sleep 10
+      echo "Invalid Contents Retry" >&2
+      nquire -bulk -get "${url}" "$fl" > "$fl"
+      if [ -s "$fl" ]
+      then
+        errs=$( (tar -xOzf "$fl" --to-stdout | xtract -mixed -verify -max 180) 2>&1 )
+        if [ -n "$errs" ]
+        then
+          rm -f "$fl"
+          frst=$( echo "$errs" | head -n 1 )
+          echo "ERROR invalid file '$fl' deleted, errors start with '$frst'" >&2
+        fi
+      fi
+    fi
+  else
+    rm -f "$fl"
+    echo "Download of '$fl' Failed" >&2
+  fi
+}
+
+DownloadSection() {
+
+  dir="$1"
+  flt="$2"
+
+  if [ "$useFtp" = true ]
+  then
+    nquire -lst "ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/${dir}/xml" |
+    grep ".tar.gz" | grep "$flt" |
+    skip-if-file-exists |
+    while read fl
+    do
+      sleep 1
+      echo "$fl"
+      DownloadOneByFTP "$dir" "$fl"
+    done
+  elif [ "$useHttps" = true ]
+  then
+    nquire -get "https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/${dir}/xml" |
+    xtract -pattern a -if a -starts-with "oa_" -and a -ends-with ".tar.gz" -and a -contains "$flt" -element a |
+    skip-if-file-exists |
+    while read fl
+    do
+      sleep 1
+      echo "$fl"
+      DownloadOneByHTTPS "$dir" "$fl"
+    done
+  fi
+}
+
+for flt in baseline incr
+do
+  for dir in oa_comm oa_noncomm oa_other
+  do
+    DownloadSection "$dir" "$flt"
+    if [ $? -ne 0 ]
+    then
+      DownloadSection "$dir" "$flt"
+    fi
+  done
+done

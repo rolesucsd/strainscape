@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# time cat uniprot_sprot.dat | gbf2ref | transmute -format compact | grep CITATION
+
+transmute -g2r "$@"

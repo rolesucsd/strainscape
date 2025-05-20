@@ -1,0 +1,574 @@
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Creating conda environment envs/metabat2.yml...
+Downloading and installing remote packages.
+Environment for /ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/metabat2.yml created (location: .snakemake/conda/ec715dbcb6726d717c6c36f44df756d8_)
+Creating conda environment envs/bakta.yml...
+Downloading and installing remote packages.
+Environment for /ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/bakta.yml created (location: .snakemake/conda/866c9b538fed8b54df89aa102138bdb3_)
+Creating conda environment envs/seqkit.yml...
+Downloading and installing remote packages.
+Environment for /ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/seqkit.yml created (location: .snakemake/conda/b81b600fb81bd7df502d59a4ac88e1db_)
+Creating conda environment envs/instrain.yml...
+Downloading and installing remote packages.
+Environment for /ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/instrain.yml created (location: .snakemake/conda/68925e5264dff624bc30b0e7ef6aa9a8_)
+Creating conda environment envs/megahit.yml...
+Downloading and installing remote packages.
+Environment for /ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/megahit.yml created (location: .snakemake/conda/a2dbe5b7647eae66ccbafc8eb11a38d9_)
+Creating conda environment envs/mapping.yml...
+Downloading and installing remote packages.
+Environment for /ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/mapping.yml created (location: .snakemake/conda/5921b03c2e73a9721d8b0c2f48480928_)
+Using shell: /usr/bin/bash
+Provided cores: 30
+Rules claiming more threads will be scaled down.
+Job stats:
+job                       count
+----------------------  -------
+all                           1
+analyze_mutation_types      107
+bakta_coassembly              1
+calculate_trends            107
+combine_SNV_info            107
+combine_scaffold_info       107
+make_bin_txt                107
+map_genes                   107
+merge_snv_info              107
+process_scaffolds           107
+total                       858
+
+Select jobs to execute...
+Execute 30 jobs...
+
+[Mon May 19 21:26:07 2025]
+localrule make_bin_txt:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2064
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2064/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2064.log
+    jobid: 2360
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2064/bins.txt
+    wildcards: patient=M2064
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule make_bin_txt:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4022
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4022/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4022.log
+    jobid: 2298
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4022/bins.txt
+    wildcards: patient=H4022
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule make_bin_txt:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4028
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4028/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4028.log
+    jobid: 2306
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4028/bins.txt
+    wildcards: patient=H4028
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_SNV_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4013/each/HSM5MD6E/output/HSM5MD6E_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4013/each/HSM5MD6I/output/HSM5MD6I_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4013/each/HSM5MD6K/output/HSM5MD6K_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4013/each/HSM5MD6M/output/HSM5MD6M_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4013/each/HSM5MD8H/output/HSM5MD8H_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4013/each/HSM6XRRJ/output/HSM6XRRJ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4013/each/HSM6XRVC/output/HSM6XRVC_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4013/each/HSM6XRVK/output/HSM6XRVK_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4013/each/HSM7J4QZ/output/HSM7J4QZ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4013/each/HSM7J4R2/output/HSM7J4R2_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4013/combined_SNV_info.tsv
+    jobid: 3251
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4013/combined_SNV_info.tsv
+    wildcards: patient=H4013
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule make_bin_txt:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2068
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2068/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2068.log
+    jobid: 2362
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2068/bins.txt
+    wildcards: patient=M2068
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_scaffold_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3031/each/CSM79HNY/output/CSM79HNY_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3031/each/CSM79HR8/output/CSM79HR8_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3031/each/CSM79HRC/output/CSM79HRC_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3031/each/CSM79HRE/output/CSM79HRE_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3031/each/CSM79HRG/output/CSM79HRG_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3031/each/CSM7KOO5/output/CSM7KOO5_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3031/each/CSM7KOO9/output/CSM7KOO9_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3031/each/CSM7KOOD/output/CSM7KOOD_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3031/each/CSM7KOOF/output/CSM7KOOF_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3031/each/CSM9X1Z4/output/CSM9X1Z4_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3031/each/CSM9X1ZC/output/CSM9X1ZC_scaffold_info.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3031/combined_scaffold_info.tsv
+    jobid: 2928
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3031/combined_scaffold_info.tsv
+    wildcards: patient=C3031
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_scaffold_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4044/each/HSMA33IA/output/HSMA33IA_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4044/each/HSMA33IC/output/HSMA33IC_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4044/each/HSMA33LB/output/HSMA33LB_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4044/each/HSMA33LH/output/HSMA33LH_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4044/each/HSMA33LJ/output/HSMA33LJ_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4044/each/HSMA33NW/output/HSMA33NW_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4044/each/HSMA33P2/output/HSMA33P2_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4044/each/HSMA33P6/output/HSMA33P6_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4044/each/HSMA33RR/output/HSMA33RR_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4044/each/HSMA33RT/output/HSMA33RT_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4044/each/HSMA33RX/output/HSMA33RX_scaffold_info.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4044/combined_scaffold_info.tsv
+    jobid: 3747
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4044/combined_scaffold_info.tsv
+    wildcards: patient=H4044
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_scaffold_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79H7C/output/MSM79H7C_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79H7E/output/MSM79H7E_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79H7G/output/MSM79H7G_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79H7M/output/MSM79H7M_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79HD6/output/MSM79HD6_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSMA26AV/output/MSMA26AV_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSMA26AX/output/MSMA26AX_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSMA26AZ/output/MSMA26AZ_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSMB4LZ4/output/MSMB4LZ4_scaffold_info.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/combined_scaffold_info.tsv
+    jobid: 4196
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/combined_scaffold_info.tsv
+    wildcards: patient=M2071
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule make_bin_txt:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2075
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2075/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2075.log
+    jobid: 2370
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2075/bins.txt
+    wildcards: patient=M2075
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_SNV_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM5MD5Z/output/HSM5MD5Z_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM5MD6O/output/HSM5MD6O_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM5MD6Q/output/HSM5MD6Q_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM5MD6S/output/HSM5MD6S_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM5MD6U/output/HSM5MD6U_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM5MD6W/output/HSM5MD6W_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM67VF3/output/HSM67VF3_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM7CYXE/output/HSM7CYXE_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM7CYXG/output/HSM7CYXG_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM7CYXI/output/HSM7CYXI_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM7CYXO/output/HSM7CYXO_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM7J4I3/output/HSM7J4I3_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM7J4KO/output/HSM7J4KO_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/each/HSM7J4KQ/output/HSM7J4KQ_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/combined_SNV_info.tsv
+    jobid: 3315
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4016/combined_SNV_info.tsv
+    wildcards: patient=H4016
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule make_bin_txt:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4023
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4023/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4023.log
+    jobid: 2300
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4023/bins.txt
+    wildcards: patient=H4023
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_SNV_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5009/each/ESM5MEDD/output/ESM5MEDD_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5009/each/ESM5MEDF/output/ESM5MEDF_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5009/each/ESM5MEDK/output/ESM5MEDK_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5009/each/ESM5MEDN/output/ESM5MEDN_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5009/each/ESM5MEDP/output/ESM5MEDP_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5009/each/ESM718UH/output/ESM718UH_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5009/each/ESM7F5AK/output/ESM7F5AK_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5009/each/ESM7F5AM/output/ESM7F5AM_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5009/each/ESM7F5CB/output/ESM7F5CB_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5009/each/ESM7F5CD/output/ESM7F5CD_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5009/each/ESM7F5CF/output/ESM7F5CF_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5009/combined_SNV_info.tsv
+    jobid: 3056
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5009/combined_SNV_info.tsv
+    wildcards: patient=E5009
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_SNV_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZL7/output/MSM9VZL7_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZL9/output/MSM9VZL9_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZLB/output/MSM9VZLB_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZLD/output/MSM9VZLD_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZLF/output/MSM9VZLF_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZLH/output/MSM9VZLH_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMM/output/MSM9VZMM_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMO/output/MSM9VZMO_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMS/output/MSM9VZMS_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMU/output/MSM9VZMU_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMW/output/MSM9VZMW_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BB/output/MSMA26BB_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BD/output/MSMA26BD_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BF/output/MSMA26BF_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BH/output/MSMA26BH_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BJ/output/MSMA26BJ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BL/output/MSMA26BL_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMAPC6K/output/MSMAPC6K_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMAPC6M/output/MSMAPC6M_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMAPC6O/output/MSMAPC6O_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMB4LZV/output/MSMB4LZV_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMB4LZX/output/MSMB4LZX_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMB4LZZ/output/MSMB4LZZ_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/combined_SNV_info.tsv
+    jobid: 4316
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/combined_SNV_info.tsv
+    wildcards: patient=M2084
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule make_bin_txt:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4030
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4030/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4030.log
+    jobid: 2308
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4030/bins.txt
+    wildcards: patient=H4030
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_scaffold_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM5MD4U/output/HSM5MD4U_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM5MD4W/output/HSM5MD4W_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM5MD4Y/output/HSM5MD4Y_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM5MD53/output/HSM5MD53_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM5MD5P/output/HSM5MD5P_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM67VDP/output/HSM67VDP_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM6XRSG/output/HSM6XRSG_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM6XRSI/output/HSM6XRSI_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM7CYZT/output/HSM7CYZT_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM7CYZV/output/HSM7CYZV_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM7CZ14/output/HSM7CZ14_scaffold_info.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/combined_scaffold_info.tsv
+    jobid: 3126
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/combined_scaffold_info.tsv
+    wildcards: patient=H4004
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule make_bin_txt:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2060
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2060/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2060.log
+    jobid: 2356
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2060/bins.txt
+    wildcards: patient=M2060
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_SNV_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM5MCUQ/output/CSM5MCUQ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM5MCUS/output/CSM5MCUS_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM5MCUW/output/CSM5MCUW_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM5MCUY/output/CSM5MCUY_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM5MCY4/output/CSM5MCY4_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM5MCY8/output/CSM5MCY8_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM67UE3/output/CSM67UE3_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM67UE7/output/CSM67UE7_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM67UEA/output/CSM67UEA_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM67UEI/output/CSM67UEI_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM67UEM/output/CSM67UEM_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM79HO1/output/CSM79HO1_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/combined_SNV_info.tsv
+    jobid: 2513
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/combined_SNV_info.tsv
+    wildcards: patient=C3005
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule make_bin_txt:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2069
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2069/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2069.log
+    jobid: 2364
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2069/bins.txt
+    wildcards: patient=M2069
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_SNV_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM5MD4U/output/HSM5MD4U_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM5MD4W/output/HSM5MD4W_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM5MD4Y/output/HSM5MD4Y_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM5MD53/output/HSM5MD53_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM5MD5P/output/HSM5MD5P_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM67VDP/output/HSM67VDP_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM6XRSG/output/HSM6XRSG_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM6XRSI/output/HSM6XRSI_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM7CYZT/output/HSM7CYZT_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM7CYZV/output/HSM7CYZV_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/each/HSM7CZ14/output/HSM7CZ14_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/combined_SNV_info.tsv
+    jobid: 3113
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4004/combined_SNV_info.tsv
+    wildcards: patient=H4004
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule make_bin_txt:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4019
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4019/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4019.log
+    jobid: 2294
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4019/bins.txt
+    wildcards: patient=H4019
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_scaffold_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZL7/output/MSM9VZL7_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZL9/output/MSM9VZL9_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZLB/output/MSM9VZLB_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZLD/output/MSM9VZLD_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZLF/output/MSM9VZLF_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZLH/output/MSM9VZLH_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMM/output/MSM9VZMM_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMO/output/MSM9VZMO_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMS/output/MSM9VZMS_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMU/output/MSM9VZMU_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMW/output/MSM9VZMW_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BB/output/MSMA26BB_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BD/output/MSMA26BD_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BF/output/MSMA26BF_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BH/output/MSMA26BH_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BJ/output/MSMA26BJ_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BL/output/MSMA26BL_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMAPC6K/output/MSMAPC6K_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMAPC6M/output/MSMAPC6M_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMAPC6O/output/MSMAPC6O_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMB4LZV/output/MSMB4LZV_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMB4LZX/output/MSMB4LZX_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMB4LZZ/output/MSMB4LZZ_scaffold_info.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/combined_scaffold_info.tsv
+    jobid: 4341
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/combined_scaffold_info.tsv
+    wildcards: patient=M2084
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule make_bin_txt:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2061
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2061/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2061.log
+    jobid: 2358
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2061/bins.txt
+    wildcards: patient=M2061
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_SNV_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM5FZ4A/output/CSM5FZ4A_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM5MCU8/output/CSM5MCU8_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM5MCUA/output/CSM5MCUA_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM5MCUC/output/CSM5MCUC_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM5MCUE/output/CSM5MCUE_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM5MCXH/output/CSM5MCXH_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM5MCXJ/output/CSM5MCXJ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM5MCXL/output/CSM5MCXL_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM5MCXN/output/CSM5MCXN_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM5MCXP/output/CSM5MCXP_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM5MCXR/output/CSM5MCXR_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM67UDF/output/CSM67UDF_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM67UDJ/output/CSM67UDJ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM67UDN/output/CSM67UDN_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM67UDR/output/CSM67UDR_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM67UDY/output/CSM67UDY_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM79HLA/output/CSM79HLA_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM79HLC/output/CSM79HLC_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM79HLE/output/CSM79HLE_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM79HLG/output/CSM79HLG_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM79HLI/output/CSM79HLI_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/each/CSM79HLK/output/CSM79HLK_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/combined_SNV_info.tsv
+    jobid: 2484
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3004/combined_SNV_info.tsv
+    wildcards: patient=C3004
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_SNV_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79H7C/output/MSM79H7C_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79H7E/output/MSM79H7E_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79H7G/output/MSM79H7G_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79H7M/output/MSM79H7M_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79HD6/output/MSM79HD6_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSMA26AV/output/MSMA26AV_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSMA26AX/output/MSMA26AX_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSMA26AZ/output/MSMA26AZ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSMB4LZ4/output/MSMB4LZ4_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/combined_SNV_info.tsv
+    jobid: 4185
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/combined_SNV_info.tsv
+    wildcards: patient=M2071
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_SNV_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM5FZ3N/output/CSM5FZ3N_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM5FZ3R/output/CSM5FZ3R_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM5FZ3V/output/CSM5FZ3V_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM5FZ4C/output/CSM5FZ4C_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM5MCVD/output/CSM5MCVD_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM5MCVF/output/CSM5MCVF_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM5MCVV/output/CSM5MCVV_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM5MCWI/output/CSM5MCWI_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM5MCXD/output/CSM5MCXD_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM5MCYS/output/CSM5MCYS_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM5YRY7/output/CSM5YRY7_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM67U9J/output/CSM67U9J_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM67UA2/output/CSM67UA2_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM67UGC/output/CSM67UGC_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM79HG5/output/CSM79HG5_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/each/CSM79HGP/output/CSM79HGP_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/combined_SNV_info.tsv
+    jobid: 2422
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3001/combined_SNV_info.tsv
+    wildcards: patient=C3001
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule make_bin_txt:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4020
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4020/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4020.log
+    jobid: 2296
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4020/bins.txt
+    wildcards: patient=H4020
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_scaffold_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/each/ESM5GEZ4/output/ESM5GEZ4_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/each/ESM5GEZ6/output/ESM5GEZ6_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/each/ESM5GEZA/output/ESM5GEZA_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/each/ESM5ME9U/output/ESM5ME9U_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/each/ESM5MEBS/output/ESM5MEBS_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/each/ESM5MEBU/output/ESM5MEBU_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/each/ESM5MEC3/output/ESM5MEC3_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/each/ESM5MEC5/output/ESM5MEC5_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/each/ESM5MEC9/output/ESM5MEC9_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/each/ESM5MEDU/output/ESM5MEDU_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/each/ESM5MEEJ/output/ESM5MEEJ_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/each/ESM718SY/output/ESM718SY_scaffold_info.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/combined_scaffold_info.tsv
+    jobid: 3051
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/E5004/combined_scaffold_info.tsv
+    wildcards: patient=E5004
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_SNV_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM79HKX/output/CSM79HKX_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM79HKZ/output/CSM79HKZ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM79HL4/output/CSM79HL4_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM79HL6/output/CSM79HL6_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KOKR/output/CSM7KOKR_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KOKT/output/CSM7KOKT_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KOKZ/output/CSM7KOKZ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KOL2/output/CSM7KOL2_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KORC/output/CSM7KORC_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KORG/output/CSM7KORG_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KORI/output/CSM7KORI_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KORK/output/CSM7KORK_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/combined_SNV_info.tsv
+    jobid: 2863
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/combined_SNV_info.tsv
+    wildcards: patient=C3028
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_scaffold_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZIM/output/MSM9VZIM_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZIO/output/MSM9VZIO_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZIQ/output/MSM9VZIQ_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZIS/output/MSM9VZIS_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZIU/output/MSM9VZIU_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZIW/output/MSM9VZIW_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZLZ/output/MSM9VZLZ_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZNR/output/MSM9VZNR_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZNX/output/MSM9VZNX_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZNZ/output/MSM9VZNZ_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZO2/output/MSM9VZO2_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMAPC55/output/MSMAPC55_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMAPC57/output/MSMAPC57_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMAPC59/output/MSMAPC59_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMAPC5B/output/MSMAPC5B_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMAPC5D/output/MSMAPC5D_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMB4LZP/output/MSMB4LZP_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMB4LZR/output/MSMB4LZR_scaffold_info.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/combined_scaffold_info.tsv
+    jobid: 4311
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/combined_scaffold_info.tsv
+    wildcards: patient=M2083
+    resources: tmpdir=/tmp
+
+
+[Mon May 19 21:26:07 2025]
+localrule combine_scaffold_info:
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/each/HSM67VFR/output/HSM67VFR_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/each/HSM6XRQC/output/HSM6XRQC_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/each/HSM6XRQS/output/HSM6XRQS_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/each/HSM6XRQU/output/HSM6XRQU_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/each/HSM6XRQW/output/HSM6XRQW_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/each/HSM6XRQY/output/HSM6XRQY_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/each/HSM7CYYF/output/HSM7CYYF_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/each/HSM7CYYH/output/HSM7CYYH_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/each/HSM7CYYP/output/HSM7CYYP_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/each/HSM7J4LD/output/HSM7J4LD_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/each/HSM7J4LF/output/HSM7J4LF_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/each/HSM7J4LH/output/HSM7J4LH_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/each/HSM7J4LN/output/HSM7J4LN_scaffold_info.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/combined_scaffold_info.tsv
+    jobid: 3374
+    reason: Missing output files: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/H4018/combined_scaffold_info.tsv
+    wildcards: patient=H4018
+    resources: tmpdir=/tmp
+
+[Mon May 19 21:26:19 2025]
+Error in rule make_bin_txt:
+    jobid: 2356
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2060
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2060/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2060.log (check log file(s) for error details)
+    shell:
+        
+        python ../strainscape/make_bin_txt.py             --bin_dir /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2060             --output_file /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2060/bins.txt             --log_file /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2060.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon May 19 21:26:19 2025]
+Error in rule make_bin_txt:
+    jobid: 2306
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4028
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4028/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4028.log (check log file(s) for error details)
+    shell:
+        
+        python ../strainscape/make_bin_txt.py             --bin_dir /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4028             --output_file /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4028/bins.txt             --log_file /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4028.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon May 19 21:26:19 2025]
+Error in rule make_bin_txt:
+    jobid: 2298
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4022
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4022/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4022.log (check log file(s) for error details)
+    shell:
+        
+        python ../strainscape/make_bin_txt.py             --bin_dir /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4022             --output_file /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4022/bins.txt             --log_file /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4022.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon May 19 21:26:19 2025]
+Error in rule make_bin_txt:
+    jobid: 2358
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2061
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2061/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2061.log (check log file(s) for error details)
+    shell:
+        
+        python ../strainscape/make_bin_txt.py             --bin_dir /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2061             --output_file /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2061/bins.txt             --log_file /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2061.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon May 19 21:26:19 2025]
+Error in rule make_bin_txt:
+    jobid: 2362
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2068
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2068/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2068.log (check log file(s) for error details)
+    shell:
+        
+        python ../strainscape/make_bin_txt.py             --bin_dir /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2068             --output_file /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2068/bins.txt             --log_file /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2068.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon May 19 21:26:19 2025]
+Error in rule make_bin_txt:
+    jobid: 2308
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4030
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4030/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4030.log (check log file(s) for error details)
+    shell:
+        
+        python ../strainscape/make_bin_txt.py             --bin_dir /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4030             --output_file /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4030/bins.txt             --log_file /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4030.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon May 19 21:26:19 2025]
+Error in rule make_bin_txt:
+    jobid: 2364
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2069
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2069/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2069.log (check log file(s) for error details)
+    shell:
+        
+        python ../strainscape/make_bin_txt.py             --bin_dir /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2069             --output_file /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2069/bins.txt             --log_file /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2069.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon May 19 21:26:19 2025]
+Error in rule make_bin_txt:
+    jobid: 2296
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4020
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4020/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4020.log (check log file(s) for error details)
+    shell:
+        
+        python ../strainscape/make_bin_txt.py             --bin_dir /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4020             --output_file /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4020/bins.txt             --log_file /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4020.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon May 19 21:26:19 2025]
+Error in rule make_bin_txt:
+    jobid: 2360
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2064
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2064/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2064.log (check log file(s) for error details)
+    shell:
+        
+        python ../strainscape/make_bin_txt.py             --bin_dir /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2064             --output_file /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2064/bins.txt             --log_file /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2064.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon May 19 21:26:19 2025]
+Error in rule make_bin_txt:
+    jobid: 2294
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4019
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4019/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4019.log (check log file(s) for error details)
+    shell:
+        
+        python ../strainscape/make_bin_txt.py             --bin_dir /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4019             --output_file /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4019/bins.txt             --log_file /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4019.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon May 19 21:26:19 2025]
+Error in rule make_bin_txt:
+    jobid: 2300
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4023
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4023/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4023.log (check log file(s) for error details)
+    shell:
+        
+        python ../strainscape/make_bin_txt.py             --bin_dir /ddn_scratch/roles/strain_analysis/iHMP/output/bins/H4023             --output_file /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/H4023/bins.txt             --log_file /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_H4023.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon May 19 21:26:20 2025]
+Error in rule make_bin_txt:
+    jobid: 2370
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2075
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2075/bins.txt
+    log: /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2075.log (check log file(s) for error details)
+    shell:
+        
+        python ../strainscape/make_bin_txt.py             --bin_dir /ddn_scratch/roles/strain_analysis/iHMP/output/bins/M2075             --output_file /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/M2075/bins.txt             --log_file /ddn_scratch/roles/strain_analysis/iHMP/output/logs/make_bin_txt_M2075.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon May 19 21:26:46 2025]
+Error in rule combine_SNV_info:
+    jobid: 4185
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79H7C/output/MSM79H7C_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79H7E/output/MSM79H7E_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79H7G/output/MSM79H7G_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79H7M/output/MSM79H7M_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSM79HD6/output/MSM79HD6_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSMA26AV/output/MSMA26AV_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSMA26AX/output/MSMA26AX_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSMA26AZ/output/MSMA26AZ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/each/MSMB4LZ4/output/MSMB4LZ4_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2071/combined_SNV_info.tsv
+
+[Mon May 19 21:26:51 2025]
+Error in rule combine_scaffold_info:
+    jobid: 4311
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZIM/output/MSM9VZIM_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZIO/output/MSM9VZIO_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZIQ/output/MSM9VZIQ_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZIS/output/MSM9VZIS_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZIU/output/MSM9VZIU_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZIW/output/MSM9VZIW_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZLZ/output/MSM9VZLZ_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZNR/output/MSM9VZNR_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZNX/output/MSM9VZNX_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZNZ/output/MSM9VZNZ_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSM9VZO2/output/MSM9VZO2_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMAPC55/output/MSMAPC55_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMAPC57/output/MSMAPC57_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMAPC59/output/MSMAPC59_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMAPC5B/output/MSMAPC5B_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMAPC5D/output/MSMAPC5D_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMB4LZP/output/MSMB4LZP_scaffold_info.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/each/MSMB4LZR/output/MSMB4LZR_scaffold_info.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/combined_scaffold_info.tsv
+
+Removing output files of failed job combine_scaffold_info since they might be corrupted:
+/ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2083/combined_scaffold_info.tsv
+[Mon May 19 21:26:53 2025]
+Error in rule combine_SNV_info:
+    jobid: 2863
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM79HKX/output/CSM79HKX_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM79HKZ/output/CSM79HKZ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM79HL4/output/CSM79HL4_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM79HL6/output/CSM79HL6_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KOKR/output/CSM7KOKR_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KOKT/output/CSM7KOKT_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KOKZ/output/CSM7KOKZ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KOL2/output/CSM7KOL2_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KORC/output/CSM7KORC_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KORG/output/CSM7KORG_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KORI/output/CSM7KORI_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/each/CSM7KORK/output/CSM7KORK_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3028/combined_SNV_info.tsv
+
+[Mon May 19 21:26:59 2025]
+Error in rule combine_SNV_info:
+    jobid: 2513
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM5MCUQ/output/CSM5MCUQ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM5MCUS/output/CSM5MCUS_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM5MCUW/output/CSM5MCUW_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM5MCUY/output/CSM5MCUY_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM5MCY4/output/CSM5MCY4_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM5MCY8/output/CSM5MCY8_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM67UE3/output/CSM67UE3_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM67UE7/output/CSM67UE7_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM67UEA/output/CSM67UEA_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM67UEI/output/CSM67UEI_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM67UEM/output/CSM67UEM_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/each/CSM79HO1/output/CSM79HO1_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/combined_SNV_info.tsv
+
+Removing output files of failed job combine_SNV_info since they might be corrupted:
+/ddn_scratch/roles/strain_analysis/iHMP/output/instrain/C3005/combined_SNV_info.tsv
+[Mon May 19 21:27:04 2025]
+Finished job 3374.
+1 of 858 steps (0.1%) done
+[Mon May 19 21:27:06 2025]
+Finished job 3113.
+2 of 858 steps (0.2%) done
+[Mon May 19 21:27:08 2025]
+Finished job 3126.
+3 of 858 steps (0.3%) done
+[Mon May 19 21:27:14 2025]
+Finished job 4196.
+4 of 858 steps (0.5%) done
+[Mon May 19 21:27:14 2025]
+Finished job 2928.
+5 of 858 steps (1%) done
+[Mon May 19 21:27:17 2025]
+Finished job 3747.
+6 of 858 steps (1%) done
+[Mon May 19 21:27:29 2025]
+Error in rule combine_SNV_info:
+    jobid: 4316
+    input: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZL7/output/MSM9VZL7_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZL9/output/MSM9VZL9_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZLB/output/MSM9VZLB_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZLD/output/MSM9VZLD_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZLF/output/MSM9VZLF_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZLH/output/MSM9VZLH_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMM/output/MSM9VZMM_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMO/output/MSM9VZMO_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMS/output/MSM9VZMS_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMU/output/MSM9VZMU_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSM9VZMW/output/MSM9VZMW_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BB/output/MSMA26BB_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BD/output/MSMA26BD_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BF/output/MSMA26BF_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BH/output/MSMA26BH_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BJ/output/MSMA26BJ_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMA26BL/output/MSMA26BL_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMAPC6K/output/MSMAPC6K_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMAPC6M/output/MSMAPC6M_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMAPC6O/output/MSMAPC6O_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMB4LZV/output/MSMB4LZV_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMB4LZX/output/MSMB4LZX_SNVs.tsv, /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/each/MSMB4LZZ/output/MSMB4LZZ_SNVs.tsv
+    output: /ddn_scratch/roles/strain_analysis/iHMP/output/instrain/M2084/combined_SNV_info.tsv
+
+[Mon May 19 21:27:34 2025]
+Finished job 3051.
+7 of 858 steps (1%) done
+[Mon May 19 21:27:35 2025]
+Finished job 3056.
+8 of 858 steps (1%) done
+[Mon May 19 21:27:40 2025]
+Finished job 2422.
+9 of 858 steps (1%) done
+[Mon May 19 21:27:41 2025]
+Finished job 3315.
+10 of 858 steps (1%) done
+[Mon May 19 21:27:54 2025]
+Finished job 2484.
+11 of 858 steps (1%) done
+[Mon May 19 21:28:01 2025]
+Finished job 3251.
+12 of 858 steps (1%) done
+[Mon May 19 21:28:04 2025]
+Finished job 4341.
+13 of 858 steps (2%) done
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-05-19T205511.395528.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

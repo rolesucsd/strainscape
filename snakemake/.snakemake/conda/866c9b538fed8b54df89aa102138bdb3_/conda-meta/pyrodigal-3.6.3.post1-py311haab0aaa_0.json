@@ -1,0 +1,952 @@
+{
+  "build": "py311haab0aaa_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/bioconda/linux-64",
+  "constrains": [],
+  "depends": [
+    "libgcc >=13",
+    "python_abi 3.11.* *_cp311",
+    "python >=3.11,<3.12.0a0",
+    "archspec >=0.2.0"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/pyrodigal-3.6.3.post1-py311haab0aaa_0",
+  "features": "",
+  "files": [
+    "bin/pyrodigal",
+    "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/INSTALLER",
+    "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/METADATA",
+    "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/RECORD",
+    "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/REQUESTED",
+    "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/WHEEL",
+    "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/direct_url.json",
+    "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/entry_points.txt",
+    "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/licenses/COPYING",
+    "lib/python3.11/site-packages/pyrodigal/CMakeLists.txt",
+    "lib/python3.11/site-packages/pyrodigal/__init__.py",
+    "lib/python3.11/site-packages/pyrodigal/__main__.py",
+    "lib/python3.11/site-packages/pyrodigal/__pycache__/__init__.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/__pycache__/__main__.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/__pycache__/cli.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/_connection.h",
+    "lib/python3.11/site-packages/pyrodigal/_connection.pxd",
+    "lib/python3.11/site-packages/pyrodigal/_sequence.h",
+    "lib/python3.11/site-packages/pyrodigal/_sequence.pxd",
+    "lib/python3.11/site-packages/pyrodigal/_translation.h",
+    "lib/python3.11/site-packages/pyrodigal/cli.py",
+    "lib/python3.11/site-packages/pyrodigal/cpu_features/__init__.pxd",
+    "lib/python3.11/site-packages/pyrodigal/cpu_features/aarch64.pxd",
+    "lib/python3.11/site-packages/pyrodigal/cpu_features/arm.pxd",
+    "lib/python3.11/site-packages/pyrodigal/cpu_features/x86.pxd",
+    "lib/python3.11/site-packages/pyrodigal/impl/CMakeLists.txt",
+    "lib/python3.11/site-packages/pyrodigal/impl/__init__.pxd",
+    "lib/python3.11/site-packages/pyrodigal/impl/avx2.cpython-311-x86_64-linux-gnu.so",
+    "lib/python3.11/site-packages/pyrodigal/impl/avx2.h",
+    "lib/python3.11/site-packages/pyrodigal/impl/avx2.pxd",
+    "lib/python3.11/site-packages/pyrodigal/impl/avx2.pyx",
+    "lib/python3.11/site-packages/pyrodigal/impl/avx512.cpython-311-x86_64-linux-gnu.so",
+    "lib/python3.11/site-packages/pyrodigal/impl/avx512.h",
+    "lib/python3.11/site-packages/pyrodigal/impl/avx512.pxd",
+    "lib/python3.11/site-packages/pyrodigal/impl/avx512.pyx",
+    "lib/python3.11/site-packages/pyrodigal/impl/generic.cpython-311-x86_64-linux-gnu.so",
+    "lib/python3.11/site-packages/pyrodigal/impl/generic.h",
+    "lib/python3.11/site-packages/pyrodigal/impl/generic.pxd",
+    "lib/python3.11/site-packages/pyrodigal/impl/generic.pyx",
+    "lib/python3.11/site-packages/pyrodigal/impl/mmx.c",
+    "lib/python3.11/site-packages/pyrodigal/impl/mmx.h",
+    "lib/python3.11/site-packages/pyrodigal/impl/mmx.pxd",
+    "lib/python3.11/site-packages/pyrodigal/impl/neon.h",
+    "lib/python3.11/site-packages/pyrodigal/impl/neon.pxd",
+    "lib/python3.11/site-packages/pyrodigal/impl/neon.pyx",
+    "lib/python3.11/site-packages/pyrodigal/impl/sse2.cpython-311-x86_64-linux-gnu.so",
+    "lib/python3.11/site-packages/pyrodigal/impl/sse2.h",
+    "lib/python3.11/site-packages/pyrodigal/impl/sse2.pxd",
+    "lib/python3.11/site-packages/pyrodigal/impl/sse2.pyx",
+    "lib/python3.11/site-packages/pyrodigal/impl/template.h",
+    "lib/python3.11/site-packages/pyrodigal/lib.cpython-311-x86_64-linux-gnu.so",
+    "lib/python3.11/site-packages/pyrodigal/lib.pxd",
+    "lib/python3.11/site-packages/pyrodigal/lib.pyi",
+    "lib/python3.11/site-packages/pyrodigal/lib.pyx",
+    "lib/python3.11/site-packages/pyrodigal/prodigal/__init__.pxd",
+    "lib/python3.11/site-packages/pyrodigal/prodigal/bitmap.pxd",
+    "lib/python3.11/site-packages/pyrodigal/prodigal/dprog.pxd",
+    "lib/python3.11/site-packages/pyrodigal/prodigal/gene.pxd",
+    "lib/python3.11/site-packages/pyrodigal/prodigal/metagenomic.pxd",
+    "lib/python3.11/site-packages/pyrodigal/prodigal/node.pxd",
+    "lib/python3.11/site-packages/pyrodigal/prodigal/sequence.pxd",
+    "lib/python3.11/site-packages/pyrodigal/prodigal/training.pxd",
+    "lib/python3.11/site-packages/pyrodigal/py.typed",
+    "lib/python3.11/site-packages/pyrodigal/tests/__init__.py",
+    "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/__init__.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/fasta.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_connection_scorer.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_doctest.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_gene.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_gene_finder.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_genes.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_mask.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_nodes.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_sequence.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_training_info.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/GCF_001457455.1_NCTC11397_genomic.fna.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/GCF_001457455.1_NCTC11397_genomic.tinf_closed.bin",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/GCF_001457455.1_NCTC11397_genomic_100kb.fna.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/GCF_001457455.1_NCTC11397_genomic_100kb.tinf_closed.bin.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/KK037166.fna.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/KK037166.meta+mask.fna.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/KK037166.meta.faa.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/KK037166.meta.fna.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/KK037166.single.faa.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/KK037166.single.fna.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.faa.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.fna.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.meta+mask.faa.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.meta+mask.fna.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.meta.faa.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.meta.fna.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.single.faa.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.single.fna.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.fna.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.meta.faa.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.meta.fna.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.meta.gff",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.meta.tsv",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.single.faa.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.single.fna.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.training.bin.gz",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/__init__.py",
+    "lib/python3.11/site-packages/pyrodigal/tests/data/__pycache__/__init__.cpython-311.pyc",
+    "lib/python3.11/site-packages/pyrodigal/tests/fasta.py",
+    "lib/python3.11/site-packages/pyrodigal/tests/requirements.txt",
+    "lib/python3.11/site-packages/pyrodigal/tests/test_connection_scorer.py",
+    "lib/python3.11/site-packages/pyrodigal/tests/test_doctest.py",
+    "lib/python3.11/site-packages/pyrodigal/tests/test_gene.py",
+    "lib/python3.11/site-packages/pyrodigal/tests/test_gene_finder.py",
+    "lib/python3.11/site-packages/pyrodigal/tests/test_genes.py",
+    "lib/python3.11/site-packages/pyrodigal/tests/test_mask.py",
+    "lib/python3.11/site-packages/pyrodigal/tests/test_nodes.py",
+    "lib/python3.11/site-packages/pyrodigal/tests/test_sequence.py",
+    "lib/python3.11/site-packages/pyrodigal/tests/test_training_info.py"
+  ],
+  "fn": "pyrodigal-3.6.3.post1-py311haab0aaa_0.tar.bz2",
+  "license": "GPL-3.0-or-later",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/pyrodigal-3.6.3.post1-py311haab0aaa_0",
+    "type": 1
+  },
+  "md5": "55045f527e9f8eaa9fe6335c4f3d7bfc",
+  "name": "pyrodigal",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/pyrodigal-3.6.3.post1-py311haab0aaa_0.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "bin/pyrodigal",
+        "file_mode": "text",
+        "path_type": "hardlink",
+        "prefix_placeholder": "/opt/conda/conda-bld/pyrodigal_1741050774643/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pla",
+        "sha256": "0f224de3c48aa7dda74e2b066b0002c867e111fb5ad2c867f3b5eab16ee12a31",
+        "sha256_in_prefix": "0b3b2a3d17d7d5674c70dd6b94e15eab6e2c04dfd37562f676abd53db84d81df",
+        "size_in_bytes": 466
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/INSTALLER",
+        "path_type": "hardlink",
+        "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "size_in_bytes": 5
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/METADATA",
+        "path_type": "hardlink",
+        "sha256": "1b34b7680c7b1c8c22ef5941fc80dd5362553b8b310b989dad05e8c743be3768",
+        "sha256_in_prefix": "1b34b7680c7b1c8c22ef5941fc80dd5362553b8b310b989dad05e8c743be3768",
+        "size_in_bytes": 56376
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/RECORD",
+        "path_type": "hardlink",
+        "sha256": "331350497633a7d4ca2136bf927c2fedbca30f51d2aea567a8029eca397d2e8b",
+        "sha256_in_prefix": "331350497633a7d4ca2136bf927c2fedbca30f51d2aea567a8029eca397d2e8b",
+        "size_in_bytes": 9913
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/REQUESTED",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/WHEEL",
+        "path_type": "hardlink",
+        "sha256": "f3d18c4c00f93608e9b95937c9d11cf7c5a4b8b9d313bacf5b5049d5e13b4f32",
+        "sha256_in_prefix": "f3d18c4c00f93608e9b95937c9d11cf7c5a4b8b9d313bacf5b5049d5e13b4f32",
+        "size_in_bytes": 109
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/direct_url.json",
+        "path_type": "hardlink",
+        "sha256": "622682482a4de0b889f3f7a6212f2138ac663af89461306e781e920b32b4957c",
+        "sha256_in_prefix": "622682482a4de0b889f3f7a6212f2138ac663af89461306e781e920b32b4957c",
+        "size_in_bytes": 83
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/entry_points.txt",
+        "path_type": "hardlink",
+        "sha256": "8e9fba93102c240bc680a38c9d6e1cf517a2a60ad7d8ad9d5fd7d49e35b5c70c",
+        "sha256_in_prefix": "8e9fba93102c240bc680a38c9d6e1cf517a2a60ad7d8ad9d5fd7d49e35b5c70c",
+        "size_in_bytes": 50
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal-3.6.3.post1.dist-info/licenses/COPYING",
+        "path_type": "hardlink",
+        "sha256": "87946a54ba55e1b6a76c47ea26a3ea625882979fe5c9b3482af71823a602ba4b",
+        "sha256_in_prefix": "87946a54ba55e1b6a76c47ea26a3ea625882979fe5c9b3482af71823a602ba4b",
+        "size_in_bytes": 35148
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/CMakeLists.txt",
+        "path_type": "hardlink",
+        "sha256": "f8f6d3f3bca8ea6bdfc6e602ff991b147acb00e2c4d06ce000d9447165070f35",
+        "sha256_in_prefix": "f8f6d3f3bca8ea6bdfc6e602ff991b147acb00e2c4d06ce000d9447165070f35",
+        "size_in_bytes": 60
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "9a49377412fe50dd28631d94056221caf6ec9b6d5bcb7c45f7c0169ac7698327",
+        "sha256_in_prefix": "9a49377412fe50dd28631d94056221caf6ec9b6d5bcb7c45f7c0169ac7698327",
+        "size_in_bytes": 1405
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/__main__.py",
+        "path_type": "hardlink",
+        "sha256": "7afeadd4522552160b4980dc798d62c6351e23026023c4dc3f40ef0a286a8f3d",
+        "sha256_in_prefix": "7afeadd4522552160b4980dc798d62c6351e23026023c4dc3f40ef0a286a8f3d",
+        "size_in_bytes": 51
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/__pycache__/__init__.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "7bf9ca679aa9b1469a12ae8a6474b5d08523a47b510fc43bfc34ff6f87c17073",
+        "sha256_in_prefix": "7bf9ca679aa9b1469a12ae8a6474b5d08523a47b510fc43bfc34ff6f87c17073",
+        "size_in_bytes": 1682
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/__pycache__/__main__.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "d5ef1ed1d99af70677d1a7058da85f35e61431f1972d9699a993b4ae0933a635",
+        "sha256_in_prefix": "d5ef1ed1d99af70677d1a7058da85f35e61431f1972d9699a993b4ae0933a635",
+        "size_in_bytes": 310
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/__pycache__/cli.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "740d1aabf5309112755f1c95061e989f82f8df3175028c0be00af2a6f671e4fe",
+        "sha256_in_prefix": "740d1aabf5309112755f1c95061e989f82f8df3175028c0be00af2a6f671e4fe",
+        "size_in_bytes": 14260
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/_connection.h",
+        "path_type": "hardlink",
+        "sha256": "2d2decb513eb0305e47e6f5938a126d1e1542af9677dbbd6e072346573e5daa8",
+        "sha256_in_prefix": "2d2decb513eb0305e47e6f5938a126d1e1542af9677dbbd6e072346573e5daa8",
+        "size_in_bytes": 13105
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/_connection.pxd",
+        "path_type": "hardlink",
+        "sha256": "d2b9e6313a03544cbfa84d6ae01dbaf65c02b0b5a0fa98b4ab9a482f47d965a1",
+        "sha256_in_prefix": "d2b9e6313a03544cbfa84d6ae01dbaf65c02b0b5a0fa98b4ab9a482f47d965a1",
+        "size_in_bytes": 1828
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/_sequence.h",
+        "path_type": "hardlink",
+        "sha256": "85a5fc4b33196ab776438e379ab54bc68caa6eeaac927ece88d59855065a6619",
+        "sha256_in_prefix": "85a5fc4b33196ab776438e379ab54bc68caa6eeaac927ece88d59855065a6619",
+        "size_in_bytes": 6831
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/_sequence.pxd",
+        "path_type": "hardlink",
+        "sha256": "40f1f1b1f0ba08780c5f633fc8a999865f17f4d44fee1b3b2d173b7617edd9cc",
+        "sha256_in_prefix": "40f1f1b1f0ba08780c5f633fc8a999865f17f4d44fee1b3b2d173b7617edd9cc",
+        "size_in_bytes": 1548
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/_translation.h",
+        "path_type": "hardlink",
+        "sha256": "8ee27e5011e80f3a97560a3bfba3f62802ba0f707a7f283c325d80813f3d767a",
+        "sha256_in_prefix": "8ee27e5011e80f3a97560a3bfba3f62802ba0f707a7f283c325d80813f3d767a",
+        "size_in_bytes": 9835
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/cli.py",
+        "path_type": "hardlink",
+        "sha256": "533167326a975164dda268ee0175e961bd20db8dc685e2101f2381de964a8269",
+        "sha256_in_prefix": "533167326a975164dda268ee0175e961bd20db8dc685e2101f2381de964a8269",
+        "size_in_bytes": 11052
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/cpu_features/__init__.pxd",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/cpu_features/aarch64.pxd",
+        "path_type": "hardlink",
+        "sha256": "3727598631fd1351b4dd7fb9c911c9e2f155397a036fa9e75f27084f9adfb343",
+        "sha256_in_prefix": "3727598631fd1351b4dd7fb9c911c9e2f155397a036fa9e75f27084f9adfb343",
+        "size_in_bytes": 1225
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/cpu_features/arm.pxd",
+        "path_type": "hardlink",
+        "sha256": "d88875a20b66de52c0dcb5e485b83dba1c55d5048c22293817f4f48e0c82e7d8",
+        "sha256_in_prefix": "d88875a20b66de52c0dcb5e485b83dba1c55d5048c22293817f4f48e0c82e7d8",
+        "size_in_bytes": 794
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/cpu_features/x86.pxd",
+        "path_type": "hardlink",
+        "sha256": "32c4f68ecf1d4ebc8281841e74b28739b3b7209d8c88abf45f0ee637c0b8f43d",
+        "sha256_in_prefix": "32c4f68ecf1d4ebc8281841e74b28739b3b7209d8c88abf45f0ee637c0b8f43d",
+        "size_in_bytes": 494
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/CMakeLists.txt",
+        "path_type": "hardlink",
+        "sha256": "14e8790251cf47c2a13de128e7522e22915a1b7bc3b9ac0091ba433dea551024",
+        "sha256_in_prefix": "14e8790251cf47c2a13de128e7522e22915a1b7bc3b9ac0091ba433dea551024",
+        "size_in_bytes": 1185
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/__init__.pxd",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/avx2.cpython-311-x86_64-linux-gnu.so",
+        "path_type": "hardlink",
+        "sha256": "f39ccd11a3d98fab99a767c260e2189cfc611ac2c5574407dab2347ce7862e9f",
+        "sha256_in_prefix": "f39ccd11a3d98fab99a767c260e2189cfc611ac2c5574407dab2347ce7862e9f",
+        "size_in_bytes": 57160
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/avx2.h",
+        "path_type": "hardlink",
+        "sha256": "f5a3d812a11069f636c3712a5bda41ad5a1a11aae5b6b93984990f6d14068bdc",
+        "sha256_in_prefix": "f5a3d812a11069f636c3712a5bda41ad5a1a11aae5b6b93984990f6d14068bdc",
+        "size_in_bytes": 1009
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/avx2.pxd",
+        "path_type": "hardlink",
+        "sha256": "2d0850371ec09e29f23ebadb5eed03d5122125ae269a02d6f7790672ec44e08f",
+        "sha256_in_prefix": "2d0850371ec09e29f23ebadb5eed03d5122125ae269a02d6f7790672ec44e08f",
+        "size_in_bytes": 178
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/avx2.pyx",
+        "path_type": "hardlink",
+        "sha256": "9446f4b30854de7b17235aa17ba67b5bd68effaf773486d541bef0fed71c7077",
+        "sha256_in_prefix": "9446f4b30854de7b17235aa17ba67b5bd68effaf773486d541bef0fed71c7077",
+        "size_in_bytes": 451
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/avx512.cpython-311-x86_64-linux-gnu.so",
+        "path_type": "hardlink",
+        "sha256": "bfdf4cbb1bdbb519e2d7dc733911df9e3940a5a53ec1fe683b1d46483f25206f",
+        "sha256_in_prefix": "bfdf4cbb1bdbb519e2d7dc733911df9e3940a5a53ec1fe683b1d46483f25206f",
+        "size_in_bytes": 57160
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/avx512.h",
+        "path_type": "hardlink",
+        "sha256": "f447c7e1bcb3ff90885494cf98aef66a9941fa72bc2639972ca9df4750280aa7",
+        "sha256_in_prefix": "f447c7e1bcb3ff90885494cf98aef66a9941fa72bc2639972ca9df4750280aa7",
+        "size_in_bytes": 981
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/avx512.pxd",
+        "path_type": "hardlink",
+        "sha256": "750c3159cbfdd84a4817f3793ac8afb69ae4f92e8eaa6542671eb160465c0ce1",
+        "sha256_in_prefix": "750c3159cbfdd84a4817f3793ac8afb69ae4f92e8eaa6542671eb160465c0ce1",
+        "size_in_bytes": 180
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/avx512.pyx",
+        "path_type": "hardlink",
+        "sha256": "9c3d8a47fe74c2244cae47ca41c40200b16eb7bb86b0bf15f012e09d077d5ac0",
+        "sha256_in_prefix": "9c3d8a47fe74c2244cae47ca41c40200b16eb7bb86b0bf15f012e09d077d5ac0",
+        "size_in_bytes": 459
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/generic.cpython-311-x86_64-linux-gnu.so",
+        "path_type": "hardlink",
+        "sha256": "5d607103d4c303871410876084df0a69f0d427890afcb8c1a669cab312b10216",
+        "sha256_in_prefix": "5d607103d4c303871410876084df0a69f0d427890afcb8c1a669cab312b10216",
+        "size_in_bytes": 53064
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/generic.h",
+        "path_type": "hardlink",
+        "sha256": "18c5be7bf00911f217a883a3e850da1346ab41364819f24b2f8a00863bbce26a",
+        "sha256_in_prefix": "18c5be7bf00911f217a883a3e850da1346ab41364819f24b2f8a00863bbce26a",
+        "size_in_bytes": 1618
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/generic.pxd",
+        "path_type": "hardlink",
+        "sha256": "c0e2d9d1d9809dbdbbd5d4ebcd9dee4e394b56e08ed4c3cd67ca5482fa555d7c",
+        "sha256_in_prefix": "c0e2d9d1d9809dbdbbd5d4ebcd9dee4e394b56e08ed4c3cd67ca5482fa555d7c",
+        "size_in_bytes": 181
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/generic.pyx",
+        "path_type": "hardlink",
+        "sha256": "90d78c2e2699f0058e23c0d1be60ef26b1a86fc3d41f393329016b33da493571",
+        "sha256_in_prefix": "90d78c2e2699f0058e23c0d1be60ef26b1a86fc3d41f393329016b33da493571",
+        "size_in_bytes": 463
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/mmx.c",
+        "path_type": "hardlink",
+        "sha256": "609a8eaffd008c721861ef5abc39fd7eb1c23da496bb312342520ba7be02eaf0",
+        "sha256_in_prefix": "609a8eaffd008c721861ef5abc39fd7eb1c23da496bb312342520ba7be02eaf0",
+        "size_in_bytes": 899
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/mmx.h",
+        "path_type": "hardlink",
+        "sha256": "e5fa41a86733fa7baaa36c4977b8820457dc01628359fb28e244c82e6b634d17",
+        "sha256_in_prefix": "e5fa41a86733fa7baaa36c4977b8820457dc01628359fb28e244c82e6b634d17",
+        "size_in_bytes": 284
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/mmx.pxd",
+        "path_type": "hardlink",
+        "sha256": "79459caa1490b51e67a97b5872bd4e109f28ac26895faf8ae7a536e110bbc749",
+        "sha256_in_prefix": "79459caa1490b51e67a97b5872bd4e109f28ac26895faf8ae7a536e110bbc749",
+        "size_in_bytes": 190
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/neon.h",
+        "path_type": "hardlink",
+        "sha256": "9a2e964dc7c56fc2b05db447bebcf03c46eba941c03be951ae2d1532825040bb",
+        "sha256_in_prefix": "9a2e964dc7c56fc2b05db447bebcf03c46eba941c03be951ae2d1532825040bb",
+        "size_in_bytes": 944
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/neon.pxd",
+        "path_type": "hardlink",
+        "sha256": "1a24bcfe707a0a9c26eb43c18a2602a245fb2935025d3359073b6a9d360a52df",
+        "sha256_in_prefix": "1a24bcfe707a0a9c26eb43c18a2602a245fb2935025d3359073b6a9d360a52df",
+        "size_in_bytes": 178
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/neon.pyx",
+        "path_type": "hardlink",
+        "sha256": "9639bc646c7ef16b5c3e51616af445689b7d945ffc1837f01c0d8992537e3d28",
+        "sha256_in_prefix": "9639bc646c7ef16b5c3e51616af445689b7d945ffc1837f01c0d8992537e3d28",
+        "size_in_bytes": 451
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/sse2.cpython-311-x86_64-linux-gnu.so",
+        "path_type": "hardlink",
+        "sha256": "bb59ce38104dd1331c5f407dd3893ece7fc0a4dcfcfdf5b81484ed6047b7d2a2",
+        "sha256_in_prefix": "bb59ce38104dd1331c5f407dd3893ece7fc0a4dcfcfdf5b81484ed6047b7d2a2",
+        "size_in_bytes": 57160
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/sse2.h",
+        "path_type": "hardlink",
+        "sha256": "3574a9e07f0ab1bc51add6590d9c3f5b567cfa1471b94b260dcf06c357ba7fd3",
+        "sha256_in_prefix": "3574a9e07f0ab1bc51add6590d9c3f5b567cfa1471b94b260dcf06c357ba7fd3",
+        "size_in_bytes": 983
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/sse2.pxd",
+        "path_type": "hardlink",
+        "sha256": "ed72a754d903df9944aa65d0aa95b80136182a020a5ec9ff22f9f3dfbc2b36ae",
+        "sha256_in_prefix": "ed72a754d903df9944aa65d0aa95b80136182a020a5ec9ff22f9f3dfbc2b36ae",
+        "size_in_bytes": 178
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/sse2.pyx",
+        "path_type": "hardlink",
+        "sha256": "1ead2c2c45378d952f75ccad48f228a36ab2033c9fbdb48e2c59f599ba7c4857",
+        "sha256_in_prefix": "1ead2c2c45378d952f75ccad48f228a36ab2033c9fbdb48e2c59f599ba7c4857",
+        "size_in_bytes": 451
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/impl/template.h",
+        "path_type": "hardlink",
+        "sha256": "9643c8e1c5da67c9c6d611224273cc76856679c46021e6503978841728a6c386",
+        "sha256_in_prefix": "9643c8e1c5da67c9c6d611224273cc76856679c46021e6503978841728a6c386",
+        "size_in_bytes": 4651
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/lib.cpython-311-x86_64-linux-gnu.so",
+        "path_type": "hardlink",
+        "sha256": "480c28906ad4cb6eb9134bbbab9c4d11f483c13e523f9455286e896bf02eee14",
+        "sha256_in_prefix": "480c28906ad4cb6eb9134bbbab9c4d11f483c13e523f9455286e896bf02eee14",
+        "size_in_bytes": 2872872
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/lib.pxd",
+        "path_type": "hardlink",
+        "sha256": "9b57cfad81e09a3b01d09be6e79acab646e4135b823e33fcfe62dae4e9f7ad9d",
+        "sha256_in_prefix": "9b57cfad81e09a3b01d09be6e79acab646e4135b823e33fcfe62dae4e9f7ad9d",
+        "size_in_bytes": 12064
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/lib.pyi",
+        "path_type": "hardlink",
+        "sha256": "19945dac3b1a396d2179215f633ba0759b29a6bcc410524bbf6eb0915b4207eb",
+        "sha256_in_prefix": "19945dac3b1a396d2179215f633ba0759b29a6bcc410524bbf6eb0915b4207eb",
+        "size_in_bytes": 13843
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/lib.pyx",
+        "path_type": "hardlink",
+        "sha256": "419f8ed2e87fde86f3b182e54a847feb49b29fee128d5065f9f040e7730a7ee4",
+        "sha256_in_prefix": "419f8ed2e87fde86f3b182e54a847feb49b29fee128d5065f9f040e7730a7ee4",
+        "size_in_bytes": 214562
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/prodigal/__init__.pxd",
+        "path_type": "hardlink",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_in_bytes": 1
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/prodigal/bitmap.pxd",
+        "path_type": "hardlink",
+        "sha256": "62ec0a7dcd2162760fe419e96f20075a20da29e03da71f07646eaa0d1585308e",
+        "sha256_in_prefix": "62ec0a7dcd2162760fe419e96f20075a20da29e03da71f07646eaa0d1585308e",
+        "size_in_bytes": 349
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/prodigal/dprog.pxd",
+        "path_type": "hardlink",
+        "sha256": "0d52b4899ea01d4ee14be0ff615464b3fe79fffe7c339cdb86fb1f2e56d55d9c",
+        "sha256_in_prefix": "0d52b4899ea01d4ee14be0ff615464b3fe79fffe7c339cdb86fb1f2e56d55d9c",
+        "size_in_bytes": 400
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/prodigal/gene.pxd",
+        "path_type": "hardlink",
+        "sha256": "8006d432470a3dabb0ba45ba42b1e202cd01864300143a0fd7fee083631b7ad7",
+        "sha256_in_prefix": "8006d432470a3dabb0ba45ba42b1e202cd01864300143a0fd7fee083631b7ad7",
+        "size_in_bytes": 960
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/prodigal/metagenomic.pxd",
+        "path_type": "hardlink",
+        "sha256": "5d12ce6145eeda03034fc0fa97cbc9f930ea11ef8af18041fcea8529ced40d36",
+        "sha256_in_prefix": "5d12ce6145eeda03034fc0fa97cbc9f930ea11ef8af18041fcea8529ced40d36",
+        "size_in_bytes": 623
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/prodigal/node.pxd",
+        "path_type": "hardlink",
+        "sha256": "b171accef406a071f5cd97c7f822b96439a9d6ef5bfc84ac1f49b9d4ad861ab8",
+        "sha256_in_prefix": "b171accef406a071f5cd97c7f822b96439a9d6ef5bfc84ac1f49b9d4ad861ab8",
+        "size_in_bytes": 3087
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/prodigal/sequence.pxd",
+        "path_type": "hardlink",
+        "sha256": "ef40b90c9a60e174f00994a6383867d13fb94a65aeccb8c582241e53884509ce",
+        "sha256_in_prefix": "ef40b90c9a60e174f00994a6383867d13fb94a65aeccb8c582241e53884509ce",
+        "size_in_bytes": 1673
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/prodigal/training.pxd",
+        "path_type": "hardlink",
+        "sha256": "fa549e68b0d8e053ad68da24e91f5ba662021afc1ac6674ba708a48df34c91ef",
+        "sha256_in_prefix": "fa549e68b0d8e053ad68da24e91f5ba662021afc1ac6674ba708a48df34c91ef",
+        "size_in_bytes": 328
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/py.typed",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "63dbc835021fb7a58df5c83c0a3e191090b785ed86a2cdcc1b7b3818eec0910a",
+        "sha256_in_prefix": "63dbc835021fb7a58df5c83c0a3e191090b785ed86a2cdcc1b7b3818eec0910a",
+        "size_in_bytes": 801
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/__init__.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "536c268aa1300d020536a289e9e1039518ce558cf5b0aff9a42a78084a110f48",
+        "sha256_in_prefix": "536c268aa1300d020536a289e9e1039518ce558cf5b0aff9a42a78084a110f48",
+        "size_in_bytes": 1772
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/fasta.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "1ac2edb263dadd6e8c690c55b132a6083783035d3015a266952c176785f9b330",
+        "sha256_in_prefix": "1ac2edb263dadd6e8c690c55b132a6083783035d3015a266952c176785f9b330",
+        "size_in_bytes": 5244
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_connection_scorer.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "a0a4ff42408d22f1a5e27388afe02abe67419fe58f76e5f1a72a3417d6fedf5a",
+        "sha256_in_prefix": "a0a4ff42408d22f1a5e27388afe02abe67419fe58f76e5f1a72a3417d6fedf5a",
+        "size_in_bytes": 7802
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_doctest.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "93b8d5226349c4b25cc56ae56d7375793532cdd51a93eeab9b487ba81bee65e6",
+        "sha256_in_prefix": "93b8d5226349c4b25cc56ae56d7375793532cdd51a93eeab9b487ba81bee65e6",
+        "size_in_bytes": 4884
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_gene.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "d94c86cb74d556aafb48540eccdfa61126360a4e7679e5c2a5ccd1f1d131682b",
+        "sha256_in_prefix": "d94c86cb74d556aafb48540eccdfa61126360a4e7679e5c2a5ccd1f1d131682b",
+        "size_in_bytes": 6902
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_gene_finder.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "27377fff2b39798805d892710ad53fe2e86775b15b307af993942de601ed6206",
+        "sha256_in_prefix": "27377fff2b39798805d892710ad53fe2e86775b15b307af993942de601ed6206",
+        "size_in_bytes": 38282
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_genes.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "5398aa376e927fac5560fc6e3640038c4b153a4eed8607240bbef6a79482bde4",
+        "sha256_in_prefix": "5398aa376e927fac5560fc6e3640038c4b153a4eed8607240bbef6a79482bde4",
+        "size_in_bytes": 17961
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_mask.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "b61a961041391e9c25400aa6187a6807dee54739ffdcc2ed4f4ad9f8710a906e",
+        "sha256_in_prefix": "b61a961041391e9c25400aa6187a6807dee54739ffdcc2ed4f4ad9f8710a906e",
+        "size_in_bytes": 2262
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_nodes.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "754fed813f20d57796a79a708e7fc1a0cbb448dfe1f50dadf1e0a02a3feb8eb6",
+        "sha256_in_prefix": "754fed813f20d57796a79a708e7fc1a0cbb448dfe1f50dadf1e0a02a3feb8eb6",
+        "size_in_bytes": 7526
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_sequence.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "ad55379665a48ca4a11ea7297dd1a29f7755662c26b9f793cc5d3d7a055bbbb4",
+        "sha256_in_prefix": "ad55379665a48ca4a11ea7297dd1a29f7755662c26b9f793cc5d3d7a055bbbb4",
+        "size_in_bytes": 6853
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/__pycache__/test_training_info.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "7e6f6563d899933b3677b91c969d922d19cbb12a07110a8cbdeaeb539ee9fc5b",
+        "sha256_in_prefix": "7e6f6563d899933b3677b91c969d922d19cbb12a07110a8cbdeaeb539ee9fc5b",
+        "size_in_bytes": 6276
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/GCF_001457455.1_NCTC11397_genomic.fna.gz",
+        "path_type": "hardlink",
+        "sha256": "e9f88cc1a5c1f0e10f372df91852e44630cbeb1d424a34566ed159e5e94850b3",
+        "sha256_in_prefix": "e9f88cc1a5c1f0e10f372df91852e44630cbeb1d424a34566ed159e5e94850b3",
+        "size_in_bytes": 737378
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/GCF_001457455.1_NCTC11397_genomic.tinf_closed.bin",
+        "path_type": "hardlink",
+        "sha256": "bb1445c7b8b60d5ae786b09f7d99e6b367450acf319f293f9999e53d277afa49",
+        "sha256_in_prefix": "bb1445c7b8b60d5ae786b09f7d99e6b367450acf319f293f9999e53d277afa49",
+        "size_in_bytes": 558392
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/GCF_001457455.1_NCTC11397_genomic_100kb.fna.gz",
+        "path_type": "hardlink",
+        "sha256": "3dd2ab7b836c028f5b0023daa5c3b0f04a2d926dcb5dfeb45ece0ddbf24cc677",
+        "sha256_in_prefix": "3dd2ab7b836c028f5b0023daa5c3b0f04a2d926dcb5dfeb45ece0ddbf24cc677",
+        "size_in_bytes": 31661
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/GCF_001457455.1_NCTC11397_genomic_100kb.tinf_closed.bin.gz",
+        "path_type": "hardlink",
+        "sha256": "3e1b72b27bc87f5b0374672ad60a324ff0ebf75fdefc4cdb36a7e7906e4387b7",
+        "sha256_in_prefix": "3e1b72b27bc87f5b0374672ad60a324ff0ebf75fdefc4cdb36a7e7906e4387b7",
+        "size_in_bytes": 14937
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/KK037166.fna.gz",
+        "path_type": "hardlink",
+        "sha256": "c9473cc41fb723a8b9b5953f4c2365b8f9edb171109ccec3b00fd5de9d164e51",
+        "sha256_in_prefix": "c9473cc41fb723a8b9b5953f4c2365b8f9edb171109ccec3b00fd5de9d164e51",
+        "size_in_bytes": 6264
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/KK037166.meta+mask.fna.gz",
+        "path_type": "hardlink",
+        "sha256": "b9d86b933fb0c476e5c1d813b900e585a3d269f7a79344c2452850219b0f3b0e",
+        "sha256_in_prefix": "b9d86b933fb0c476e5c1d813b900e585a3d269f7a79344c2452850219b0f3b0e",
+        "size_in_bytes": 5134
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/KK037166.meta.faa.gz",
+        "path_type": "hardlink",
+        "sha256": "5700de3ba7d597077e075795d7f7096c379b1007221a53d15e1364be56ca157f",
+        "sha256_in_prefix": "5700de3ba7d597077e075795d7f7096c379b1007221a53d15e1364be56ca157f",
+        "size_in_bytes": 3699
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/KK037166.meta.fna.gz",
+        "path_type": "hardlink",
+        "sha256": "cc41cd6723a98a9ee495e89abdcd0a778b4157692c197e0de7b4ef59d941ff76",
+        "sha256_in_prefix": "cc41cd6723a98a9ee495e89abdcd0a778b4157692c197e0de7b4ef59d941ff76",
+        "size_in_bytes": 5406
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/KK037166.single.faa.gz",
+        "path_type": "hardlink",
+        "sha256": "c24c4ef9cba6d978d2d140556932305aedc16e9fd170dfebfa1629fac7f8fb95",
+        "sha256_in_prefix": "c24c4ef9cba6d978d2d140556932305aedc16e9fd170dfebfa1629fac7f8fb95",
+        "size_in_bytes": 3994
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/KK037166.single.fna.gz",
+        "path_type": "hardlink",
+        "sha256": "19740a197a13a884f3b2876218dc94791fa57537c49c78c16db10ca0e6d650bb",
+        "sha256_in_prefix": "19740a197a13a884f3b2876218dc94791fa57537c49c78c16db10ca0e6d650bb",
+        "size_in_bytes": 5876
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.faa.gz",
+        "path_type": "hardlink",
+        "sha256": "45315f45c3507f607a73b4f15ac709766dd178e0d62e7a2f0b49c32a91efc3e3",
+        "sha256_in_prefix": "45315f45c3507f607a73b4f15ac709766dd178e0d62e7a2f0b49c32a91efc3e3",
+        "size_in_bytes": 89413
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.fna.gz",
+        "path_type": "hardlink",
+        "sha256": "ec750bb0133970dbdd7263f63d72c21ee5d964ed7336256fbc9c3aa48a53e20f",
+        "sha256_in_prefix": "ec750bb0133970dbdd7263f63d72c21ee5d964ed7336256fbc9c3aa48a53e20f",
+        "size_in_bytes": 139037
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.meta+mask.faa.gz",
+        "path_type": "hardlink",
+        "sha256": "05a4de9b6386cba7aa80274797452c5433a6f757ada10c95db07423c630799da",
+        "sha256_in_prefix": "05a4de9b6386cba7aa80274797452c5433a6f757ada10c95db07423c630799da",
+        "size_in_bytes": 87775
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.meta+mask.fna.gz",
+        "path_type": "hardlink",
+        "sha256": "8bc0c69ce031bdf2e9630bb5f235d89d0da085bc0dc83ca8b13ac09ba74bbbdc",
+        "sha256_in_prefix": "8bc0c69ce031bdf2e9630bb5f235d89d0da085bc0dc83ca8b13ac09ba74bbbdc",
+        "size_in_bytes": 129127
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.meta.faa.gz",
+        "path_type": "hardlink",
+        "sha256": "1c620142c7e7cb79ee632070c2ea1dacccce4cce114905ac5c58c18b7aa46d10",
+        "sha256_in_prefix": "1c620142c7e7cb79ee632070c2ea1dacccce4cce114905ac5c58c18b7aa46d10",
+        "size_in_bytes": 89491
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.meta.fna.gz",
+        "path_type": "hardlink",
+        "sha256": "75c0876462e9959006f46db7f3c04251e663598c0ed19243f11ee75987b531c2",
+        "sha256_in_prefix": "75c0876462e9959006f46db7f3c04251e663598c0ed19243f11ee75987b531c2",
+        "size_in_bytes": 132891
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.single.faa.gz",
+        "path_type": "hardlink",
+        "sha256": "46f0bcd50785726573a77a7923b55781b2ec255d48f70a39b30e5678b103bc34",
+        "sha256_in_prefix": "46f0bcd50785726573a77a7923b55781b2ec255d48f70a39b30e5678b103bc34",
+        "size_in_bytes": 90959
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/MIIJ01000039.single.fna.gz",
+        "path_type": "hardlink",
+        "sha256": "32629aa4f94c028edf1ed4a995d14ab97e3c1fc06b73fbfe081a958dc28bdc7c",
+        "sha256_in_prefix": "32629aa4f94c028edf1ed4a995d14ab97e3c1fc06b73fbfe081a958dc28bdc7c",
+        "size_in_bytes": 134986
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.fna.gz",
+        "path_type": "hardlink",
+        "sha256": "484e50cf3f0ed0a3d5ea35e224ad1b5f6060c1fbb1e34234aae9963e406d38b7",
+        "sha256_in_prefix": "484e50cf3f0ed0a3d5ea35e224ad1b5f6060c1fbb1e34234aae9963e406d38b7",
+        "size_in_bytes": 23514
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.meta.faa.gz",
+        "path_type": "hardlink",
+        "sha256": "e82524ec75c8a45a6569e779eeda845ab194104525a00c886d7cf35f74816b97",
+        "sha256_in_prefix": "e82524ec75c8a45a6569e779eeda845ab194104525a00c886d7cf35f74816b97",
+        "size_in_bytes": 15876
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.meta.fna.gz",
+        "path_type": "hardlink",
+        "sha256": "aec6d2e6e774ab0330a7cf5ba6ee71adecbbda745df0d9e755d6ccce34281f3a",
+        "sha256_in_prefix": "aec6d2e6e774ab0330a7cf5ba6ee71adecbbda745df0d9e755d6ccce34281f3a",
+        "size_in_bytes": 22885
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.meta.gff",
+        "path_type": "hardlink",
+        "sha256": "4944b4b7ed38c410218bacdab6ed78e0834cc89be52365ed68b6e270c385d64e",
+        "sha256_in_prefix": "4944b4b7ed38c410218bacdab6ed78e0834cc89be52365ed68b6e270c385d64e",
+        "size_in_bytes": 17671
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.meta.tsv",
+        "path_type": "hardlink",
+        "sha256": "a9f1da5b774aa5d6e2b978d722060dbf4634ee4cca8bf6c9e8499cee7dd5b890",
+        "sha256_in_prefix": "a9f1da5b774aa5d6e2b978d722060dbf4634ee4cca8bf6c9e8499cee7dd5b890",
+        "size_in_bytes": 169907
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.single.faa.gz",
+        "path_type": "hardlink",
+        "sha256": "97b8810c4871bf9509da448c8b0266593972f97e18c66417f382d6eba38c8cfc",
+        "sha256_in_prefix": "97b8810c4871bf9509da448c8b0266593972f97e18c66417f382d6eba38c8cfc",
+        "size_in_bytes": 16249
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.single.fna.gz",
+        "path_type": "hardlink",
+        "sha256": "4b709c5c29cc3a80fbfc5fcde1e19f2588efc056c7e4bb757345c168fc0dbff3",
+        "sha256_in_prefix": "4b709c5c29cc3a80fbfc5fcde1e19f2588efc056c7e4bb757345c168fc0dbff3",
+        "size_in_bytes": 23382
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/SRR492066.training.bin.gz",
+        "path_type": "hardlink",
+        "sha256": "74ed29201e4de6fc64eb36ba247e25e7499be78b4009a54dcb3f9aff4dd50639",
+        "sha256_in_prefix": "74ed29201e4de6fc64eb36ba247e25e7499be78b4009a54dcb3f9aff4dd50639",
+        "size_in_bytes": 13099
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "060ec676c3301adf3513af0e5acdde39308019d0fed05ee07e2dcb73b4e333ba",
+        "sha256_in_prefix": "060ec676c3301adf3513af0e5acdde39308019d0fed05ee07e2dcb73b4e333ba",
+        "size_in_bytes": 676
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/data/__pycache__/__init__.cpython-311.pyc",
+        "path_type": "hardlink",
+        "sha256": "e1bbfebe84a6e0f7c50243b4dca07ec0596aa09d17412a581c3623cc5f8fd0f7",
+        "sha256_in_prefix": "e1bbfebe84a6e0f7c50243b4dca07ec0596aa09d17412a581c3623cc5f8fd0f7",
+        "size_in_bytes": 2277
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/fasta.py",
+        "path_type": "hardlink",
+        "sha256": "e0bac6dd7389422683590c614268a073530fb596dbe6fa5febb4f57cf3dd0849",
+        "sha256_in_prefix": "e0bac6dd7389422683590c614268a073530fb596dbe6fa5febb4f57cf3dd0849",
+        "size_in_bytes": 2740
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/requirements.txt",
+        "path_type": "hardlink",
+        "sha256": "77540bfcb1ad38984c37c7b24a654342c7fa5f204520abbb75cfc160cfd467ff",
+        "sha256_in_prefix": "77540bfcb1ad38984c37c7b24a654342c7fa5f204520abbb75cfc160cfd467ff",
+        "size_in_bytes": 62
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/test_connection_scorer.py",
+        "path_type": "hardlink",
+        "sha256": "3c2a4c04ff357fd65a8b2e328fb138bfc31cd948062402d1ed6e9f23ffb93b93",
+        "sha256_in_prefix": "3c2a4c04ff357fd65a8b2e328fb138bfc31cd948062402d1ed6e9f23ffb93b93",
+        "size_in_bytes": 3897
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/test_doctest.py",
+        "path_type": "hardlink",
+        "sha256": "1e80c902879af2938f257400ce67979a214de9e9bd57d6633116a1464c543f56",
+        "sha256_in_prefix": "1e80c902879af2938f257400ce67979a214de9e9bd57d6633116a1464c543f56",
+        "size_in_bytes": 3082
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/test_gene.py",
+        "path_type": "hardlink",
+        "sha256": "e83991e30468c648a5f53486b01a1adc33e81803a275a1f9b1fd659c7397998c",
+        "sha256_in_prefix": "e83991e30468c648a5f53486b01a1adc33e81803a275a1f9b1fd659c7397998c",
+        "size_in_bytes": 2831
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/test_gene_finder.py",
+        "path_type": "hardlink",
+        "sha256": "6c58bc9a32c6bec291d4c99ef55651457456cedb8a1110b1525f4a284892fc32",
+        "sha256_in_prefix": "6c58bc9a32c6bec291d4c99ef55651457456cedb8a1110b1525f4a284892fc32",
+        "size_in_bytes": 18584
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/test_genes.py",
+        "path_type": "hardlink",
+        "sha256": "c000bb092075a6a7ed6526a2cb5d91d57b28f4da95946e92fd8734558810215d",
+        "sha256_in_prefix": "c000bb092075a6a7ed6526a2cb5d91d57b28f4da95946e92fd8734558810215d",
+        "size_in_bytes": 7889
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/test_mask.py",
+        "path_type": "hardlink",
+        "sha256": "1cf8d4d8a349ec7aa1f4f3a8a0cac957cbaab1d683c0abaae7bc23028c61c79d",
+        "sha256_in_prefix": "1cf8d4d8a349ec7aa1f4f3a8a0cac957cbaab1d683c0abaae7bc23028c61c79d",
+        "size_in_bytes": 679
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/test_nodes.py",
+        "path_type": "hardlink",
+        "sha256": "ed48259163640e1860219d763ae17ec2ef8df10176002553ee8205bb6b17c8e6",
+        "sha256_in_prefix": "ed48259163640e1860219d763ae17ec2ef8df10176002553ee8205bb6b17c8e6",
+        "size_in_bytes": 4156
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/test_sequence.py",
+        "path_type": "hardlink",
+        "sha256": "fed085139fc4d3b8e12966143fce1425cade6814d4a5ab733e50523dbdce022b",
+        "sha256_in_prefix": "fed085139fc4d3b8e12966143fce1425cade6814d4a5ab733e50523dbdce022b",
+        "size_in_bytes": 3184
+      },
+      {
+        "_path": "lib/python3.11/site-packages/pyrodigal/tests/test_training_info.py",
+        "path_type": "hardlink",
+        "sha256": "22243d74ae4b29d78fe86d122f13fdc3c7853f16d1c404b6abc44141f7a51c8a",
+        "sha256_in_prefix": "22243d74ae4b29d78fe86d122f13fdc3c7853f16d1c404b6abc44141f7a51c8a",
+        "size_in_bytes": 2527
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "a1accea42180ff1cf6d245eef824168d3a94ff334e0f144545e0801d01315a57",
+  "size": 2909704,
+  "subdir": "linux-64",
+  "timestamp": 1741050953000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/bioconda/linux-64/pyrodigal-3.6.3.post1-py311haab0aaa_0.tar.bz2",
+  "version": "3.6.3.post1"
+}

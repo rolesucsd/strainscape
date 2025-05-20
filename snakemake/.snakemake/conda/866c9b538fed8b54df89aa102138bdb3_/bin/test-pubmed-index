@@ -1,0 +1,143 @@
+#!/bin/bash
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+seconds_start=$(date "+%s")
+count=0
+for i in {1..100}
+do
+  echo $(( ( 1 + RANDOM % 30000) * 1000 + ( RANDOM % 1000) ))
+done |
+sort -n |
+uniq |
+fetch-pubmed |
+xtract -pattern PubmedArticle -element MedlineCitation/PMID ArticleTitle |
+( while IFS=$'\t' read uid ttl
+do
+  if [ "$ttl" = "[Not Available]." ]
+  then
+    echo "$uid SKIP"
+    continue
+  fi
+  if [ "$ttl" = "Health." ]
+  then
+    echo "$uid SKIP"
+    continue
+  fi
+  if [ -z "$ttl" ]
+  then
+    echo "$uid TRIM -- $ttl"
+    continue
+  fi
+  count=$((count + 1))
+  res=$( phrase-search -title "$ttl" )
+  report="1"
+  if [ -z "$res" ]
+  then
+    echo "$uid NONE -- $ttl"
+    continue
+  fi
+  num=$( echo "$res" | wc -l | tr -d '[:space:]' )
+  echo "$res" |
+  while read pmid
+  do
+    if [[ $uid =~ $pmid ]]
+    then
+      if [ "$num" -lt 2 ]
+      then
+        echo "$uid OKAY -- $ttl"
+      else
+        echo "$uid MULT ${num## } -- $ttl"
+      fi
+      report="0"
+      break
+    fi
+  done
+  if [ "$report" -lt 1 ]
+  then
+    echo "$uid FAIL $num -- $ttl"
+  fi
+done
+seconds_end=$(date "+%s")
+seconds=$((seconds_end - seconds_start))
+echo "$seconds seconds, $count records"
+)
+
+ascend_mesh_tree() {
+  var="${1%\*}"
+  target=""
+  ev=$( rchive -local pubmed )
+  if [ -n "$ev" ]
+  then
+    # only care about master volume and its Data subfolder
+    target="${ev%:*}"
+    target=${target%/}
+  fi
+  while :
+  do
+    frst=$( phrase-search -count "$var* [TREE]" )
+    scnd=$( cat "${target}/Data/meshconv.xml" |
+            xtract -pattern Rec -if Tree -equals "$var" -first Code Name )
+    printf "${frst}\t${scnd}\n"
+    case "$var" in
+      *.* ) var="${var%????}" ;;
+      *   ) break             ;;
+    esac
+  done |
+  align-columns -g 4
+}
+
+# get local master and working volumes from database
+ev=$( rchive -local pubmed )
+if [ -n "$ev" ]
+then
+  # only care about master volume and its Postings subfolder
+  target="${ev%:*}"
+fi
+
+if [ -z "$target" ]
+then
+  echo "ERROR: Must supply path to local data by setting EDIRECT_LOCAL_MASTER environment variable" >&2
+  exit 1
+fi
+
+osname=`uname -s | sed -e 's/_NT-.*$/_NT/; s/^MINGW[0-9]*/CYGWIN/'`
+if [ "$osname" = "CYGWIN_NT" -a -x /bin/cygpath ]
+then
+  target=`cygpath -w "$target"`
+fi
+
+# remove trailing slash
+target=${target%/}
+
+if [ ! -d "$target" ]
+then
+  echo "ERROR: Local archive ${target} is not mounted" >&2
+  exit 1
+fi
+
+target=$( echo "${target}/Postings")
+
+if [ ! -d "$target" ]
+then
+  echo "ERROR: Postings directory ${target} is not present" >&2
+  exit 1
+fi
+
+echo ""
+phrase-search -fields
+
+echo ""
+phrase-search -terms PROP
+
+echo ""
+cit2pmid -local \
+  -title "nucleotide sequences required for tn3 transposition immunity" \
+  -author "Kans JA" -author "Casadaban MJ" \
+  -journal "J Bacteriol" -year 1989 -volume 171 -issue 4 -page 1904-14
+
+echo ""
+ascend_mesh_tree "C01.925.782.417.415"
+
+echo ""

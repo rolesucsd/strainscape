@@ -1,0 +1,41 @@
+{
+  "build": "h9ee0642_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/bioconda/linux-64",
+  "constrains": [],
+  "depends": [],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/seqkit-2.10.0-h9ee0642_0",
+  "features": "",
+  "files": [
+    "bin/seqkit"
+  ],
+  "fn": "seqkit-2.10.0-h9ee0642_0.tar.bz2",
+  "license": "MIT",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/seqkit-2.10.0-h9ee0642_0",
+    "type": 1
+  },
+  "md5": "81a69f6cb9d20aa9391af6263a3f5f91",
+  "name": "seqkit",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/seqkit-2.10.0-h9ee0642_0.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "bin/seqkit",
+        "path_type": "hardlink",
+        "sha256": "f6669fe868117262c3c822277d4244678c9aa1828ab86acbe9ba45049fb7594b",
+        "sha256_in_prefix": "f6669fe868117262c3c822277d4244678c9aa1828ab86acbe9ba45049fb7594b",
+        "size_in_bytes": 19697848
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "seqkit",
+  "sha256": "878012ec7adf52a41c48b7e08c35f1b0b2b43de8012f3530ffc52b106ab02b53",
+  "size": 7760865,
+  "subdir": "linux-64",
+  "timestamp": 1741772543000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/bioconda/linux-64/seqkit-2.10.0-h9ee0642_0.tar.bz2",
+  "version": "2.10.0"
+}

@@ -1,0 +1,47 @@
+{
+  "build": "hd6d6fdc_3",
+  "build_number": 3,
+  "channel": "https://conda.anaconda.org/bioconda/linux-64",
+  "constrains": [],
+  "depends": [
+    "libgcc >=13",
+    "bzip2 >=1.0.8,<2.0a0",
+    "libstdcxx >=13",
+    "libzlib >=1.3.1,<2.0a0",
+    "libsqlite >=3.49.1,<4.0a0"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/rpsbproc-0.5.0-hd6d6fdc_3",
+  "features": "",
+  "files": [
+    "bin/rpsbproc"
+  ],
+  "fn": "rpsbproc-0.5.0-hd6d6fdc_3.tar.bz2",
+  "license": "Public Domain",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/rpsbproc-0.5.0-hd6d6fdc_3",
+    "type": 1
+  },
+  "md5": "47bbd5d7e01700d81ce16888350cda62",
+  "name": "rpsbproc",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/rpsbproc-0.5.0-hd6d6fdc_3.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "bin/rpsbproc",
+        "path_type": "hardlink",
+        "sha256": "a85e1e7f0f2f3910b1c000c3fc2d5b4848abf86885fadaa357ed538b72b7d98f",
+        "sha256_in_prefix": "a85e1e7f0f2f3910b1c000c3fc2d5b4848abf86885fadaa357ed538b72b7d98f",
+        "size_in_bytes": 20804712
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "00d2231659f0d878cec80c4e40c555a840342e8e6add237e969654bfa0e33b00",
+  "size": 6555182,
+  "subdir": "linux-64",
+  "timestamp": 1743100884000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/bioconda/linux-64/rpsbproc-0.5.0-hd6d6fdc_3.tar.bz2",
+  "version": "0.5.0"
+}

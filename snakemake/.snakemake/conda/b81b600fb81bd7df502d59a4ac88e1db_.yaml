@@ -1,0 +1,8 @@
+name: seqkit
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - seqkit        # for `seqkit seq -m 1000 ...`
+  - python >=3.7  # SeqKit requires Python

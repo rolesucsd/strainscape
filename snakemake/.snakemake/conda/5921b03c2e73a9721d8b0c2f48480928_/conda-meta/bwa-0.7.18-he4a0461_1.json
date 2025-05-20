@@ -1,0 +1,69 @@
+{
+  "build": "he4a0461_1",
+  "build_number": 1,
+  "channel": "https://conda.anaconda.org/bioconda/linux-64",
+  "constrains": [],
+  "depends": [
+    "perl",
+    "libgcc-ng >=12",
+    "libzlib >=1.2.13,<2.0a0"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/bwa-0.7.18-he4a0461_1",
+  "features": "",
+  "files": [
+    "bin/bwa",
+    "bin/qualfa2fq.pl",
+    "bin/xa2multi.pl",
+    "share/man/man1/bwa.1"
+  ],
+  "fn": "bwa-0.7.18-he4a0461_1.tar.bz2",
+  "license": "GPL3",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/bwa-0.7.18-he4a0461_1",
+    "type": 1
+  },
+  "md5": "4ecde7d4a03fabe440a90aea1389d62d",
+  "name": "bwa",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/bwa-0.7.18-he4a0461_1.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "bin/bwa",
+        "path_type": "hardlink",
+        "sha256": "b4d3b3d133d5594baeb985500522ba7736ecd445497b3bbf6f0eabf3b6c1b53f",
+        "sha256_in_prefix": "b4d3b3d133d5594baeb985500522ba7736ecd445497b3bbf6f0eabf3b6c1b53f",
+        "size_in_bytes": 342640
+      },
+      {
+        "_path": "bin/qualfa2fq.pl",
+        "path_type": "hardlink",
+        "sha256": "c4611242e729b28eb246c5911c849ffb41bc4d263ee5db11d3586d70354c1435",
+        "sha256_in_prefix": "c4611242e729b28eb246c5911c849ffb41bc4d263ee5db11d3586d70354c1435",
+        "size_in_bytes": 617
+      },
+      {
+        "_path": "bin/xa2multi.pl",
+        "path_type": "hardlink",
+        "sha256": "d699482d3ae30a0e6f16c245ecae37a4cb7213bdbe38c9bb0e722c15cd079c33",
+        "sha256_in_prefix": "d699482d3ae30a0e6f16c245ecae37a4cb7213bdbe38c9bb0e722c15cd079c33",
+        "size_in_bytes": 731
+      },
+      {
+        "_path": "share/man/man1/bwa.1",
+        "path_type": "hardlink",
+        "sha256": "93978a682c12eef9b7835561cfa0d52454f0802f451c148b681af47c90bc2b39",
+        "sha256_in_prefix": "93978a682c12eef9b7835561cfa0d52454f0802f451c148b681af47c90bc2b39",
+        "size_in_bytes": 27372
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "bwa",
+  "sha256": "f8a9482e07214cd1595f021ff66c327e4d77a903515d11295a7f5db05d3fdb86",
+  "size": 196166,
+  "subdir": "linux-64",
+  "timestamp": 1721182139000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/bioconda/linux-64/bwa-0.7.18-he4a0461_1.tar.bz2",
+  "version": "0.7.18"
+}

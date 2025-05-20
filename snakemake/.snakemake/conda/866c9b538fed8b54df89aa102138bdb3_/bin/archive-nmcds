@@ -1,0 +1,542 @@
+#!/bin/bash
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# archive-nmcds
+
+total_start=$(date "+%s")
+
+pth=$( dirname "$0" )
+
+case "$pth" in
+  /* )
+    ;; # already absolute
+  *  )
+    pth=$(cd "$pth" && pwd)
+    ;;
+esac
+
+case ":$PATH:" in
+  *:"$pth":* )
+    ;;
+  * )
+    PATH="$PATH:$pth"
+    export PATH
+    ;;
+esac
+
+# database-specific parameters
+
+dbase="nmcds"
+recname="NMSummary"
+dotmax="500"
+subdirs="00-24,25-49,50-74,75-99"
+fields="ACCN ACVR OFST ORGN TXID CHR MAP GENE GUID PROD LOC GCODE PACC PAVR PLEN CLEN MLEN NIVL UID"
+
+# control flags set by command-line arguments
+
+useFtp=true
+useHttps=false
+
+clean=false
+scrub=false
+scour=false
+zap=false
+
+download=true
+generate=true
+populate=true
+
+e2index=false
+e2invert=false
+e2merge=false
+e2post=false
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    index | -index | reindex | -reindex )
+      e2index=true
+      e2invert=true
+      e2merge=true
+      e2post=true
+      shift
+      ;;
+    clean | -clean | clear | -clear )
+      # delete Indices contents and Increment files
+      clean=true
+      shift
+      ;;
+    scrub | -scrub )
+      clean=true
+      # and delete Postings directories
+      scrub=true
+      shift
+      ;;
+    scour | -scour )
+      clean=true
+      scrub=true
+      # and delete Data, Archive, and Sentinels directories
+      scour=true
+      shift
+      ;;
+    zap | -zap )
+      clean=true
+      scrub=true
+      scour=true
+      # and delete Source records and all remaining directories
+      zap=true
+      shift
+      ;;
+    -ftp )
+      useFtp=true
+      useHttps=false
+      shift
+      ;;
+    -http | -https )
+      useFtp=false
+      useHttps=true
+      shift
+      ;;
+    * )
+      break
+      ;;
+  esac
+done
+
+if [ "$clean" == true ] && [ "$e2index" == true ]
+then
+  echo "ERROR: Cleaning and indexing must be done in separate commands, EXITING" >&2
+  exit 1
+fi
+
+if [ "$zap" = true ]
+then
+  pm-clean -db "$dbase" -zap
+  exit 0
+fi
+
+if [ "$scour" = true ]
+then
+  pm-clean -db "$dbase" -scour
+  exit 0
+fi
+
+if [ "$scrub" = true ]
+then
+  pm-clean -db "$dbase" -scrub
+  exit 0
+fi
+
+if [ "$clean" = true ]
+then
+  pm-clean -db "$dbase" -clean
+  exit 0
+fi
+
+date
+echo "" >&2
+
+MASTER=""
+WORKING=""
+
+# get local master and working volumes from database, creating subfolders if necessary
+ev=$( pm-setup -db "$dbase" )
+
+if [ -z "$ev" ]
+then
+  echo "ERROR: Must supply path to local data by setting EDIRECT_LOCAL_MASTER environment variable" >&2
+  exit 1
+fi
+
+MASTER="${ev%:*}"
+WORKING="${ev#*:}"
+
+# remove trailing slash
+MASTER=${MASTER%/}
+WORKING=${WORKING%/}
+
+# report data locations
+echo "ARCHIVE $MASTER" >&2
+echo "WORKING $WORKING" >&2
+echo "" >&2
+
+echo "Preparing Drives" >&2
+pm-prepare "$MASTER" "$WORKING"
+echo "" >&2
+
+DWN=""
+POP=""
+
+IDX=""
+INV=""
+MRG=""
+PST=""
+
+if [ "$download" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Downloading RefSeq mRNA Files" >&2
+
+  if [ -d "$WORKING/Source" ]
+  then
+    cd "$WORKING/Source"
+
+    species="H_sapiens"
+
+    nquire -lst ftp.ncbi.nlm.nih.gov refseq "$species" mRNA_Prot |
+    grep rna.gbff.gz | sort -V |
+    skip-if-file-exists |
+    while read fl
+    do
+      echo "$fl" >&2
+      echo "$fl" |
+      nquire -asp ftp.ncbi.nlm.nih.gov refseq "$species" mRNA_Prot
+    done
+  fi
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  DWN=$seconds
+  echo "DWN $DWN seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+GBFtoNMSummary() {
+
+  label="$1"
+
+  ls "${label}"*.rna.gbff.gz | sort -V |
+  while read fl
+  do
+    echo "$fl" >&2
+    gunzip -c "$fl" |
+    gbf2xml |
+    xtract -rec Rec -pattern INSDSeq \
+      -ACCN INSDSeq_accession-version -LCUS INSDSeq_locus -SEQ INSDSeq_sequence \
+      -division INSDSeq -if "&ACCN" -starts-with "NM_" \
+        -group INSDFeature -if INSDFeature_key -equals source \
+          -branch INSDFeature -pkg SRC \
+            -block INSDQualifier -if INSDQualifier_name -equals organism -wrp Organism -element INSDQualifier_value \
+            -block INSDQualifier -if INSDQualifier_name -equals db_xref -and INSDQualifier_value -starts-with "taxon:" \
+              -wrp TaxonID -element "INSDQualifier_value[taxon:|]" \
+            -block INSDQualifier -if INSDQualifier_name -equals chromosome -wrp Chromosome -element INSDQualifier_value \
+            -block INSDQualifier -if INSDQualifier_name -equals map -wrp Map -element INSDQualifier_value \
+        -group INSDFeature -if INSDFeature_key -equals CDS \
+          -wrp Accession -first "&ACCN,&LCUS" -wrp Offset -min INSDInterval_from -wrp NumIvals -num INSDInterval \
+         -branch INSDFeature -pkg TMP \
+            -block INSDQualifier -if INSDQualifier_name -equals gene -wrp Gene -element INSDQualifier_value \
+            -block INSDQualifier -if INSDQualifier_name -equals db_xref -and INSDQualifier_value -starts-with "GeneID:" \
+              -wrp GeneID -element "INSDQualifier_value[GeneID:|]" \
+            -block INSDQualifier -if INSDQualifier_name -equals product -wrp Product -element INSDQualifier_value \
+            -block INSDFeature_intervals -pkg Location \
+              -subset INSDInterval -FR INSDInterval_from -TO INSDInterval_to \
+                -pfx "" -tab ".." -element "&FR" -pfx "" -tab "," -element "&TO" \
+              -subset INSDFeature_intervals -deq "\t" \
+            -block INSDQualifier -if INSDQualifier_name -equals ribosomal_slippage -wrp Exception -element INSDQualifier_name \
+            -block INSDQualifier -if INSDQualifier_name -equals transl_table -wrp GeneticCode -element INSDQualifier_value \
+            -block INSDFeature -unless INSDQualifier_name -equals transl_table -wrp GeneticCode -lbl "1" \
+            -block INSDQualifier -if INSDQualifier_name -equals protein_id -wrp ProtID -element INSDQualifier_value \
+            -block INSDQualifier -if INSDQualifier_name -equals translation -wrp Protein -element INSDQualifier_value \
+            -block INSDFeature_intervals -pkg Coding \
+              -subset INSDInterval -FR INSDInterval_from -TO INSDInterval_to -clr -nucleic "&SEQ[&FR:&TO]" \
+            -block INSDFeature -wrp Message -upper "&SEQ" |
+    xtract -rec NMSummary -pattern Rec \
+      -block Accession -element "*" -block Offset -wrp Offset -dec Offset \
+      -block "SRC/*" -element "*" -block "TMP/*" -element "*" \
+      -block TMP/Protein -wrp ProtLength -len Protein -block TMP/Coding -wrp CDSLength -len Coding \
+      -block TMP/Message -wrp MRnaLength -len Message -block NumIvals -wrp NumIntervals -element NumIvals
+  done |
+  transmute -format > "$WORKING/Extras/${label}_cds.xml"
+}
+
+if [ "$generate" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Clearing RefSeq mRNA Archive and Indices" >&2
+
+  if [ -d "$WORKING/Extras" ]
+  then
+    rm -f "$WORKING/Extras/human_cds.xml"
+    rm -f "$WORKING/Extras/nm_cds.txt"
+    rm -f "$WORKING/Extras/accessions.txt"
+  fi
+
+  if [ -d "$WORKING/Index" ]
+  then
+    target="$WORKING/Index"
+    find "$target" -name "*.e2x" -delete
+    find "$target" -name "*.e2x.gz" -delete
+    cd "$WORKING/Index"
+    rm -rf * &
+    wait
+  fi
+
+  if [ -d "$WORKING/Invert" ]
+  then
+    target="$WORKING/Invert"
+    find "$target" -name "*.inv" -delete
+    find "$target" -name "*.inv.gz" -delete
+  fi
+
+  if [ -d "$WORKING/Merged" ]
+  then
+    target="$WORKING/Merged"
+    find "$target" -name "*.mrg" -delete
+    find "$target" -name "*.mrg.gz" -delete
+  fi
+
+  sleep 1
+
+  echo "" >&2
+  echo "Creating RefSeq mRNA Records" >&2
+
+  if [ -d "$WORKING/Source" ]
+  then
+    cd "$WORKING/Source"
+
+    GBFtoNMSummary "human"
+  fi
+
+  echo "Creating Master Accession List" >&2
+  if [ -d "$WORKING/Extras" ]
+  then
+    cd "$WORKING/Extras"
+
+    # use line number for UID
+    for fl in *_cds.xml
+    do
+      echo "$fl" >&2
+      cat "$fl" |
+      xtract -pattern NMSummary -element Accession
+    done |
+    sort -V | uniq -i | print-columns '$1, NR' > accessions.txt
+  fi
+
+  echo "Creating CDS Offset Table" >&2
+  if [ -d "$WORKING/Extras" ]
+  then
+    cd "$WORKING/Extras"
+
+    for fl in *_cds.xml
+    do
+      echo "$fl" >&2
+      cat "$fl" |
+      xtract -pattern NMSummary -def "-" -element Accession Offset Coding
+    done |
+    sort -V | uniq -i > nm_cds.txt
+  fi
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  GEN=$seconds
+  echo "GEN $GEN seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+if [ "$populate" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Populating RefSeq mRNA Archive" >&2
+
+  if [ -d "$WORKING/Extras" ]
+  then
+    cd "$WORKING/Extras"
+
+    cat *_cds.xml |
+    transmute -format |
+    rchive -gzip -db "$dbase" -transform "$WORKING/Extras/accessions.txt" \
+      -archive "$MASTER/Archive" "$WORKING/Index" "$WORKING/Invert" \
+      -index Accession -pattern NMSummary
+  fi
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  POP=$seconds
+  echo "POP $POP seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+# variable contains taxonomy-database-specific xtract indexing instructions
+read -r -d '' idxtxt <<- EOS
+xtract -set IdxDocumentSet -rec IdxDocument \
+  -pattern NMSummary -UID -translate NMSummary/Accession \
+    -wrp IdxUid -element "&UID" -clr -rst -tab "" \
+    -group NMSummary -pkg IdxSearchFields \
+      -block NMSummary \
+        -wrp UID -pad "&UID" \
+        -wrp ACCN -element "Accession[|.]" \
+        -wrp ACVR -accession Accession \
+        -wrp OFST -element Offset \
+        -wrp ORGN -element Organism \
+        -wrp TXID -element TaxonID \
+        -wrp CHR -element Chromosome \
+        -wrp MAP -element Map \
+        -wrp GENE -element Gene \
+        -wrp GUID -element GeneID \
+        -wrp PROD -element Product \
+        -wrp LOC -element Location \
+        -wrp GCODE -element GeneticCode \
+        -wrp PACC -element "ProtID[|.]" \
+        -wrp PAVR -accession ProtID \
+        -wrp PLEN -element ProtLength \
+        -wrp CLEN -element CDSLength \
+        -wrp MLEN -element MRnaLength \
+        -wrp NIVL -element NumIntervals
+EOS
+
+if [ "$e2index" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Incremental Indexing" >&2
+
+  temp=$(mktemp /tmp/INDEX_TEMP.XXXXXXXXX)
+  # generate file with xtract indexing arguments, split onto separate lines, skipping past xtract command itself
+  echo "${idxtxt}" | xargs -n1 echo | tail -n +2 > $temp
+  rchive -db "$dbase" -transform "$WORKING/Extras/accessions.txt" \
+    -e2incIndex "$MASTER/Archive" "$WORKING/Index" -idxargs "$temp" -dotmax "$dotmax" -e2index
+  rm "$temp"
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  IDX=$seconds
+  echo "IDX $IDX seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+if [ "$e2invert" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Incremental Inversion" >&2
+
+  rchive -db "$dbase" -subdirs "$subdirs" -e2incInvert "$WORKING/Index" "$WORKING/Invert"
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  INV=$seconds
+  echo "INV $INV seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+if [ "$e2merge" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Merging Inverted Indices" >&2
+
+  if [ -d "$WORKING/Invert" ]
+  then
+    cd "$WORKING/Invert"
+
+    rchive -gzip -db "$dbase" -merge "$WORKING/Merged" *.inv.gz
+  fi
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  MRG=$seconds
+  echo "MRG $MRG seconds" >&2
+  echo "" >&2
+  sleep 1
+  if [ ! -f "$WORKING/Merged/zz.mrg.gz" ]
+  then
+    echo "ERROR: Merge failed to complete - missing zz.mrg.gz file" >&2
+    echo "" >&2
+    echo "EXITING DUE TO BUILD FAILURE" >&2
+    echo "" >&2
+    # do not continue
+    e2post=false
+  fi
+fi
+
+if [ "$e2post" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Producing Postings Files" >&2
+
+  if [ -d "$WORKING/Merged" ]
+  then
+    cd "$WORKING/Merged"
+
+    for fl in *.mrg.gz
+    do
+      echo "$fl"
+    done |
+    sort |
+    xargs -n 100 echo |
+    while read files
+    do
+      rchive -db "$dbase" -promote "$MASTER/Postings" "$fields" $files
+    done
+  fi
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  PST=$seconds
+  echo "PST $PST seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+wait
+
+if [ "$e2post" = true ] && [ -d "$WORKING/Merged" ]
+then
+  target="$WORKING/Merged"
+  find "$target" -name "*.mrg" -delete
+  find "$target" -name "*.mrg.gz" -delete
+fi
+
+cd
+
+echo "ARCHIVE-NMCDS" >&2
+
+echo "" >&2
+
+PrintTime() {
+
+  if [ "$1" = true ]
+  then
+    echo "$2 $3 seconds" >&2
+  fi
+}
+
+PrintTime "$download" "DWN" "$DWN"
+PrintTime "$generate" "GEN" "$GEN"
+PrintTime "$populate" "POP" "$POP"
+
+PrintTime "$e2index" "IDX" "$IDX"
+PrintTime "$e2invert" "INV" "$INV"
+PrintTime "$e2merge" "MRG" "$MRG"
+PrintTime "$e2post" "PST" "$PST"
+
+echo "" >&2
+
+function PrintTotalElapsedTime {
+  local L=$1
+  local T=$2
+  local D=$((T/60/60/24))
+  local H=$((T/60/60%24))
+  local M=$((T/60%60))
+  local S=$((T%60))
+  printf '%s %d seconds' "$L" $T 1>&2
+  if [ "$T" -gt 59 ]
+  then
+    printf ', or' 1>&2
+    (( $D > 0 )) && printf ' %d days' $D 1>&2
+    (( $H > 0 )) && printf ' %d hours' $H 1>&2
+    (( $M > 0 )) && printf ' %d minutes' $M 1>&2
+    (( $S > 0 )) && printf ' %d seconds' $S 1>&2
+  fi
+  printf '\n' 1>&2
+}
+
+total_end=$(date "+%s")
+total=$((total_end - total_start))
+TOT=$total
+PrintTotalElapsedTime "TOT" "$TOT"
+echo "" >&2

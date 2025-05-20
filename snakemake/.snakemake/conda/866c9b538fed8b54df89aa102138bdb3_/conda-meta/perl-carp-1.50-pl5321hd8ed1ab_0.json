@@ -1,0 +1,55 @@
+{
+  "build": "pl5321hd8ed1ab_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/conda-forge/noarch",
+  "constrains": [],
+  "depends": [
+    "perl-extutils-makemaker",
+    "perl-exporter",
+    "perl >=5.32.1,<6.0a0 *_perl5"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/perl-carp-1.50-pl5321hd8ed1ab_0",
+  "features": "",
+  "files": [
+    "lib/perl5/vendor_perl/Carp.pm",
+    "lib/perl5/vendor_perl/Carp/Heavy.pm"
+  ],
+  "fn": "perl-carp-1.50-pl5321hd8ed1ab_0.tar.bz2",
+  "license": "GPL-1.0-or-later OR Artistic-1.0-Perl",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/perl-carp-1.50-pl5321hd8ed1ab_0",
+    "type": 1
+  },
+  "md5": "bdddc03e28019b902da71b722f2288d7",
+  "name": "perl-carp",
+  "noarch": "generic",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/perl-carp-1.50-pl5321hd8ed1ab_0.tar.bz2",
+  "package_type": "noarch_generic",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "lib/perl5/vendor_perl/Carp.pm",
+        "path_type": "hardlink",
+        "sha256": "89ce58db6934387bcbab17a4972b75c0d0153335291cd8a762f8341af0bef5ae",
+        "sha256_in_prefix": "89ce58db6934387bcbab17a4972b75c0d0153335291cd8a762f8341af0bef5ae",
+        "size_in_bytes": 35959
+      },
+      {
+        "_path": "lib/perl5/vendor_perl/Carp/Heavy.pm",
+        "path_type": "hardlink",
+        "sha256": "867846437cfd54b3603a4a9ca3583fec18ce624ca1df05ff55f1ec4815fa2157",
+        "sha256_in_prefix": "867846437cfd54b3603a4a9ca3583fec18ce624ca1df05ff55f1ec4815fa2157",
+        "size_in_bytes": 773
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "1981e31113e1e77a2cdc13db657c636f047cd3be2a64d9a0bffac03c5427c1bd",
+  "size": 22257,
+  "subdir": "noarch",
+  "timestamp": 1636653208000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/noarch/perl-carp-1.50-pl5321hd8ed1ab_0.tar.bz2",
+  "version": "1.50"
+}

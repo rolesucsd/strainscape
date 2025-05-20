@@ -1,0 +1,64 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: b2-004
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Conda environments: ignored
+Job stats:
+job      count
+-----  -------
+debug        1
+total        1
+
+Select jobs to execute...
+Execute 1 jobs...
+[Mon May 19 16:35:50 2025]
+localrule debug:
+    jobid: 0
+    reason: Rules with neither input nor output files are always executed.
+    resources: tmpdir=/tmp
+
+Traceback (most recent call last):
+
+  File "/home/roles/anaconda3/envs/strainscape/lib/python3.13/site-packages/snakemake/executors/local.py", line 232, in spawn_job
+    subprocess.check_call(cmd, shell=True)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+
+  File "/home/roles/anaconda3/envs/strainscape/lib/python3.13/subprocess.py", line 421, in check_call
+    raise CalledProcessError(retcode, cmd)
+
+subprocess.CalledProcessError: Command 'cd /ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake && /home/roles/anaconda3/envs/strainscape/bin/python3.13 -m snakemake --snakefile '/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/Snakefile' --target-jobs 'debug:' --allowed-rules debug --cores 1 --attempt 1 --force-use-threads  --force --target-files-omit-workdir-adjustment --max-inventory-time 0 --nocolor --notemp --no-hooks --nolock --ignore-incomplete --rerun-triggers params code input software-env mtime --conda-frontend 'conda' --shared-fs-usage input-output persistence software-deployment storage-local-copies sources source-cache --wrapper-prefix 'https://github.com/snakemake/snakemake-wrappers/raw/' --latency-wait 5 --scheduler 'greedy' --local-storage-prefix base64//LnNuYWtlbWFrZS9zdG9yYWdl --scheduler-solver-path '/home/roles/anaconda3/envs/strainscape/bin' --default-resources base64//dG1wZGlyPXN5c3RlbV90bXBkaXI= --quiet progress rules host --mode 'subprocess' --local-groupid 'local'' returned non-zero exit status 1.
+
+
+During handling of the above exception, another exception occurred:
+
+
+Traceback (most recent call last):
+
+  File "/home/roles/anaconda3/envs/strainscape/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+
+  File "/home/roles/anaconda3/envs/strainscape/lib/python3.13/site-packages/snakemake/executors/local.py", line 247, in cached_or_run
+    run_func(*args)
+    ~~~~~~~~^^^^^^^
+
+  File "/home/roles/anaconda3/envs/strainscape/lib/python3.13/site-packages/snakemake/executors/local.py", line 234, in spawn_job
+    raise SpawnedJobError()
+
+snakemake.exceptions.SpawnedJobError
+
+[Mon May 19 16:35:53 2025]
+Error in rule debug:
+    message: None
+    jobid: 0
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Mon May 19 16:35:53 2025]
+Error in rule debug:
+    message: None
+    jobid: 0
+Complete log(s): /ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/.snakemake/log/2025-05-19T163550.160642.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

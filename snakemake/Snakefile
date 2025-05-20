@@ -1,64 +1,64 @@
-"""
-Main Snakefile for the iHMP pipeline.
-Coordinates all analysis steps from quality control to strain-level analysis.
-"""
+# Snakemake workflow for the iHMP pipeline
 
-# Import configuration and utilities
-include: "config/config.yaml"
-include: "scripts/utils.py"
-include: "scripts/wildcards.py"
+import os
+import pandas as pd
 
-# Validate inputs before running the pipeline
-rule validate_inputs:
-    """
-    Validate all input files and dependencies before running the pipeline.
-    """
-    input:
-        config = "config/config.yaml",
-        samples = "config/samples.yaml",
-        patients = "config/patients.yaml"
-    output:
-        touch("logs/validation_complete")
-    log:
-        "logs/validate_inputs.log"
-    conda:
-        "../envs/python.yaml"
-    shell:
-        """
-        python scripts/validate_inputs.py {input.config} > {log} 2>&1
-        """
+# Load user config
+configfile: "config/config.yaml"
 
-# Include all rule files
+# List of patient IDs from config
+PATIENT_IDS     = config["patient_ids"]
+# Base directories from config
+BASE_DIR        = config["paths"]["data_dir"]
+FASTQ_LIST_DIR  = config["paths"]["fastq_list_dir"]
+LOG_DIR         = config["paths"]["log_dir"]
+
+# Read sample manifest and return dict {sample: R1_path}
+def get_samples(patient: str):
+    fp = os.path.join(FASTQ_LIST_DIR, f"{patient}_full_path.txt")
+    df = pd.read_csv(fp, header=None, names=["R1"] )
+    df["R1"]     = df["R1"].str.strip()
+    df["fname"]  = df["R1"].apply(os.path.basename)
+    df["sample"] = df["fname"].str.replace(r"(\.|_)R1\.fastq(\.gz)?$", "", regex=True)
+    return dict(zip(df["sample"], df["R1"]))
+
+# Per-sample paths
+MAP_BAM    = lambda p, s: os.path.join(BASE_DIR, "mapping", p, f"{s}.all.bam")
+SORT_BAM   = lambda p, s: os.path.join(BASE_DIR, "mapping", p, f"{s}.filtered.sorted.bam")
+FLAGSTAT   = lambda p, s: os.path.join(BASE_DIR, "mapping", p, f"{s}.filtered.flagstat.txt")
+SNV_FILE   = lambda p, s: os.path.join(BASE_DIR, "instrain", p, "each", s, "output", f"{s}_SNVs.tsv")
+SCF_FILE   = lambda p, s: os.path.join(BASE_DIR, "instrain", p, "each", s, "output", f"{s}_scaffold_info.tsv")
+
+# Flatten list of all flagstat files
+def all_flagstats():
+    return [FLAGSTAT(p, s) for p in PATIENT_IDS for s in get_samples(p)]
+
+# Include shared snippets and rul
+include: "../strainscape/utils.py"
+include: "../strainscape/wildcards.smk"
 include: "rules/assembly.smk"
 include: "rules/mapping.smk"
 include: "rules/mags.smk"
 include: "rules/instrain.smk"
 include: "rules/snp_tracking.smk"
 
-# Define default target
+# Main pipeline target: all outputs
 rule all:
     input:
-        # Validation
-        "logs/validation_complete",
-        
-        # Assembly outputs
-        expand(COASSEMBLY("{patient}"), patient=config["patients"]),
-        expand(FILTERED_CONTIGS("{patient}"), patient=config["patients"]),
-        expand(STB_FILE("{patient}"), patient=config["patients"]),
-        expand(BAKTA_TSV("{patient}"), patient=config["patients"]),
-        
-        # Depth and binning outputs
-        expand(DEPTH_FILE("{patient}"), patient=config["patients"]),
-        expand(PATIENT_BIN_DIR("{patient}"), patient=config["patients"]),
-        
-        # Mapping outputs
-        lambda wc: [FLAGSTAT(p, s) for p in config["patients"] for s in get_samples(p)],
-        
-        # InStrain outputs
-        lambda wc: [SNV_FILE(p, s) for p in config["patients"] for s in get_samples(p)],
-        lambda wc: [SCF_FILE(p, s) for p in config["patients"] for s in get_samples(p)],
-        expand(COMBINED_SCAFFOLD_INFO("{patient}"), patient=config["patients"]),
-        expand(COMBINED_SNV_INFO("{patient}"), patient=config["patients"]),
-        
-        # SNP tracking outputs
-        expand(MUTATION_TYPES("{patient}"), patient=config["patients"]) 
+        # per-patient outputs
+        expand(COASSEMBLY("{patient}"),           patient=PATIENT_IDS),
+        expand(FILTERED_CONTIGS("{patient}"),     patient=PATIENT_IDS),
+        expand(STB_FILE("{patient}"),             patient=PATIENT_IDS),
+        expand(BAKTA_TSV("{patient}"),            patient=PATIENT_IDS),
+        expand(DEPTH_FILE("{patient}"),           patient=PATIENT_IDS),
+        expand(BIN_TXT("{patient}"),              patient=PATIENT_IDS),
+        expand(MUTATION_TYPES("{patient}"),       patient=PATIENT_IDS),
+        # per-sample outputs
+        lambda wc: all_flagstats(),
+        lambda wc: [SNV_FILE(p, s) for p in PATIENT_IDS for s in get_samples(p)],
+        lambda wc: [SCF_FILE(p, s) for p in PATIENT_IDS for s in get_samples(p)],
+        # merged InStrain tables
+        expand(os.path.join(INSTR_DIR("{patient}"), "combined_scaffold_info.tsv"),
+               patient=PATIENT_IDS),
+        expand(os.path.join(INSTR_DIR("{patient}"), "combined_SNV_info.tsv"),
+               patient=PATIENT_IDS)

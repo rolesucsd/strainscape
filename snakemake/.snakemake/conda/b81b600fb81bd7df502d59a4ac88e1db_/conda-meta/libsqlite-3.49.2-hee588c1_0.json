@@ -1,0 +1,85 @@
+{
+  "build": "hee588c1_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+  "constrains": [],
+  "depends": [
+    "__glibc >=2.17,<3.0.a0",
+    "libgcc >=13",
+    "libzlib >=1.3.1,<2.0a0"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/libsqlite-3.49.2-hee588c1_0",
+  "features": "",
+  "files": [
+    "include/sqlite3.h",
+    "include/sqlite3ext.h",
+    "lib/libsqlite3.so",
+    "lib/libsqlite3.so.0",
+    "lib/libsqlite3.so.3.49.2",
+    "lib/pkgconfig/sqlite3.pc"
+  ],
+  "fn": "libsqlite-3.49.2-hee588c1_0.conda",
+  "license": "Unlicense",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/libsqlite-3.49.2-hee588c1_0",
+    "type": 1
+  },
+  "md5": "93048463501053a00739215ea3f36324",
+  "name": "libsqlite",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/libsqlite-3.49.2-hee588c1_0.conda",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "include/sqlite3.h",
+        "path_type": "hardlink",
+        "sha256": "2198c66d4c59ae86421590c27fd53309ec14a595ae31c0c7143247444018a0bd",
+        "sha256_in_prefix": "2198c66d4c59ae86421590c27fd53309ec14a595ae31c0c7143247444018a0bd",
+        "size_in_bytes": 658960
+      },
+      {
+        "_path": "include/sqlite3ext.h",
+        "path_type": "hardlink",
+        "sha256": "b184dd1586d935133d37ad76fa353faf0a1021ff2fdedeedcc3498fff74bbb94",
+        "sha256_in_prefix": "b184dd1586d935133d37ad76fa353faf0a1021ff2fdedeedcc3498fff74bbb94",
+        "size_in_bytes": 38149
+      },
+      {
+        "_path": "lib/libsqlite3.so",
+        "path_type": "softlink",
+        "sha256": "27d9217efd3ab5d44384c8f7d908ea6dfeaf9b6368dd5c35f28b0e4be78b1793",
+        "size_in_bytes": 1668920
+      },
+      {
+        "_path": "lib/libsqlite3.so.0",
+        "path_type": "softlink",
+        "sha256": "27d9217efd3ab5d44384c8f7d908ea6dfeaf9b6368dd5c35f28b0e4be78b1793",
+        "size_in_bytes": 1668920
+      },
+      {
+        "_path": "lib/libsqlite3.so.3.49.2",
+        "path_type": "hardlink",
+        "sha256": "27d9217efd3ab5d44384c8f7d908ea6dfeaf9b6368dd5c35f28b0e4be78b1793",
+        "sha256_in_prefix": "27d9217efd3ab5d44384c8f7d908ea6dfeaf9b6368dd5c35f28b0e4be78b1793",
+        "size_in_bytes": 1668920
+      },
+      {
+        "_path": "lib/pkgconfig/sqlite3.pc",
+        "file_mode": "text",
+        "path_type": "hardlink",
+        "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/sqlite-split_1746636811202/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehol",
+        "sha256": "099b8f4dca4a8cfe275ee0c48c43c48f84bd5b3d7987a21a238a3396915d515d",
+        "sha256_in_prefix": "05f92ce35401527820db4c720213ecdabef5688bb97d15d072fab3252b6526c6",
+        "size_in_bytes": 516
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "525d4a0e24843f90b3ff1ed733f0a2e408aa6dd18b9d4f15465595e078e104a2",
+  "size": 916313,
+  "subdir": "linux-64",
+  "timestamp": 1746637007000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.49.2-hee588c1_0.conda",
+  "version": "3.49.2"
+}

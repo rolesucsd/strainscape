@@ -1,0 +1,120 @@
+#!/bin/sh
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# Converts PubmedArticle XML to APA format citation
+
+# efetch -db pubmed -id 19212835 -format xml | pma2apa
+
+# Last, K. S., Bailhache, T., Kramer, C., Kyriacou, C. P., Rosato, E., & Olive, P. J. (2009).
+# Tidal, daily, and lunar-day activity cycles in the marine polychaete Nereis virens.
+# Chronobiology international, 26(2), 167-183. doi:10.1080/07420520902774524
+
+xml=false
+asc=false
+
+# check for XML and ASCII output flags
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    xml | -xml )
+      shift
+      xml=true
+      ;;
+    apa | -apa )
+      shift
+      xml=false
+      ;;
+    ascii | -ascii )
+      shift
+      asc=true
+      ;;
+    * )
+      exec >&2
+      echo "$0: Unrecognized argument $1"
+      exit 1
+      ;;
+  esac
+done
+
+# conversion function
+ConvertXMLtoAPA() {
+
+  transmute -mixed -normalize pubmed |
+  xtract -set Set -rec Rec -pattern PubmedArticle \
+    -wrp PMID -element MedlineCitation/PMID \
+    -wrp Year -year "PubDate/*" \
+    -wrp Title -element ArticleTitle \
+    -wrp Count -num Author \
+    -group PubmedArticle \
+      -block PubmedData/ArticleIdList/ArticleId -if "@IdType" -equals doi \
+        -wrp DOI -element ArticleId \
+    -group PubmedArticle -pkg RF \
+      -wrp Journal -jour Journal/Title \
+      -wrp Volume -element JournalIssue/Volume \
+      -wrp Issue -element JournalIssue/Issue \
+      -block PubmedArticle -if StartPage -and EndPage \
+        -wrp Pages -sep "-" -element StartPage,EndPage \
+        -else -wrp Pages -element Pagination/MedlinePgn \
+    -group Author -NUM "+" -pkg Auth \
+      -wrp Num -element "&NUM" \
+      -wrp Last -element LastName \
+      -wrp Inits -letters Initials |
+  xtract -set Set -rec Rec -pattern Rec \
+    -pfx "(" -sfx ")." -YEAR Year -rst \
+    -pfx "doi:" -DOI DOI -rst \
+    -wrp Count -element Count \
+    -wrp PMID -element PMID \
+    -wrp Year -element "&YEAR" \
+    -wrp Title -element Title \
+    -wrp DOI -element "&DOI" \
+    -group RF -pkg Citation \
+      -sep "" -tab "" -element Journal \
+      -pfx ", " -element Volume \
+      -pfx "(" -sfx ")" -element Issue \
+      -pfx ", " -sfx "" -element Pages -rst -lbl "." \
+    -group Auth -INITS "()" -pkg Auth \
+      -rst -sep ". " -tab "" -sfx "." -INITS Inits \
+      -rst -wrp Num -element Num \
+      -wrp Last -element Last \
+      -wrp Inits -element "&INITS" |
+  xtract -set APASet -rec APAFormat -pattern Rec -COUNT Count \
+    -wrp PMID -element PMID \
+    -division Rec -pkg Authors \
+      -group Auth -NUM "+" -block Auth \
+        -block Auth -if Num -eq 1 \
+          -rst -sep ", " -tab "" -element Last,Inits \
+        -block Auth -if Num -gt 1 -and "&NUM" -lt "&COUNT" \
+          -rst -pfx ", " -sep ", " -tab "" -element Last,Inits \
+        -block Auth -if "&COUNT" -gt 1 -and Num -eq "&COUNT" \
+          -rst -pfx ", &amp; " -sep ", " -tab "" -element Last,Inits \
+    -division Rec \
+      -wrp Year -element Year \
+      -wrp Title -element Title \
+      -wrp Citation -element Citation \
+      -wrp DOI -element DOI
+}
+
+if [ "$xml" = true ] && [ "$asc" = true ]
+then
+  ConvertXMLtoAPA |
+  transmute -accent -strict -format
+elif [ "$xml" = true ]
+then
+  ConvertXMLtoAPA |
+  transmute -strict -format
+elif [ "$asc" = true ]
+then
+  ConvertXMLtoAPA |
+  transmute -accent -strict -format |
+  xtract -pattern APAFormat \
+    -element PMID -tab " " -sep " " \
+    -element Authors Year Title Citation DOI
+else
+  ConvertXMLtoAPA |
+  transmute -strict -format |
+  xtract -pattern APAFormat \
+    -element PMID -tab " " -sep " " \
+    -element Authors Year Title Citation DOI
+fi

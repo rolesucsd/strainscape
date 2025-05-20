@@ -13,8 +13,6 @@ Dependencies:
 - MetaBAT2 for binning
 """
 
-# Import wildcard functions
-from scripts.wildcards import FILTERED_CONTIGS, SORT_BAM, DEPTH_FILE, PATIENT_BIN_DIR
 import os
 
 rule jgi_summarize_depths:
@@ -34,10 +32,9 @@ rule jgi_summarize_depths:
     output:
         depth = DEPTH_FILE("{patient}")
     conda:
-        config['conda_envs']['mags']
+        config['conda_envs']['metabat2']
     shell:
         """
-        mkdir -p {DEPTH_DIR}
         jgi_summarize_bam_contig_depths --outputDepth {output.depth} {input.bams}
         """
 
@@ -65,20 +62,23 @@ rule metabat2_binning:
     Resources:
         mem: 50GB
     """
-    input: 
+    input:
         contig = FILTERED_CONTIGS("{patient}"),
-        depth = DEPTH_FILE("{patient}")
-    output: 
+        depth  = DEPTH_FILE("{patient}")
+    output:
         directory(PATIENT_BIN_DIR("{patient}"))
-    params: 
+    params:
         outdir = PATIENT_BIN_DIR("{patient}")
     conda:
-        config['conda_envs']['mags']
-    resources: mem = "50G"
+        config['conda_envs']['metabat2']
+    resources:
+        mem = "50G"
     shell:
-        """
+        r"""
         mkdir -p {params.outdir}
-        metabat2 -i {input.contig} -a {input.depth} -o {params.outdir}/bin \
+        metabat2 -i {input.contig} \
+                 -a {input.depth} \
+                 -o {params.outdir}/bin \
                  -s 1500 -m 1500 --maxP 95 --minS 60 --maxEdges 200 \
                  --seed 1 --saveCls
         """
@@ -96,15 +96,15 @@ rule make_bin_txt:
         bin_txt: Path to the output bin.txt file in bins/{patient}
     """
     input:
-        bin_dir = "bins/{patient}"
+        bin_dir = PATIENT_BIN_DIR("{patient}")
     output:
-        bin_txt = "bins/{patient}/bin.txt"
+        bin_file = BIN_TXT("{patient}")
     log:
         os.path.join(config['paths']['log_dir'], "make_bin_txt_{patient}.log")
     shell:
         """
         python ../strainscape/make_bin_txt.py \
             --bin_dir {input.bin_dir} \
-            --output_file {output.bin_txt} \
+            --output_file {output.bin_file} \
             --log_file {log} 2>&1
         """

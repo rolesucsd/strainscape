@@ -1,0 +1,55 @@
+{
+  "build": "pl5321hadc24fc_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+  "constrains": [],
+  "depends": [
+    "__glibc >=2.17,<3.0.a0",
+    "libgcc >=13",
+    "perl >=5.32.1,<5.33.0a0 *_perl5"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/perl-compress-raw-zlib-2.202-pl5321hadc24fc_0",
+  "features": "",
+  "files": [
+    "lib/perl5/5.32/vendor_perl/Compress/Raw/Zlib.pm",
+    "lib/perl5/5.32/vendor_perl/auto/Compress/Raw/Zlib/Zlib.so"
+  ],
+  "fn": "perl-compress-raw-zlib-2.202-pl5321hadc24fc_0.conda",
+  "license": "GPL-1.0-or-later OR Artistic-1.0-Perl",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/perl-compress-raw-zlib-2.202-pl5321hadc24fc_0",
+    "type": 1
+  },
+  "md5": "2eecc7fe28e0342391a74e86d8c2dfec",
+  "name": "perl-compress-raw-zlib",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/perl-compress-raw-zlib-2.202-pl5321hadc24fc_0.conda",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "lib/perl5/5.32/vendor_perl/Compress/Raw/Zlib.pm",
+        "path_type": "hardlink",
+        "sha256": "9213b997623c30c30cb6eaa9d153e7bdcad170aa224b31971155e3910a02e4e7",
+        "sha256_in_prefix": "9213b997623c30c30cb6eaa9d153e7bdcad170aa224b31971155e3910a02e4e7",
+        "size_in_bytes": 49131
+      },
+      {
+        "_path": "lib/perl5/5.32/vendor_perl/auto/Compress/Raw/Zlib/Zlib.so",
+        "file_mode": "binary",
+        "path_type": "hardlink",
+        "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/perl-compress-raw-zlib_1730368082543/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehol",
+        "sha256": "a3773200028352625cb0f73b6f705f5ff1aba0247e4a8a833fa16ce6b61379c1",
+        "sha256_in_prefix": "e229a551cd4f6d5d126856d820a4ce577a4de593e47e939f892b5e51eddc1e72",
+        "size_in_bytes": 154568
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "60b82eceaa11890a406c1f7fc9b6d589ca1bfc99589c19b8a5848895447f5def",
+  "size": 80095,
+  "subdir": "linux-64",
+  "timestamp": 1730368203000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/linux-64/perl-compress-raw-zlib-2.202-pl5321hadc24fc_0.conda",
+  "version": "2.202"
+}

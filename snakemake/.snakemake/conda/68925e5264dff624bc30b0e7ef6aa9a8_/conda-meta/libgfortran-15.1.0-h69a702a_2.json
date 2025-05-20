@@ -1,0 +1,35 @@
+{
+  "build": "h69a702a_2",
+  "build_number": 2,
+  "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+  "constrains": [
+    "libgfortran-ng ==15.1.0 *_2"
+  ],
+  "depends": [
+    "libgfortran5 15.1.0 hcea5267_2"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/libgfortran-15.1.0-h69a702a_2",
+  "features": "",
+  "files": [],
+  "fn": "libgfortran-15.1.0-h69a702a_2.conda",
+  "license": "GPL-3.0-only WITH GCC-exception-3.1",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/libgfortran-15.1.0-h69a702a_2",
+    "type": 1
+  },
+  "md5": "f92e6e0a3c0c0c85561ef61aa59d555d",
+  "name": "libgfortran",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/libgfortran-15.1.0-h69a702a_2.conda",
+  "paths_data": {
+    "paths": [],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "914daa4f632b786827ea71b5e07cd00d25fc6e67789db2f830dc481eec660342",
+  "size": 34541,
+  "subdir": "linux-64",
+  "timestamp": 1746642233000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/linux-64/libgfortran-15.1.0-h69a702a_2.conda",
+  "version": "15.1.0"
+}

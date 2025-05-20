@@ -1,100 +1,161 @@
-# iHMP Pipeline Configuration
-
-# Input/Output paths
 paths:
-  raw_data: "data/raw"
-  processed_data: "data/processed"
-  results: "data"
-  intermediate: "data/intermediate"
-  final: "data/final"
-  log_dir: "logs"
+  data_dir: "/ddn_scratch/roles/strain_analysis/iHMP/output"
+  log_dir: "/ddn_scratch/roles/strain_analysis/iHMP/output/logs"
+  fastq_list_dir: "/ddn_scratch/roles/strain_analysis/iHMP/input/samples"
 
-# Reference data
 reference:
-  bakta_db: "data/reference/bakta_db"
-  genomes: "data/reference/genomes"
-  annotations: "data/reference/annotations"
-  taxonomy: "data/reference/taxonomy.tsv"
+  bakta_db: "/ddn_scratch/roles/Panpiper/panpiper/databases/bakta2/db"
 
-# Metadata files
 metadata:
-  file: "data/metadata/samples.tsv"
-  patients: "data/metadata/patients.tsv"
+  file: "/ddn_scratch/roles/strain_analysis/iHMP/iHMP_scripts/metadata/hmp2_metadata_2018-08-20.csv"
 
-# Gene trees configuration
-gene_trees:
-  directory: "data/reference/gene_trees"
-
-# Snakemake configuration
-snakemake:
-  cores: 4
-  memory: "32G"
-  use_conda: true
-
-# Python analysis parameters
-python:
-  min_coverage: 10
-  min_quality: 20
-  min_frequency: 0.1
-  p_threshold: 0.05
-  threads: 4
-
-# R analysis parameters
-r:
-  significance_threshold: 0.05
-  plot_width: 12
-  plot_height: 8
-
-# Logging
 logging:
   level: "INFO"
-  max_file_size: "100MB"
+  file: "pipeline.log"
+  max_size: "100MB"
+  backup_count: 3
 
-# Sample and patient information
-samples: !include "samples.yaml"
-patients: !include "patients.yaml"
-
-# Analysis parameters
 params:
-  # Assembly
-  min_contig_length: 1000
-  min_coverage: 10
-  
-  # Mapping
-  min_mapq: 1
-  
-  # MAGs
-  min_completeness: 50
-  max_contamination: 10
-  
-  # InStrain
   min_coverage: 5
   min_freq: 0.1
   min_scaffold_length: 1000
   min_scaffold_coverage: 5.0
   min_scaffold_breadth: 0.4
-  
-  # SNP tracking
-  snp_tracking:
-    min_coverage: 10
-    min_freq: 0.05
-    p_threshold: 0.05
-    min_freq_change: 0.1
-    min_trajectory_change: 0.2
-    min_slope: 0.01
-    min_abs_change: 0.1
 
-# Conda environments
+snp_tracking:
+  min_coverage: 10
+  min_freq: 0.05
+  p_threshold: 0.05
+  min_freq_change: 0.1
+  min_trajectory_change: 0.2
+  min_slope: 0.01
+  min_abs_change: 0.1
+
 conda_envs:
-  qc: "envs/qc.yaml"
-  assembly: "envs/assembly.yaml"
-  mapping: "envs/mapping.yaml"
-  mags: "envs/mags.yaml"
-  annotation: "envs/annotation.yaml"
-  instrain: "envs/instrain.yaml"
+  megahit: "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/megahit.yml"
+  seqkit: "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/seqkit.yml"
+  bakta: "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/bakta.yml"
+  metabat2: "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/metabat2.yml"
+  mapping: "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/mapping.yml"
+  instrain: "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/instrain.yml"
 
-# Resource limits
-resources:
+default-resources:
   threads: 8
-  memory: "32G"
-  time: "24:00:00" 
+  cpus: 1
+  mem_mb: 10000
+
+restart-times: 0
+max-jobs-per-second: 10
+max-status-checks-per-second: 1
+latency-wait: 60
+printshellcmds: True
+scheduler: greedy
+
+patient_ids:
+  - "C3001"
+  - "C3002"
+  - "C3003"
+  - "C3004"
+  - "C3005"
+  - "C3006"
+  - "C3008"
+  - "C3009"
+  - "C3010"
+  - "C3011"
+  - "C3012"
+  - "C3013"
+  - "C3015"
+  - "C3016"
+  - "C3017"
+  - "C3021"
+  - "C3022"
+  - "C3023"
+  - "C3027"
+  - "C3028"
+  - "C3029"
+  - "C3030"
+  - "C3031"
+  - "C3032"
+  - "C3034"
+  - "C3035"
+  - "C3037"
+  - "E5001"
+  - "E5002"
+  - "E5004"
+  - "E5009"
+  - "E5013"
+  - "H4001"
+  - "H4004"
+  - "H4006"
+  - "H4007"
+  - "H4008"
+  - "H4009"
+  - "H4010"
+  - "H4013"
+  - "H4014"
+  - "H4015"
+  - "H4016"
+  - "H4017"
+  - "H4018"
+  - "H4019"
+  - "H4020"
+  - "H4022"
+  - "H4023"
+  - "H4024"
+  - "H4027"
+  - "H4028"
+  - "H4030"
+  - "H4031"
+  - "H4032"
+  - "H4035"
+  - "H4038"
+  - "H4039"
+  - "H4040"
+  - "H4042"
+  - "H4043"
+  - "H4044"
+  - "H4045"
+  - "M2008"
+  - "M2014"
+  - "M2021"
+  - "M2025"
+  - "M2026"
+  - "M2027"
+  - "M2028"
+  - "M2034"
+  - "M2039"
+  - "M2041"
+  - "M2042"
+  - "M2047"
+  - "M2048"
+  - "M2060"
+  - "M2061"
+  - "M2064"
+  - "M2068"
+  - "M2069"
+  - "M2071"
+  - "M2072"
+  - "M2075"
+  - "M2077"
+  - "M2079"
+  - "M2083"
+  - "M2084"
+  - "M2085"
+  - "M2097"
+  - "M2103"
+  - "P6005"
+  - "P6009"
+  - "P6010"
+  - "P6012"
+  - "P6013"
+  - "P6014"
+  - "P6016"
+  - "P6017"
+  - "P6018"
+  - "P6024"
+  - "P6025"
+  - "P6028"
+  - "P6033"
+  - "P6035"
+  - "P6037"
+  - "P6038"

@@ -1,0 +1,211 @@
+{
+  "build": "py38h06a4308_1",
+  "build_number": 1,
+  "channel": "https://repo.anaconda.com/pkgs/main/linux-64",
+  "constrains": [],
+  "depends": [
+    "python >=3.8,<3.9.0a0"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/pluggy-1.0.0-py38h06a4308_1",
+  "features": "",
+  "files": [
+    "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/INSTALLER",
+    "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/LICENSE",
+    "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/METADATA",
+    "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/RECORD",
+    "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/REQUESTED",
+    "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/WHEEL",
+    "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/direct_url.json",
+    "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/top_level.txt",
+    "lib/python3.8/site-packages/pluggy/__init__.py",
+    "lib/python3.8/site-packages/pluggy/__pycache__/__init__.cpython-38.pyc",
+    "lib/python3.8/site-packages/pluggy/__pycache__/_callers.cpython-38.pyc",
+    "lib/python3.8/site-packages/pluggy/__pycache__/_hooks.cpython-38.pyc",
+    "lib/python3.8/site-packages/pluggy/__pycache__/_manager.cpython-38.pyc",
+    "lib/python3.8/site-packages/pluggy/__pycache__/_result.cpython-38.pyc",
+    "lib/python3.8/site-packages/pluggy/__pycache__/_tracing.cpython-38.pyc",
+    "lib/python3.8/site-packages/pluggy/__pycache__/_version.cpython-38.pyc",
+    "lib/python3.8/site-packages/pluggy/_callers.py",
+    "lib/python3.8/site-packages/pluggy/_hooks.py",
+    "lib/python3.8/site-packages/pluggy/_manager.py",
+    "lib/python3.8/site-packages/pluggy/_result.py",
+    "lib/python3.8/site-packages/pluggy/_tracing.py",
+    "lib/python3.8/site-packages/pluggy/_version.py"
+  ],
+  "fn": "pluggy-1.0.0-py38h06a4308_1.conda",
+  "license": "MIT",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/pluggy-1.0.0-py38h06a4308_1",
+    "type": 1
+  },
+  "md5": "87bb1d3f6cf3e409a1dac38cee99918e",
+  "name": "pluggy",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/pluggy-1.0.0-py38h06a4308_1.conda",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/INSTALLER",
+        "path_type": "hardlink",
+        "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "size_in_bytes": 5
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/LICENSE",
+        "path_type": "hardlink",
+        "sha256": "d6b65e6c213a5d0b577911d34d6e5949b9f59d76c238c5071a2f3fc16cfb2606",
+        "sha256_in_prefix": "d6b65e6c213a5d0b577911d34d6e5949b9f59d76c238c5071a2f3fc16cfb2606",
+        "size_in_bytes": 1110
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/METADATA",
+        "path_type": "hardlink",
+        "sha256": "4390fbb88db556b10e3dbe970f470ce2f635664a6dc9bda2388638dcc1dfc172",
+        "sha256_in_prefix": "4390fbb88db556b10e3dbe970f470ce2f635664a6dc9bda2388638dcc1dfc172",
+        "size_in_bytes": 4345
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/RECORD",
+        "path_type": "hardlink",
+        "sha256": "72f274df5d6a554e733d2e69ca06480248719115ca21bbf8139fe1ac0b5afd7b",
+        "sha256_in_prefix": "72f274df5d6a554e733d2e69ca06480248719115ca21bbf8139fe1ac0b5afd7b",
+        "size_in_bytes": 1502
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/REQUESTED",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/WHEEL",
+        "path_type": "hardlink",
+        "sha256": "cfd8f4c406bf26650a3299b3ef62b464600b48cfe7fb04159866e5797c765478",
+        "sha256_in_prefix": "cfd8f4c406bf26650a3299b3ef62b464600b48cfe7fb04159866e5797c765478",
+        "size_in_bytes": 110
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/direct_url.json",
+        "path_type": "hardlink",
+        "sha256": "f98a8f79849868f5a027a547f0496ae358f1183541e653b2d42bb3c9c6256571",
+        "sha256_in_prefix": "f98a8f79849868f5a027a547f0496ae358f1183541e653b2d42bb3c9c6256571",
+        "size_in_bytes": 79
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy-1.0.0.dist-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "c4a4824616a2faff4c724bccb96a8dcf5e9cd6d6ec98e820a0c4b04e07296071",
+        "sha256_in_prefix": "c4a4824616a2faff4c724bccb96a8dcf5e9cd6d6ec98e820a0c4b04e07296071",
+        "size_in_bytes": 7
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "e3f8e336d0e79f1e817b0603278a85664717e25e099f40771ea3ad76c010bd41",
+        "sha256_in_prefix": "e3f8e336d0e79f1e817b0603278a85664717e25e099f40771ea3ad76c010bd41",
+        "size_in_bytes": 489
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/__pycache__/__init__.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "16e7762c7e79424c1013b486927d5549933e33223f7772c467905307b257a2c2",
+        "sha256_in_prefix": "16e7762c7e79424c1013b486927d5549933e33223f7772c467905307b257a2c2",
+        "size_in_bytes": 502
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/__pycache__/_callers.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "14a6f7ee6fa9b7b70a4b0c6f77a528aaffabc6efb56dd44820417ff261141a80",
+        "sha256_in_prefix": "14a6f7ee6fa9b7b70a4b0c6f77a528aaffabc6efb56dd44820417ff261141a80",
+        "size_in_bytes": 1494
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/__pycache__/_hooks.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "85225a06556af541ad6f09bb1ef24d11b77deb1a021ce8f5eb966f7adeaa4094",
+        "sha256_in_prefix": "85225a06556af541ad6f09bb1ef24d11b77deb1a021ce8f5eb966f7adeaa4094",
+        "size_in_bytes": 11015
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/__pycache__/_manager.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "aec51fa8a3fa9c37606a8a09b66fb9b16f21c7c2a5a1f1c926f2718d715be067",
+        "sha256_in_prefix": "aec51fa8a3fa9c37606a8a09b66fb9b16f21c7c2a5a1f1c926f2718d715be067",
+        "size_in_bytes": 13881
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/__pycache__/_result.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "b13ab4cdcf3852a55fcb4bffaa7053c4cacbbf192c4963e9d744a936d2802fec",
+        "sha256_in_prefix": "b13ab4cdcf3852a55fcb4bffaa7053c4cacbbf192c4963e9d744a936d2802fec",
+        "size_in_bytes": 2158
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/__pycache__/_tracing.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "567274a531d4581235ab766cfd26a9f2ec733facaf992240e5b8a41e7c50a8cc",
+        "sha256_in_prefix": "567274a531d4581235ab766cfd26a9f2ec733facaf992240e5b8a41e7c50a8cc",
+        "size_in_bytes": 2308
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/__pycache__/_version.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "372c25967f648c3698f2d0673f4a2a508e5d8645c37ec169aeab71ddc8e87f6d",
+        "sha256_in_prefix": "372c25967f648c3698f2d0673f4a2a508e5d8645c37ec169aeab71ddc8e87f6d",
+        "size_in_bytes": 192
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/_callers.py",
+        "path_type": "hardlink",
+        "sha256": "96ad8a3576b384aafe285fc624fc38bec636107c10e4e376752899502b5a790c",
+        "sha256_in_prefix": "96ad8a3576b384aafe285fc624fc38bec636107c10e4e376752899502b5a790c",
+        "size_in_bytes": 2097
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/_hooks.py",
+        "path_type": "hardlink",
+        "sha256": "3903e7aafec9eee7cb6554122021e9370e006167570f04d57de6022ff644c113",
+        "sha256_in_prefix": "3903e7aafec9eee7cb6554122021e9370e006167570f04d57de6022ff644c113",
+        "size_in_bytes": 11496
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/_manager.py",
+        "path_type": "hardlink",
+        "sha256": "98a42788daa3fcb3edb77e6be9d10b6d13eba84759fe23cbe95745cb1efdf3ba",
+        "sha256_in_prefix": "98a42788daa3fcb3edb77e6be9d10b6d13eba84759fe23cbe95745cb1efdf3ba",
+        "size_in_bytes": 14752
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/_result.py",
+        "path_type": "hardlink",
+        "sha256": "b0b4cbd37e1003749f91ef29b5a75492fa165b9890d4fbf3ca80bfec5d9e41f8",
+        "sha256_in_prefix": "b0b4cbd37e1003749f91ef29b5a75492fa165b9890d4fbf3ca80bfec5d9e41f8",
+        "size_in_bytes": 1535
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/_tracing.py",
+        "path_type": "hardlink",
+        "sha256": "c52bf8575a54fe293ca550a9a1b4c7f209e30770d0e228a7837b6ff9b0ee1ed0",
+        "sha256_in_prefix": "c52bf8575a54fe293ca550a9a1b4c7f209e30770d0e228a7837b6ff9b0ee1ed0",
+        "size_in_bytes": 1541
+      },
+      {
+        "_path": "lib/python3.8/site-packages/pluggy/_version.py",
+        "path_type": "hardlink",
+        "sha256": "6038691405e0bf7edc998d69667f2440d71800ec23f3cdc185602da1ace2486e",
+        "sha256_in_prefix": "6038691405e0bf7edc998d69667f2440d71800ec23f3cdc185602da1ace2486e",
+        "size_in_bytes": 142
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "5de419470ba9f03555209166c9a745e0192f33b47cca51742a9e3f601feec156",
+  "size": 29102,
+  "subdir": "linux-64",
+  "timestamp": 1648042603000,
+  "track_features": "",
+  "url": "https://repo.anaconda.com/pkgs/main/linux-64/pluggy-1.0.0-py38h06a4308_1.conda",
+  "version": "1.0.0"
+}

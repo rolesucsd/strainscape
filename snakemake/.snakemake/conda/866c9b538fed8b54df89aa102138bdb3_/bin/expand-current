@@ -1,0 +1,162 @@
+#!/bin/sh
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+MASTER=""
+WORKING=""
+
+# get local master and working volumes from database
+ev=$( rchive -local pubmed )
+if [ -n "$ev" ]
+then
+  MASTER="${ev%:*}"
+  WORKING="${ev#*:}"
+fi
+
+if [ -z "$MASTER" ]
+then
+  echo "ERROR: Must supply path to local data by setting EDIRECT_LOCAL_MASTER environment variable" >&2
+  exit 1
+fi
+
+if [ -z "$WORKING" ]
+then
+  echo "ERROR: Must supply path to local data by setting EDIRECT_LOCAL_WORKING environment variable" >&2
+  exit 1
+fi
+
+# remove trailing slash
+MASTER=${MASTER%/}
+WORKING=${WORKING%/}
+
+# remove trailing pubmed folder to get volume names
+MVOLUME=${MASTER%/pubmed}
+WVOLUME=${WORKING%/pubmed}
+
+# check for existence of parent volumes
+if [ ! -d "$MVOLUME" ]
+then
+  echo "ERROR: Master volume $MVOLUME is absent"
+  exit 1
+fi
+
+if [ ! -d "$WVOLUME" ]
+then
+  echo "ERROR: Working volume $WVOLUME is absent"
+  exit 1
+fi
+
+# create pubmed directories on volumes, if necessary
+if [ ! -d "$MASTER" ]
+then
+  echo "Creating pubmed directory on master volume $MVOLUME"
+  mkdir -p "$MASTER"
+fi
+
+if [ ! -d "$WORKING" ]
+then
+  echo "Creating pubmed directory on working volume $WVOLUME"
+  mkdir -p "$WORKING"
+fi
+
+# check for presence of pubmed directories on volumes
+if [ ! -d "$MASTER" ]
+then
+  echo "ERROR: Unable to find master directory $MASTER"
+  exit 1
+fi
+
+if [ ! -d "$WORKING" ]
+then
+  echo "ERROR: Unable to find working directory $WORKING"
+  exit 1
+fi
+
+# report data locations
+echo "MASTER $MASTER"
+echo "WORKING $WORKING"
+
+for dir in Archive Data Postings
+do
+  mkdir -p "$MASTER/$dir"
+done
+
+if [ -d "$MASTER/Sentinels" ]
+then
+  mv "$MASTER/Sentinels" "$MASTER/Archive"
+else
+  mkdir -p "$MASTER/Archive/Sentinels"
+fi
+
+if [ -d "$WORKING/Pubmed" ]
+then
+  mv "$WORKING/Pubmed" "$WORKING/Source"
+else
+  mkdir -p "$WORKING/Source"
+fi
+
+for dir in Extras Index Invert Merged Scratch
+do
+  mkdir -p "$WORKING/$dir"
+done
+
+for dir in Current Indexed Inverted
+do
+  mkdir -p "$WORKING/Scratch/$dir"
+done
+
+date
+
+seconds_start=$(date "+%s")
+echo "Removing Previous Indices"
+cd "$WORKING/Scratch/Indexed"
+target="$WORKING/Scratch/Indexed"
+find "$target" -name "*.e2x" -delete
+find "$target" -name "*.e2x.gz" -delete
+cd "$WORKING/Scratch/Inverted"
+target="$WORKING/Scratch/Inverted"
+find "$target" -name "*.inv" -delete
+find "$target" -name "*.inv.gz" -delete
+cd "$WORKING/Merged"
+target="$WORKING/Merged"
+find "$target" -name "*.mrg" -delete
+find "$target" -name "*.mrg.gz" -delete
+seconds_end=$(date "+%s")
+seconds=$((seconds_end - seconds_start))
+echo "$seconds seconds"
+CLR=$seconds
+
+seconds_start=$(date "+%s")
+echo "Collecting Current PubMed Archive"
+cd "$WORKING/Scratch/Current"
+target="$WORKING/Scratch/Current"
+if [ \! -f pubmed001.xml ]
+then
+  [ -f pubmed001.xml.gz ] || pm-collect "$MASTER/Archive" "$WORKING/Scratch/Current"
+  echo "Expanding Current PubMed Archive"
+  for fl in *.xml.gz
+  do
+    base=${fl%.xml.gz}
+    echo "$base.xml"
+    gunzip -c "$fl" |
+    xtract -set PubmedArticleSet -index -pattern PubmedArticle > "$target/$base.xml"
+    sleep 1
+    rm "$fl"
+  done
+fi
+seconds_end=$(date "+%s")
+seconds=$((seconds_end - seconds_start))
+echo "$seconds seconds"
+EXP=$seconds
+
+echo ""
+
+echo "EXPAND-CURRENT"
+
+echo "CLR $CLR seconds"
+echo "EXP $EXP seconds"
+
+echo ""
+
+date

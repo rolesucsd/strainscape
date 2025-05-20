@@ -1,0 +1,752 @@
+#!/bin/bash
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+useFtp=true
+useHttps=false
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    -ftp )
+      useFtp=true
+      useHttps=false
+      shift
+      ;;
+    -http | -https )
+      useFtp=false
+      useHttps=true
+      shift
+      ;;
+    * )
+      break
+      ;;
+  esac
+done
+
+cmd="$1"
+shift
+
+downloadFTP() {
+  dir="$1"
+  msk="$2"
+  nquire -lst ftp.ncbi.nlm.nih.gov "$dir" |
+  grep "$msk" |
+  skip-if-file-exists | tee /dev/stderr |
+  nquire -asp ftp.ncbi.nlm.nih.gov "$dir"
+}
+
+DoPMCOA() {
+
+  if [ "$useFtp" = true ]
+  then
+    downloadFTP "pub/pmc/oa_bulk" "xml.tar.gz"
+  elif [ "$useHttps" = true ]
+  then
+    downloadFTP "pub/pmc/oa_bulk" "xml.tar.gz"
+  fi
+}
+
+DoPMCBioC() {
+
+  if [ "$useFtp" = true ]
+  then
+    downloadFTP "pub/wilbur/BioC-PMC" "xml_unicode.tar.gz"
+  elif [ "$useHttps" = true ]
+  then
+    downloadFTP "pub/wilbur/BioC-PMC" "xml_unicode.tar.gz"
+  fi
+}
+
+DoBioconcepts() {
+
+  if [ ! -f "chemical2pubtatorcentral.gz" ]
+  then
+    if [ "$useFtp" = true ]
+    then
+      downloadFTP "pub/lu/PubTatorCentral" "chemical2pubtatorcentral.gz"
+    elif [ "$useHttps" = true ]
+    then
+      downloadFTP "pub/lu/PubTatorCentral" "chemical2pubtatorcentral.gz"
+    fi
+  fi
+
+  if [ ! -f "disease2pubtatorcentral.gz" ]
+  then
+    if [ "$useFtp" = true ]
+    then
+      downloadFTP "pub/lu/PubTatorCentral" "disease2pubtatorcentral.gz"
+    elif [ "$useHttps" = true ]
+    then
+      downloadFTP "pub/lu/PubTatorCentral" "disease2pubtatorcentral.gz"
+    fi
+  fi
+
+  if [ ! -f "gene2pubtatorcentral.gz" ]
+  then
+    if [ "$useFtp" = true ]
+    then
+      downloadFTP "pub/lu/PubTatorCentral" "gene2pubtatorcentral.gz"
+    elif [ "$useHttps" = true ]
+    then
+      downloadFTP "pub/lu/PubTatorCentral" "gene2pubtatorcentral.gz"
+    fi
+  fi
+}
+
+DoGeneRIFs() {
+
+  if [ ! -f "generifs_basic.gz" ]
+  then
+    if [ "$useFtp" = true ]
+    then
+      downloadFTP "gene/GeneRIF" "generifs_basic.gz"
+    elif [ "$useHttps" = true ]
+    then
+      nquire -bulk -get https://ftp.ncbi.nlm.nih.gov gene/GeneRIF generifs_basic.gz > generifs_basic.gz
+    fi
+  fi
+
+  if [ ! -f "gene_info.gz" ]
+  then
+    if [ "$useFtp" = true ]
+    then
+      downloadFTP "gene/DATA" "gene_info.gz"
+    elif [ "$useHttps" = true ]
+    then
+      nquire -bulk -get https://ftp.ncbi.nlm.nih.gov gene/DATA gene_info.gz > gene_info.gz
+    fi
+  fi
+
+  if [ ! -f "geneconv.xml" ] && [ -f "gene_info.gz" ]
+  then
+    gunzip -c gene_info.gz |
+    rchive -geneinfo > geneconv.xml
+  fi
+
+  if [ -f "geneconv.xml" ]
+  then
+    if [ ! -f "genename.txt" ]
+    then
+      cat geneconv.xml |
+      xtract -pattern Rec -if Id -and Gene -element Id Gene |
+      sort-table -k 1,1n > genename.txt
+    fi
+
+    if [ ! -f "genesyns.txt" ]
+    then
+      cat geneconv.xml |
+      xtract -pattern Rec -if Id -and Syns -element Id Syns |
+      sort-table -k 1,1n > genesyns.txt
+    fi
+  fi
+}
+
+DoMeSHTree() {
+
+  year=$(
+    nquire -get https://nlmpubs.nlm.nih.gov projects/mesh/MESH_FILES/xmlmesh |
+    xtract -mixed -pattern body -block a -if a -contains ".xml" -tab "\n" -terms a |
+    sort -Vr | head -n 1 | sed 's/[a-z.]//g'
+  )
+
+  if [ -z "$year" ]
+  then
+    year="$(date +%Y)"
+  fi
+
+  if [ ! -f "desc${year}.xml" ]
+  then
+    echo "desc${year}.xml"
+    if [ "$useFtp" = true ]
+    then
+      nquire -dwn "ftp://nlmpubs.nlm.nih.gov" "online/mesh/MESH_FILES/xmlmesh" "desc${year}.gz"
+    elif [ "$useHttps" = true ]
+    then
+      nquire -bulk -get https://nlmpubs.nlm.nih.gov projects/mesh/MESH_FILES/xmlmesh desc${year}.gz > desc${year}.gz
+    fi
+    sleep 1
+    if [ ! -f "desc${year}.gz" ]
+    then
+      echo "ERROR - Problem downloading desc${year}.gz" >&2
+    else
+      gunzip -q desc${year}.gz
+    fi
+    sleep 1
+    if [ ! -f "desc${year}.xml" ] && [ -f "desc${year}" ]
+    then
+      mv desc${year} desc${year}.xml
+    fi
+    if [ ! -f "desc${year}.xml" ]
+    then
+      echo "ERROR - Problem converting desc${year}.xml" >&2
+    else
+      chmod og-wx desc${year}.xml
+      chmod u-x desc${year}.xml
+    fi
+  fi
+
+  if [ ! -f "pa${year}.xml" ]
+  then
+    echo "pa${year}.xml"
+    if [ "$useFtp" = true ]
+    then
+      nquire -dwn "ftp://nlmpubs.nlm.nih.gov" "online/mesh/MESH_FILES/xmlmesh" "pa${year}.xml"
+    elif [ "$useHttps" = true ]
+    then
+      nquire -bulk -get https://nlmpubs.nlm.nih.gov/projects mesh/MESH_FILES/xmlmesh pa${year}.xml > pa${year}.xml
+    fi
+  fi
+
+  if [ ! -f "qual${year}.xml" ]
+  then
+    echo "qual${year}.xml"
+    if [ "$useFtp" = true ]
+    then
+      nquire -dwn "ftp://nlmpubs.nlm.nih.gov" "online/mesh/MESH_FILES/xmlmesh" "qual${year}.xml"
+    elif [ "$useHttps" = true ]
+    then
+      nquire -bulk -get https://nlmpubs.nlm.nih.gov/projects mesh/MESH_FILES/xmlmesh qual${year}.xml > qual${year}.xml
+    fi
+  fi
+
+  if [ ! -f "supp${year}.xml" ]
+  then
+    echo "supp${year}.xml"
+    if [ "$useFtp" = true ]
+    then
+      nquire -dwn "ftp://nlmpubs.nlm.nih.gov" "online/mesh/MESH_FILES/xmlmesh" "supp${year}.zip"
+    elif [ "$useHttps" = true ]
+    then
+      nquire -bulk -get https://nlmpubs.nlm.nih.gov/projects mesh/MESH_FILES/xmlmesh supp${year}.zip > supp${year}.zip
+    fi
+
+    if [ -f "supp${year}.zip" ]
+    then
+      unzip -qq supp${year}.zip
+      rm supp${year}.zip
+      chmod og-wx supp${year}.xml
+      chmod u-x supp${year}.xml
+    fi
+  fi
+
+  if [ ! -f "meshconv.xml" ]
+  then
+    rm -f meshtemp.xml
+    if [ -f "supp${year}.xml" ]
+    then
+      cat supp${year}.xml |
+      xtract -wrp "Set,Rec" -pattern SupplementalRecord \
+        -if "SupplementalRecord@SCRClass" -eq 1 \
+        -or "SupplementalRecord@SCRClass" -eq 3 \
+          -wrp "Code" -element "SupplementalRecord/SupplementalRecordUI" \
+          -wrp "Name" -encode "SupplementalRecordName/String" \
+          -wrp "Term" -encode "Term/String" > meshtemp.xml
+    fi
+
+    if [ -f "desc${year}.xml" ]
+    then
+      cat desc${year}.xml |
+      xtract -wrp "Set,Rec" -pattern DescriptorRecord \
+        -wrp "Code" -element "DescriptorRecord/DescriptorUI" \
+        -wrp "Name" -first "DescriptorName/String" \
+        -wrp "Term" -encode "Term/String" \
+        -wrp "Tree" -element "TreeNumberList/TreeNumber" >> meshtemp.xml
+    fi
+
+    if [ -f "meshtemp.xml" ]
+    then
+      cat meshtemp.xml | xtract -wrp Set -pattern Rec -sort Code |
+      transmute -format indent > meshconv.xml
+      rm meshtemp.xml
+    fi
+  fi
+
+  if [ -f "meshconv.xml" ]
+  then
+    if [ ! -f "meshtree.txt" ]
+    then
+      cat meshconv.xml |
+      xtract -pattern Rec -if Tree -element Code -sep "," -element Tree > meshtree.txt
+    fi
+
+    if [ ! -f "meshname.txt" ]
+    then
+      cat meshconv.xml |
+      xtract -pattern Rec -if Name -element Code -sep "," -element Name > meshname.txt
+    fi
+  fi
+}
+
+DoTaxnames() {
+
+  if [ ! -f "new_taxdump.tar.gz" ]
+  then
+    if [ "$useFtp" = true ]
+    then
+      nquire -asp ftp.ncbi.nlm.nih.gov "pub/taxonomy/new_taxdump" "new_taxdump.tar.gz"
+    elif [ "$useHttps" = true ]
+    then
+      nquire -bulk -get https://ftp.ncbi.nlm.nih.gov pub/taxonomy/new_taxdump new_taxdump.tar.gz > new_taxdump.tar.gz
+    fi
+  fi
+
+  if [ -f "new_taxdump.tar.gz" ]
+  then
+    if [ ! -f "taxnames.txt" ]
+    then
+      tar -zxf new_taxdump.tar.gz names.dmp
+      cat names.dmp | cut -f 1,3,7 |
+      grep -e "scientific name" -e "common name" |
+      cut -f 1,2 > taxnames.txt
+      rm names.dmp
+    fi
+
+    if [ ! -f "lineages.txt" ]
+    then
+      tar -zxf new_taxdump.tar.gz fullnamelineage.dmp
+      cat fullnamelineage.dmp | cut -f 1,3,5 | sort -k 1,1n > lineages.txt
+      rm fullnamelineage.dmp
+    fi
+  fi
+}
+
+DoTaxonInfo() {
+
+  if [ ! -f "new_taxdump.tar.gz" ]
+  then
+    if [ "$useFtp" = true ]
+    then
+      nquire -asp ftp.ncbi.nlm.nih.gov "pub/taxonomy/new_taxdump" "new_taxdump.tar.gz"
+    elif [ "$useHttps" = true ]
+    then
+      nquire -bulk -get https://ftp.ncbi.nlm.nih.gov pub/taxonomy/new_taxdump new_taxdump.tar.gz > new_taxdump.tar.gz
+    fi
+  fi
+
+  if [ -f "new_taxdump.tar.gz" ]
+  then
+    rm -f *.dmp
+    tar -tvf new_taxdump.tar.gz |
+    tr -s ' ' '\t' | cut -f 9 |
+    skip-if-file-exists |
+    while read fl
+    do
+      tar -zxf new_taxdump.tar.gz "$fl"
+    done
+  fi
+
+  rm -f taxoninfo.xml
+  rchive -taxon AC > taxoninfo.xml
+}
+
+DoSerials() {
+
+  year=""
+
+  files=$(
+    # obtain names of base and update files for several years
+    nquire -bulk -get https://ftp.nlm.nih.gov projects/serfilelease |
+    sed -ne 's,.* href="\([^/"]*\)".*,\1,p' | grep -v marcxml
+  )
+
+  if [ -n "$files" ]
+  then
+    year=$(
+      # get latest year embedded in file names
+      echo "$files" | grep serfilebase | sort -Vr | head -n 1 |
+      sed -e 's/serfilebase.//' -e 's/.xml//'
+    )
+    if [ -n "$year" ]
+    then
+      # limit to serfilebase and serfile updates for current year
+      files=$( echo "$files" | grep "$year" )
+    fi
+  fi
+
+  basefile="serfilebase.${year}.xml"
+  updates=$( echo "$files" | grep -v serfilebase | sort -V )
+
+  if [ ! -f "serials.txt" ] && [ ! -s "$basefile" ]
+  then
+    echo "$basefile" >&2
+    time nquire -bulk -get https://ftp.nlm.nih.gov projects/serfilelease "${basefile}" > $basefile
+  fi
+
+  if [ ! -f "serials.txt" ] && [ -s "$basefile" ]
+  then
+    echo "# ${basefile}" >> serials.txt
+    cat "$basefile" |
+    xtract -pattern NLMCatalogRecord -def "-" -element NlmUniqueID PublicationInfo/Country >> serials.txt
+    cat "$basefile" |
+    xtract -pattern DeleteCatalogRecord -block NlmUniqueID -element NlmUniqueID -lbl "-" -deq "\n" >> serials.txt
+  fi
+
+  if [ -f "serials.txt" ] && [ -n "$updates" ]
+  then
+    echo "$updates" |
+    while read serfile
+    do
+      if [ ! -s "$serfile" ]
+      then
+        echo "$serfile" >&2
+        time nquire -bulk -get https://ftp.nlm.nih.gov projects/serfilelease "${serfile}" > $serfile
+      fi
+      if [ -s "$serfile" ]
+      then
+        if ! grep -Fq "$serfile" serials.txt
+        then
+          echo "# ${serfile}" >> serials.txt
+          cat "$serfile" |
+          xtract -pattern NLMCatalogRecord -def "-" -element NlmUniqueID PublicationInfo/Country >> serials.txt
+          cat "$serfile" |
+          xtract -pattern DeleteCatalogRecord -block NlmUniqueID -element NlmUniqueID -lbl "-" -deq "\n" >> serials.txt
+        fi
+      fi
+    done
+  fi
+}
+
+finish_jtas() {
+
+  tr -s ' ' |
+  sed -e 's/^ *//g' -e 's/ *$//g' |
+  sort-table -k 1,1f -k 3,3n -k 4,4nr -k 2,2f |
+  uniq -i |
+  awk -F '\t' '(NR == 1  ||  $1 != prev_key) { if (NR > 1) { print prev_line }; prev_key = $1; prev_line = $0 } END { print prev_line }' |
+  cut -f 1,2
+}
+
+multi_jtas() {
+
+  tr -s ' ' |
+  sed -e 's/^ *//g' -e 's/ *$//g' |
+  sort-table -k 1,1f -k 3,3n -k 4,4nr -k 2,2f |
+  uniq -i |
+  awk -F '\t' '(NR > 1 && $1 == prev_key && $4 == prev_flag) { print } (NR == 1 || $1 != prev_key) { print; prev_key = $1; prev_flag = $4 }' |
+  cut -f 1,2 | sort | uniq |
+  awk -F '\t' '{ if (NR == 1 || $1 != prev_key) { if (NR > 1) { print saved }; prev_key = $1; saved = $1 "\t" $2 } else { saved = saved " | " $2 } } END { print saved }'
+}
+
+JourCache() {
+
+  if [ "$useFtp" = true ]
+  then
+    nquire -ftp ftp.ncbi.nlm.nih.gov pubmed jourcache.xml
+  elif [ "$useHttps" = true ]
+  then
+    nquire -bulk -get https://ftp.ncbi.nlm.nih.gov pubmed jourcache.xml
+  fi
+}
+
+DoJournals() {
+
+  if [ ! -f "jourconv.xml" ]
+  then
+    if [ ! -f "jourcache.xml" ]
+    then
+      if [ -f "serials.txt" ]
+      then
+        JourCache |
+        grep -v DOCTYPE | grep -v ELEMENT | grep -v ATTLIST |
+        xtract -transfigure serials.txt \
+          -head "<JournalCache>" -tail "</JournalCache>" \
+          -pattern Journal -pkg Journal \
+            -block "Journal/*" -element "*" \
+            -block Journal -wrp Country -translate NlmUniqueID |
+        transmute -format > jourcache.xml
+      else
+        JourCache |
+        grep -v DOCTYPE | grep -v ELEMENT | grep -v ATTLIST |
+        transmute -format > jourcache.xml
+      fi
+    fi
+
+    if [ -f "jourcache.xml" ]
+    then
+      cat jourcache.xml |
+      xtract -set Set -pattern Journal \
+        -if Name -and MedAbbr \
+          -NAME Name -ABRV MedAbbr -ACTV ActivityFlag \
+          -group Name -pkg Rec \
+            -wrp Key -jour Name -wrp Abrv -jour "&ABRV" \
+            -wrp Indx -jour "&NAME" -wrp Name -element "&NAME" \
+            -wrp Type -lbl "1" -wrp Flag -element "&ACTV" \
+          -group MedAbbr -pkg Rec \
+            -wrp Key -jour MedAbbr -wrp Abrv -jour "&ABRV" \
+            -wrp Indx -jour "&NAME" -wrp Name -element "&NAME" \
+            -wrp Type -lbl "2" -wrp Flag -element "&ACTV" \
+          -group Alias \
+            -block Alias -pkg Rec \
+              -wrp Key -jour Alias -wrp Abrv -jour "&ABRV" \
+              -wrp Indx -jour "&NAME" -wrp Name -element "&NAME" \
+              -wrp Type -lbl "3" -wrp Flag -element "&ACTV" \
+          -group Journal -if "&ABRV" -equals "bioRxiv" \
+            -block Journal -pkg Rec \
+              -wrp Key -lbl "biorxiv.org" -wrp Abrv -jour "&ABRV" \
+              -wrp Indx -jour "&NAME" -wrp Name -element "&NAME" \
+              -wrp Type -lbl "3" -wrp Flag -element "&ACTV" \
+            -block Journal -pkg Rec \
+              -wrp Key -lbl "biorxivorg" -wrp Abrv -jour "&ABRV" \
+              -wrp Indx -jour "&NAME" -wrp Name -element "&NAME" \
+              -wrp Type -lbl "3" -wrp Flag -element "&ACTV" |
+      xtract -set Set -pattern Rec \
+        -group Rec \
+          -block Rec -pkg Rec \
+            -wrp Key -lower Key -wrp Abrv -element Abrv \
+            -wrp Indx -element Indx -wrp Name -element Name \
+            -wrp Type -element Type -wrp Flag -element Flag |
+      xtract -set Set -pattern Rec \
+        -group Rec \
+          -block Rec -pkg Rec \
+            -wrp Key -element Key -wrp Abrv -element Abrv \
+            -wrp Indx -element Indx -wrp Name -element Name \
+            -wrp Type -element Type -wrp Flag -element Flag \
+          -block Rec -if Key -starts-with "journal " -pkg Rec \
+            -wrp Key -pfx "<Key>the " -element Key -wrp Abrv -element Abrv \
+            -wrp Indx -element Indx -wrp Name -element Name \
+            -wrp Type -element Type -wrp Flag -element Flag \
+          -block Rec -if Key -starts-with "the journal " -pkg Rec \
+            -wrp Key -element "Key[5:]" -wrp Abrv -element Abrv \
+            -wrp Indx -element Indx -wrp Name -element Name \
+            -wrp Type -element Type -wrp Flag -element Flag |
+      transmute -format > jourconv.xml
+    fi
+  fi
+
+  if [ -f "jourconv.xml" ]
+  then
+    if [ ! -f "jourabrv.txt" ]
+    then
+      cat jourconv.xml | xtract -pattern Rec -element Key Abrv Type Flag | finish_jtas > jourabrv.txt
+    fi
+    if [ ! -f "jourindx.txt" ]
+    then
+      cat jourconv.xml | xtract -pattern Rec -element Key Indx Type Flag | finish_jtas > jourindx.txt
+    fi
+    if [ ! -f "journame.txt" ]
+    then
+      cat jourconv.xml | xtract -pattern Rec -element Key Name Type Flag | finish_jtas > journame.txt
+    fi
+    if [ ! -f "joursets.txt" ]
+    then
+      cat jourconv.xml | xtract -pattern Rec -element Key Name Type Flag | multi_jtas > joursets.txt
+    fi
+    if [ ! -f "jourmaps.xml" ] && [ -f "jourindx.txt" ]
+    then
+      cat jourindx.txt | tbl2xml -set JournalMaps -rec Journal Key Indx > jourmaps.xml
+    fi
+  fi
+}
+
+DoNIHOCC() {
+  base_url=""
+  new_file_date=""
+
+  latest_occ=$(
+    nquire -bulk -get https://api.figshare.com/v2/collections/4586573/articles |
+    xtract -pattern anon -sort-rev published_date |
+    xtract -pattern anon -position first -element "*"
+  )
+  if [ -n "$latest_occ" ]
+  then
+    base_url=$( echo "$latest_occ" | xtract -pattern anon -element url )
+    new_file_date=$( echo "$latest_occ" | xtract -pattern anon -element published_date | cut -c 1-10 )
+  fi
+
+  if [ -f "open_citation_collection.zip" ] && [ -n "$new_file_date" ]
+  then
+    curr_file_date=$( date -r open_citation_collection.zip "+%Y-%m-%d" )
+    if [ -n "$curr_file_date" ]
+    then
+      if [[ "$new_file_date" > "$curr_file_date" ]]
+      then
+        echo "Removing old $curr_file_date download of open_citation_collection.zip"
+        rm -f "open_citation_collection.zip"
+      else
+        echo "Current public $new_file_date version of open_citation_collection.zip is not later than existing $curr_file_date download"
+      fi
+    fi
+  fi
+
+  if [ ! -f "open_citation_collection.zip" ] && [ -n "$base_url" ]
+  then
+    download_url=$(
+      nquire -get "$base_url" |
+      xtract -pattern opt -group files \
+        -if name -equals open_citation_collection.zip \
+          -element download_url
+    )
+    if [ -n "$download_url" ]
+    then
+      orig_name=$( echo "${download_url}" | tr '/' '\n' | tail -n 1 )
+      echo "Downloading new $new_file_date version of open_citation_collection.zip will likely take at least an hour"
+      nquire -get "$download_url" > open_citation_collection.zip
+      if [ -f "open_citation_collection.zip" ]
+      then
+        echo "Downloading open_citation_collection.zip is complete"
+      else
+        echo "Downloading of open_citation_collection.zip failed"
+      fi
+    fi
+  fi
+}
+
+prepare_book_list() {
+  echo "<OpenAccessSubset>"
+  while IFS=$'\t' read pth titl pblshr dt accn upd
+  do
+    if [ -n "$accn" ]
+    then
+      echo "  <Book>"
+      echo "    <Accn>$accn</Accn>"
+      echo "    <Path>$pth</Path>"
+      echo "    <Title>$titl</Title>"
+      echo "  </Book>"
+    fi
+  done
+  echo "</OpenAccessSubset>"
+}
+
+case "$cmd" in
+  -h | -help | --help | help )
+  cat <<EOF
+USAGE: $0
+       bioconcepts | generif | meshtree | taxnames | taxoninfo | serials | journals | nihocc |
+       pmc-oa | pmc-bioc | oa-list | oa-book | carotene | globin | human | smear
+EOF
+    exit 0
+    ;;
+  pmc-oa | -pmc-oa )
+    DoPMCOA
+    exit 0
+    ;;
+  pmc-bioc | -pmc-bioc )
+    DoPMCBioC
+    exit 0
+    ;;
+  bioconcepts | -bioconcepts )
+    DoBioconcepts
+    exit 0
+    ;;
+  generif | -generif | generifs | -generifs )
+    DoGeneRIFs
+    exit 0
+    ;;
+  meshtree | -meshtree )
+    DoMeSHTree
+    exit 0
+    ;;
+  taxnames | -taxnames | taxonomy | -taxonomy | lineages | -lineages )
+    DoTaxnames
+    exit 0
+    ;;
+  taxoninfo | -taxoninfo )
+    DoTaxonInfo
+    exit 0
+    ;;
+  serials | -serials )
+    DoSerials
+    exit 0
+    ;;
+  journals | -journals )
+    DoJournals
+    exit 0
+    ;;
+  nihocc | -nihocc )
+    DoNIHOCC
+    exit 0
+    ;;
+  oa-list | -oa-list )
+    if [ ! -f "books.xml" ]
+    then
+      if [ "$useFtp" = true ]
+      then
+        nquire -ftp ftp.ncbi.nlm.nih.gov pub/litarch file_list.txt |
+        prepare_book_list > books.xml
+      elif [ "$useHttps" = true ]
+      then
+        nquire -bulk -get https://ftp.ncbi.nlm.nih.gov pub/litarch file_list.txt |
+        prepare_book_list > books.xml
+      fi
+    fi
+    exit 0
+    ;;
+  oa-book | -oa-book )
+    accn="$1"
+    shift
+    if [ ! -f "books.xml" ]
+    then
+      if [ "$useFtp" = true ]
+      then
+        nquire -ftp ftp.ncbi.nlm.nih.gov pub/litarch file_list.txt |
+        prepare_book_list > books.xml
+      elif [ "$useHttps" = true ]
+      then
+        nquire -bulk -get https://ftp.ncbi.nlm.nih.gov pub/litarch file_list.txt |
+        prepare_book_list > books.xml
+      fi
+    fi
+    cat books.xml |
+    xtract -pattern Book -if Accn -equals "$accn" -element Path |
+    while read pth
+    do
+      if [ ! -f "$pth" ]
+      then
+        nquire -dwn ftp.ncbi.nlm.nih.gov "pub/litarch" "$pth"
+      fi
+    done
+    exit 0
+    ;;
+  carotene | -carotene )
+    if [ ! -f "carotene.xml" ]
+    then
+      nquire -asp ftp.ncbi.nlm.nih.gov "entrez/entrezdirect/samples" "carotene.xml.zip"
+      unzip -qq carotene.xml.zip
+      rm carotene.xml.zip
+    fi
+    exit 0
+    ;;
+  globin | -globin )
+    if [ ! -f "globin.xml" ]
+    then
+      nquire -asp ftp.ncbi.nlm.nih.gov "entrez/entrezdirect/samples" "globin.xml.zip"
+      unzip -qq globin.xml.zip
+      rm globin.xml.zip
+    fi
+    exit 0
+    ;;
+  human | -human )
+    if [ ! -f "human.xml" ]
+    then
+      nquire -asp ftp.ncbi.nlm.nih.gov "entrez/entrezdirect/samples" "carhumanotene.xml.zip"
+      unzip -qq human.xml.zip
+      rm human.xml.zip
+    fi
+    exit 0
+    ;;
+  smear | -smear )
+    if [ ! -f "smear.asn" ]
+    then
+      nquire -asp ftp.ncbi.nlm.nih.gov "entrez/entrezdirect/samples" "smear.asn.zip"
+      unzip -qq smear.asn.zip
+      rm smear.asn.zip
+    fi
+    exit 0
+    ;;
+  natural-earth | -natural-earth )
+    curl -Ls -O "https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_admin_0_countries.zip"
+    curl -Ls -O "https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_admin_0_disputed_areas.zip"
+    curl -Ls -O "https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_admin_1_states_provinces.zip"
+    curl -Ls -O "https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_geography_marine_polys.zip"
+    curl -Ls -O "https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_lakes.zip"
+    curl -Ls -O "https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_minor_islands.zip"
+    curl -Ls -O "https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_reefs.zip"
+    curl -Ls -O "https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_rivers_lake_centerlines.zip"
+    exit 0
+    ;;
+  * )
+    echo "ERROR - Unrecognized command '$cmd'" >&2
+    ;;
+esac

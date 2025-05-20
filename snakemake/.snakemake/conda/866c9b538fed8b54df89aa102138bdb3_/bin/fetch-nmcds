@@ -1,0 +1,66 @@
+#!/bin/sh
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# echo -e "NM_000014.6 NM_000518.5" | fetch-nmcds
+
+uids=$( cat )
+
+ExtractUIDs() {
+
+  echo "$uids" |
+  accn-at-a-time |
+  while read uid
+  do
+    notInteger=$( echo "$uid" | sed -e 's/[0-9.]//g' )
+    if [ -z "$notInteger" ]
+    then
+      echo "$uid"
+    fi
+  done
+}
+
+ExtractAccns() {
+
+  echo "$uids" |
+  accn-at-a-time |
+  while read uid
+  do
+    notInteger=$( echo "$uid" | sed -e 's/[0-9.]//g' )
+    if [ -n "$notInteger" ]
+    then
+      echo "$uid"
+    fi
+  done
+}
+
+ids=$( ExtractUIDs )
+acc=$( ExtractAccns )
+
+LookupUIDs() {
+
+  echo "$acc" |
+  accn-at-a-time |
+  while read acc
+  do
+    fld="ACCN"
+    case "$acc" in
+      *.* )
+        fld="ACVR"
+        ;;
+      * )
+        ;;
+    esac
+    uid=$( echo "$acc" | phrase-search -db nmcds -query "$acc [$fld]" )
+    echo "$uid"
+  done
+}
+
+lkp=$( LookupUIDs )
+res=$( echo "$ids $lkp" | accn-at-a-time )
+
+echo "$res" |
+fetch-local -db nmcds -tag NMSummary -set NMSummarySet \
+  -xml '<?xml version="1.0" encoding="UTF-8" ?>' \
+  -doctype '<!DOCTYPE NMSummarySet>'

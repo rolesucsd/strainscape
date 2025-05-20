@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# efetch -db biosample -id SAMN38051082 -format docsum | bsmp2info
+
+xtract -rec BioSampleInfo -pattern DocumentSummary \
+  -wrp Accession -element Accession \
+  -wrp Title -element DocumentSummary/Title \
+  -wrp Link -sep "|" -numeric Links/Link \
+  -group Attribute -if @harmonized_name \
+    -TAG -lower @harmonized_name -wrp "&TAG" -element Attribute |
+transmute -format

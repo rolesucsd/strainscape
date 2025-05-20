@@ -1,0 +1,452 @@
+#!/bin/bash
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# archive-nihocc
+
+total_start=$(date "+%s")
+
+pth=$( dirname "$0" )
+
+case "$pth" in
+  /* )
+    ;; # already absolute
+  *  )
+    pth=$(cd "$pth" && pwd)
+    ;;
+esac
+
+case ":$PATH:" in
+  *:"$pth":* )
+    ;;
+  * )
+    PATH="$PATH:$pth"
+    export PATH
+    ;;
+esac
+
+hasgo=$( command -v go )
+if [ ! -x "$hasgo" ]
+then
+  echo "ERROR: The Go (golang) compiler must be installed locally in order to process the data, EXITING" >&2
+  exit 1
+fi
+
+# database-specific parameters
+
+dbase="pubmed"
+fields="CITED CITES"
+
+# control flags set by command-line arguments
+
+useFtp=true
+useHttps=false
+
+scratch=false
+
+download=true
+
+e2index=false
+e2invert=false
+e2merge=false
+e2post=false
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    daily | -daily )
+      e2index=true
+      e2invert=true
+      shift
+      ;;
+    index | -index | reindex | -reindex )
+      e2index=true
+      e2invert=true
+      e2merge=true
+      e2post=true
+      shift
+      ;;
+    clean | -clean | clear | -clear | scrub | -scrub | scour | -scour | scratch | -scratch )
+      # delete Scratch directories
+      scratch=true
+      shift
+      ;;
+    -ftp )
+      useFtp=true
+      useHttps=false
+      shift
+      ;;
+    -http | -https )
+      useFtp=false
+      useHttps=true
+      shift
+      ;;
+    * )
+      break
+      ;;
+  esac
+done
+
+if [ "$scratch" == true ] && [ "$e2index" == true ]
+then
+  echo "ERROR: Cleaning and indexing must be done in separate commands, EXITING" >&2
+  exit 1
+fi
+
+if [ "$scratch" = true ]
+then
+  pm-clean -db "$dbase" -fields "$fields" -scratch
+  exit 0
+fi
+
+date
+echo "" >&2
+
+MASTER=""
+WORKING=""
+
+# get local master and working volumes from database, creating subfolders if necessary
+ev=$( pm-setup -db "$dbase" )
+
+if [ -z "$ev" ]
+then
+  echo "ERROR: Must supply path to local data by setting EDIRECT_LOCAL_MASTER environment variable" >&2
+  exit 1
+fi
+
+MASTER="${ev%:*}"
+WORKING="${ev#*:}"
+
+# remove trailing slash
+MASTER=${MASTER%/}
+WORKING=${WORKING%/}
+
+# report data locations
+echo "ARCHIVE $MASTER" >&2
+echo "WORKING $WORKING" >&2
+echo "" >&2
+
+echo "Preparing Drives" >&2
+pm-prepare "$MASTER" "$WORKING"
+echo "" >&2
+
+DWN=""
+
+IDX=""
+INV=""
+MRG=""
+PST=""
+
+DoNIHOCC() {
+
+  base_url=""
+  new_file_date=""
+
+  latest_occ=$(
+    nquire -bulk -get https://api.figshare.com/v2/collections/4586573/articles |
+    xtract -pattern anon -sort-rev published_date |
+    xtract -pattern anon -position first -element "*"
+  )
+  if [ -n "$latest_occ" ]
+  then
+    base_url=$( echo "$latest_occ" | xtract -pattern anon -element url )
+    new_file_date=$( echo "$latest_occ" | xtract -pattern anon -element published_date | cut -c 1-10 )
+  fi
+
+  if [ -f "open_citation_collection.zip" ] && [ -n "$new_file_date" ]
+  then
+    curr_file_date=$( date -r open_citation_collection.zip "+%Y-%m-%d" )
+    if [ -n "$curr_file_date" ]
+    then
+      if [[ "$new_file_date" > "$curr_file_date" ]]
+      then
+        echo "Removing old $curr_file_date download of open_citation_collection.zip" >&2
+        rm -f "open_citation_collection.zip"
+      else
+        echo "Current public $new_file_date version of open_citation_collection.zip is not later than existing $curr_file_date download" >&2
+      fi
+    fi
+  fi
+
+  if [ ! -f "open_citation_collection.zip" ] && [ -n "$base_url" ]
+  then
+    download_url=$(
+      nquire -get "$base_url" |
+      xtract -pattern opt -group files \
+        -if name -equals open_citation_collection.zip \
+          -element download_url
+    )
+    if [ -n "$download_url" ]
+    then
+      orig_name=$( echo "${download_url}" | tr '/' '\n' | tail -n 1 )
+      echo "Downloading new $new_file_date version of open_citation_collection.zip will likely take at least two to three hours" >&2
+      nquire -get "$download_url" > open_citation_collection.zip
+      if [ -f "open_citation_collection.zip" ]
+      then
+        echo "Downloading open_citation_collection.zip is complete" >&2
+      else
+        echo "Downloading of open_citation_collection.zip failed" >&2
+      fi
+    fi
+  fi
+}
+
+if [ "$download" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Downloading NIH Open Citation Collection" >&2
+
+  if [ -d "$WORKING/Extras" ]
+  then
+    cd "$WORKING/Extras"
+
+    DoNIHOCC
+
+    sleep 1
+    if [ ! -f "open_citation_collection.zip" ]
+    then
+      echo "ERROR: Unable to download open_citation_collection.zip file to Extras directory" >&2
+      echo "" >&2
+      echo "EXITING DUE TO MISSING NCBI OCC DATA FILE" >&2
+      exit 1
+    fi
+  fi
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  DWN=$seconds
+  echo "DWN $DWN seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+if [ -d "$WORKING/Scratch" ]
+then
+  echo "Removing Previous Indices" >&2
+
+  target="$WORKING/Scratch/Current"
+  find "$target" -name "*.xml" -delete
+  find "$target" -name "*.xml.gz" -delete
+
+  target="$WORKING/Scratch/Indexed"
+  find "$target" -name "*.e2x" -delete
+  find "$target" -name "*.e2x.gz" -delete
+
+  target="$WORKING/Scratch/Inverted"
+  find "$target" -name "*.inv" -delete
+  find "$target" -name "*.inv.gz" -delete
+fi
+
+if [ -d "$WORKING/Merged" ]
+then
+  target="$WORKING/Merged"
+  find "$target" -name "*.mrg" -delete
+  find "$target" -name "*.mrg.gz" -delete
+fi
+
+if [ "$e2index" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Indexing NIH Open Citation Collection" >&2
+
+  cd "$WORKING/Scratch/Indexed"
+
+  target="$WORKING/Scratch/Indexed"
+  # obtain maximum live PMID value by Entrez query
+  sleep 2
+  max_pmid=$(
+    esearch -db pubmed -subset "all [SB] NOT pubmed books [SB]" -retmax 1000 |
+    xtract -pattern eSearchResult -max Id
+  )
+  if [ -z "$max_pmid" ]
+  then
+    sleep 10
+    max_pmid=$(
+      esearch -db pubmed -subset "all [SB] NOT pubmed books [SB]" -retmax 1000 |
+      xtract -pattern eSearchResult -max Id
+    )
+  fi
+
+  if [ -z "$max_pmid" ]
+  then
+    max_pmid="0"
+  fi
+
+  unzip -cq "$WORKING/Extras/open_citation_collection.zip" |
+  go run "$pth/extern/prep-nihocc.go" "$max_pmid" |
+  go run "$pth/extern/prep-finish.go" 20000000 "$target" "nihocc"
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  IDX=$seconds
+  echo "IDX $IDX seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+if [ "$e2invert" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Inverting NIH Open Citation Collection" >&2
+
+  if [ -d "$WORKING/Scratch/Indexed" ]
+  then
+    cd "$WORKING/Scratch/Indexed"
+
+    target="$WORKING/Scratch/Inverted"
+    for fl in *.e2x.gz
+    do
+      base=${fl%.e2x.gz}
+      echo "$base.inv"
+      gunzip -c "$fl" |
+      rchive -e2invert |
+      gzip -1 > "$target/$base.inv.gz"
+      sleep 1
+    done
+  fi
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  INV=$seconds
+  echo "INV $INV seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+if [ "$e2merge" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Merging Inverted Indices" >&2
+
+  if [ -d "$WORKING/Scratch/Inverted" ]
+  then
+    cd "$WORKING/Scratch/Inverted"
+
+    target="$WORKING/Merged"
+    osname=`uname -s | sed -e 's/_NT-.*$/_NT/; s/^MINGW[0-9]*/CYGWIN/'`
+    if [ "$osname" = "CYGWIN_NT" -a -x /bin/cygpath ]
+    then
+      target=`cygpath -w "$target"`
+    fi
+    target=${target%/}
+    rchive -gzip -mergelink "$target" *.inv.gz
+  fi
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  MRG=$seconds
+  echo "MRG $MRG seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+if [ "$e2post" = true ]
+then
+  seconds_start=$(date "+%s")
+  echo "Producing Postings Files" >&2
+
+  if [ -d "$WORKING/Merged" ]
+  then
+    cd "$WORKING/Merged"
+
+    target="$MASTER/Postings"
+    osname=`uname -s | sed -e 's/_NT-.*$/_NT/; s/^MINGW[0-9]*/CYGWIN/'`
+    if [ "$osname" = "CYGWIN_NT" -a -x /bin/cygpath ]
+    then
+      target=`cygpath -w "$target"`
+    fi
+    target=${target%/}
+    for fl in *.mrg.gz
+    do
+      echo "$fl"
+    done |
+    sort |
+    xargs -n 100 echo |
+    while read files
+    do
+      rchive -db pubmed -promotelink "$target" "$fields" $files
+    done
+  fi
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  PST=$seconds
+  echo "PST $PST seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+wait
+
+# check postings
+okay=""
+if [ "$e2post" = true ]
+then
+  okay=$( echo 2539356 | phrase-search -db pubmed -link CITED | grep -w 1324175 )
+  if [ -n "$okay" ]
+  then
+    echo "Archive and Index are OK" >&2
+    echo "" >&2
+  fi
+fi
+
+if [ "$e2post" = true ] && [ -n "$okay" ] && [ -d "$WORKING/Merged" ]
+then
+  target="$WORKING/Merged"
+  find "$target" -name "*.mrg" -delete
+  find "$target" -name "*.mrg.gz" -delete
+fi
+
+cd
+
+echo "ARCHIVE-NIHOCC" >&2
+
+echo "" >&2
+
+PrintTime() {
+
+  if [ "$1" = true ]
+  then
+    echo "$2 $3 seconds" >&2
+  fi
+}
+
+PrintTime "$download" "DWN" "$DWN"
+
+PrintTime "$e2index" "IDX" "$IDX"
+PrintTime "$e2invert" "INV" "$INV"
+PrintTime "$e2merge" "MRG" "$MRG"
+PrintTime "$e2post" "PST" "$PST"
+
+echo "" >&2
+
+function PrintTotalElapsedTime {
+  local L=$1
+  local T=$2
+  local D=$((T/60/60/24))
+  local H=$((T/60/60%24))
+  local M=$((T/60%60))
+  local S=$((T%60))
+  printf '%s %d second' "$L" $T 1>&2
+  (( $T > 1 )) && printf 's' 1>&2
+  if [ "$T" -gt 59 ]
+  then
+    printf ', or' 1>&2
+    (( $D > 0 )) && printf ' %d day' $D 1>&2
+    (( $D > 1 )) && printf 's' 1>&2
+    (( $H > 0 )) && printf ' %d hour' $H 1>&2
+    (( $H > 1 )) && printf 's' 1>&2
+    (( $M > 0 )) && printf ' %d minute' $M 1>&2
+    (( $M > 1 )) && printf 's' 1>&2
+    (( $S > 0 )) && printf ' %d second' $S 1>&2
+    (( $S > 1 )) && printf 's' 1>&2
+  fi
+  printf '\n' 1>&2
+}
+
+total_end=$(date "+%s")
+total=$((total_end - total_start))
+TOT=$total
+PrintTotalElapsedTime "TOT" "$TOT"
+echo "" >&2

@@ -6,9 +6,7 @@ setup(
     packages=find_packages(include=["strainscape", "strainscape.*"]),
     install_requires=[
         "pandas",
-        "intervaltree",
-        "numpy",
-        "snakemake",
+        "numpy"
     ],
     author="Renee Oles",
     description="A toolkit for analyzing strain evolution in microbiome data",
@@ -19,10 +17,6 @@ setup(
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
     ],
 ) 

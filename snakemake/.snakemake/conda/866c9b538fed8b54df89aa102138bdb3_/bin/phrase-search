@@ -1,0 +1,413 @@
+#!/bin/bash
+
+# ===========================================================================
+#
+#                            PUBLIC DOMAIN NOTICE
+#            National Center for Biotechnology Information (NCBI)
+#
+#  This software/database is a "United States Government Work" under the
+#  terms of the United States Copyright Act.  It was written as part of
+#  the author's official duties as a United States Government employee and
+#  thus cannot be copyrighted.  This software/database is freely available
+#  to the public for use. The National Library of Medicine and the U.S.
+#  Government do not place any restriction on its use or reproduction.
+#  We would, however, appreciate having the NCBI and the author cited in
+#  any work or product based on this material.
+#
+#  Although all reasonable efforts have been taken to ensure the accuracy
+#  and reliability of the software and data, the NLM and the U.S.
+#  Government do not and cannot warrant the performance or results that
+#  may be obtained by using this software or data. The NLM and the U.S.
+#  Government disclaim all warranties, express or implied, including
+#  warranties of performance, merchantability or fitness for any particular
+#  purpose.
+#
+# ===========================================================================
+#
+# File Name:  phrase-search
+#
+# Author:  Jonathan Kans
+#
+# Version Creation Date:   10/25/18
+#
+# ==========================================================================
+
+pth=$( dirname "$0" )
+
+case "$pth" in
+  /* )
+    ;; # already absolute
+  *  )
+    pth=$(cd "$pth" && pwd)
+    ;;
+esac
+
+case ":$PATH:" in
+  *:"$pth":* )
+    ;;
+  * )
+    PATH="$PATH:$pth"
+    export PATH
+    ;;
+esac
+
+dbase=""
+target=""
+field=""
+debug=false
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    -version )
+      version=$( einfo -version )
+      echo "$version"
+      exit 0
+      ;;
+    -h | -help | --help | help )
+      version=$( einfo -version )
+      echo "phrase-search $version"
+      echo ""
+      echo "USAGE: phrase-search"
+      echo "       [-path path_to_pubmed_master]"
+      echo "       -count | -counts | -query | -match | -filter | -link | -exact | -title | -words | -pairs | -fields | -terms | -totals"
+      echo "       query arguments"
+      echo ""
+      cat "$pth/help/phrase-search-help.txt"
+      echo ""
+      exit 0
+      ;;
+    -extras )
+      version=$( einfo -version )
+      echo "phrase-search $version"
+      echo ""
+      cat "$pth/help/phrase-search-extras.txt"
+      echo ""
+      exit 0
+      ;;
+    * )
+      break
+      ;;
+  esac
+done
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    -debug )
+      debug=true
+      shift
+      ;;
+    -path | -master )
+      # ignore for backward compatibility, but now requiring environment variable for path
+      # target=$2
+      shift
+      shift
+      ;;
+    -db )
+      dbase=$2
+      shift
+      shift
+      ;;
+    * )
+      break
+      ;;
+  esac
+done
+
+if [ "$debug" = true ]
+then
+  version=$( einfo -version )
+  echo "PHRASE_SEARCH VERSION = $version"
+  if [ -n "${EDIRECT_PUBMED_MASTER}" ]
+  then
+    echo "EDIRECT_PUBMED_MASTER = ${EDIRECT_PUBMED_MASTER}" >&2
+  fi
+  if [ -n "${EDIRECT_PUBMED_WORKING}" ]
+  then
+    echo "EDIRECT_PUBMED_WORKING = ${EDIRECT_PUBMED_WORKING}" >&2
+  fi
+  if [ -n "${EDIRECT_LOCAL_MASTER}" ]
+  then
+    echo "EDIRECT_LOCAL_MASTER = ${EDIRECT_LOCAL_MASTER}" >&2
+  fi
+  if [ -n "${EDIRECT_LOCAL_ARCHIVE}" ]
+  then
+    echo "EDIRECT_LOCAL_ARCHIVE = ${EDIRECT_LOCAL_ARCHIVE}" >&2
+  fi
+  if [ -n "${EDIRECT_LOCAL_WORKING}" ]
+  then
+    echo "EDIRECT_LOCAL_WORKING = ${EDIRECT_LOCAL_WORKING}" >&2
+  fi
+  if [ -n "${EDIRECT_LOCAL_CONFIG}" ]
+  then
+    echo "EDIRECT_LOCAL_CONFIG = ${EDIRECT_LOCAL_CONFIG}" >&2
+  fi
+fi
+
+if [ -z "$dbase" ]
+then
+  # default
+  dbase="pubmed"
+fi
+
+# get local master and working volumes from database
+ev=$( rchive -local "$dbase" )
+if [ -n "$ev" ]
+then
+  # only care about master volume and its Postings subfolder
+  target="${ev%:*}"
+fi
+
+if [ -z "$target" ]
+then
+  echo "ERROR: Must supply path to local data by setting EDIRECT_LOCAL_MASTER environment variable" >&2
+  exit 1
+fi
+
+osname=$( uname -s | sed -e 's/_NT-.*$/_NT/; s/^MINGW[0-9]*/CYGWIN/' )
+if [ "$osname" = "CYGWIN_NT" -a -x /bin/cygpath ]
+then
+  target=$( cygpath -w "$target" )
+fi
+
+# remove trailing slash
+target=${target%/}
+
+if [ "$debug" = true ]
+then
+  upcase=$( echo "${dbase}" | tr 'a-z' 'A-Z' )
+  echo "${upcase} MASTER VOLUME = ${target}" >&2
+  if [ "$dbase" = "pubmed" ]
+  then
+    fetchTestResult=$(
+      echo 18810966 | fetch-pubmed |
+      xtract -pattern Author -if Affiliation -contains Medicine -element Initials
+    )
+    if [ -n "$fetchTestResult" ] && [ "$fetchTestResult" = "OK" ]
+    then
+      echo "PUBMED RECORD FETCH = OK" >&2
+    else
+      echo "PUBMED RECORD FETCH = FAILED" >&2
+    fi
+  fi
+fi
+
+if [ ! -d "$target" ]
+then
+  echo "ERROR: Local archive ${target} is not mounted" >&2
+  exit 1
+fi
+
+target=$( echo "${target}/Postings")
+
+if [ ! -d "$target" ]
+then
+  echo "ERROR: Postings directory ${target} is not present" >&2
+  exit 1
+fi
+
+if [ "$debug" = true ]
+then
+  cd "$target"
+  count=0
+  for dr in *
+  do
+    if [ -d "$dr" ]
+    then
+      # echo "$dr"
+      count=$((count + 1))
+    fi
+  done
+  if [ "$count" -gt 0 ]
+  then
+    echo "PUBMED POSTINGS = OK" >&2
+  else
+    echo "PUBMED POSTINGS = EMPTY" >&2
+  fi
+  if [ $# -eq 0 ]
+  then
+    exit 0
+  fi
+fi
+
+group_phrases() {
+  uniq |
+  paste -sd "," - |
+  sed -e 's/^+//g' -e 's/+$//g' -e 's/,+,/+/g' -e 's/^,//g' -e 's/,$//g' -e 's/+/ /g'
+}
+
+word_pairs() {
+  while read first rest
+  do
+    if [ -z "$rest" ]
+    then
+      echo "$first"
+      continue
+    fi
+    prev=$first
+    for curr in $rest
+    do
+      echo "$prev $curr"
+      prev="$curr"
+    done
+  done
+}
+
+if [ $# -gt 0 ]
+then
+  val="$1"
+  shift
+  case "$val" in
+    -count )
+      rchive -db "$dbase" -count "$*" 
+      ;;
+    -counts )
+      rchive -db "$dbase" -counts "$*" 
+      ;;
+    -countr )
+      rchive -db "$dbase" -countr "$*" 
+      ;;
+    -countp )
+      rchive -db "$dbase" -countp "$*" 
+      ;;
+    -query | -phrase | -search )
+      rchive -db "$dbase" -query "$*"
+      ;;
+    -match | -partial )
+      rchive -db "$dbase" -match "$*"
+      ;;
+    -filter )
+      case "$*" in
+        "AND "* | "OR "* | "NOT "* )
+          rchive -db "$dbase" -query "[PIPE] $*"
+          ;;
+        "[PIPE] "* )
+          rchive -db "$dbase" -query "$*"
+          ;;
+        *)
+          rchive -db "$dbase" -query "[PIPE] AND $*"
+          ;;
+     esac
+      ;;
+    -exact )
+      rchive -db "$dbase" -exact "$*"
+      ;;
+    -title )
+      rchive -db "$dbase" -title "$*"
+      ;;
+    -link | -links )
+      rchive -db "$dbase" -link "$*"
+      ;;
+    -words )
+      echo "$*" |
+      word-at-a-time |
+      filter-stop-words |
+      while read txt
+      do
+        rchive -db "$dbase" -title "$txt"
+      done |
+      sort-uniq-count-rank -n
+      ;;
+    -pairs )
+      echo "$*" |
+      word-at-a-time |
+      filter-stop-words -plus |
+      group_phrases |
+      fmt -w 1 |
+      tr ',' ' ' |
+      word_pairs |
+      while read txt
+      do
+        rchive -db "$dbase" -title "$txt"
+      done |
+      sort-uniq-count-rank -n
+      ;;
+    -count-words )
+      echo "$*" |
+      word-at-a-time |
+      filter-stop-words |
+      wc -l |
+      tr -d ' '
+      ;;
+    -count-pairs )
+      echo "$*" |
+      word-at-a-time |
+      filter-stop-words -plus |
+      group_phrases |
+      fmt -w 1 |
+      tr ',' ' ' |
+      word_pairs |
+      wc -l |
+      tr -d ' '
+      ;;
+    -mock )
+      rchive -db "$dbase" -mock "$*"
+      ;;
+    -mocks )
+      rchive -db "$dbase" -mocks "$*"
+      ;;
+    -mockt )
+      rchive -db "$dbase" -mockt "$*"
+      ;;
+    -mockx )
+      rchive -db "$dbase" -mockx "$*"
+      ;;
+    -mockp )
+      echo "$*" |
+      word-at-a-time |
+      filter-stop-words -plus |
+      group_phrases |
+      fmt -w 1 |
+      tr ',' ' ' |
+      word_pairs
+      ;;
+    -field | -fields )
+      cd "$target"
+      for dr in *
+      do
+        if [ -d "$dr" ]
+        then
+          echo "$dr"
+        fi
+      done
+      ;;
+    -term | -terms )
+      if [ $# -gt 0 ]
+      then
+        field=$1
+        shift
+      fi
+      if [ -n "$field" ]
+      then
+        rchive -db "$dbase" -terms "$field"
+      fi
+      ;;
+    -total | -totals )
+      if [ $# -gt 0 ]
+      then
+        field=$1
+        shift
+      fi
+      if [ -n "$field" ]
+      then
+        rchive -db "$dbase" -totals "$field"
+      fi
+      ;;
+    -* )
+      exec >&2
+      echo "ERROR: Unrecognized option $val" >&2
+      exit 1
+      ;;
+    * )
+      exec >&2
+      echo "ERROR: Unrecognized argument $val" >&2
+      exit 1
+      ;;
+  esac
+  exit 0
+fi
+
+# default to -query
+rchive -db "$dbase" -query "$*"
+exit 0

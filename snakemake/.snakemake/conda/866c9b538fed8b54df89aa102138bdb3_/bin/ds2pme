@@ -1,0 +1,100 @@
+#!/bin/sh
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# Converts PubMed DocumentSummary XML to Pubmed-entry text ASN.1
+
+# efetch -db pubmed -id 2539356,1937004 -format docsum | ds2pme
+
+# can produce XML intermediate for archiving
+xml=false
+
+# check for XML output flags
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    xml | -xml )
+      # do not convert to ASN.1
+      shift
+      xml=true
+      ;;
+    asn | -asn )
+      # convert to ASN.1 (default)
+      shift
+      xml=false
+      ;;
+    * )
+      exec >&2
+      echo "$0: Unrecognized argument $1"
+      exit 1
+      ;;
+  esac
+done
+
+# conversion function
+ConvertXMLtoASN() {
+
+  transmute -mixed -normalize pubmed |
+  xtract -strict -rec PM -pattern DocumentSummary -PS "()" \
+    -wrp PMID -element DocumentSummary/Id \
+    -group DocumentSummary/PubStatus -PS PubStatus \
+    -group DocumentSummary/History/PubMedPubDate \
+      -if PubStatus -equals entrez -pkg EMDATE/em_std \
+        -wrp year_ -element Date[1:4] \
+        -wrp month_ -trim Date[6:7] \
+        -wrp day_ -trim Date[9:10] \
+    -group DocumentSummary/Title -pkg TITL \
+      -wrp name -prose Title \
+    -group Authors -pkg AUTH/authors/names_std \
+      -branch Author \
+        -block Author -pkg "_" \
+          -subset Author \
+            -wrp name_ml -author Name \
+          -subset Affiliation \
+            -wrp affil_str -prose Affiliation \
+    -group DocumentSummary -pkg JOUR \
+      -block DocumentSummary -pkg JTAS/title \
+        -wrp iso-jta -element Source \
+        -wrp ml-jta -element Source \
+        -wrp issn -first ISSN,ESSN \
+        -wrp name -element FullJournalName \
+      -branch DocumentSummary -pkg IMP/imp \
+        -block PubDate -pkg date_std \
+          -wrp year_ -year PubDate \
+          -wrp month_ -month PubDate \
+        -block DocumentSummary \
+          -wrp volume -element Volume \
+          -wrp issue -element Issue \
+          -wrp pages -element Pages \
+          -wrp language -element Lang \
+          -wrp pubstatus_ -element "&PS" \
+    -group ArticleIds -pkg IDS/ids \
+      -block ArticleId -if IdType -equals pubmed \
+        -wrp pubmed_ -element Value \
+       -block ArticleId -if IdType -equals pmc \
+        -pfx "<other><db>pmc</db><tag_str>" \
+        -sfx "</tag_str></other>" -element Value \
+       -block ArticleId -if IdType -equals doi \
+        -wrp doi -element Value |
+  xtract -rec Pubmed-entry -pattern PM \
+    -PS PS/pubstatus_ \
+    -wrp pmid_ -element PMID \
+    -division PM -pkg medent \
+      -group EMDATE/em_std -element "*" \
+      -group PM -pkg cit \
+        -branch TITL/name -pkg title -element "*" \
+        -branch AUTH/authors -element "*" \
+        -branch JOUR -pkg from_journal \
+          -block JTAS/title -element "*" \
+          -block IMP/imp -element "*" \
+        -branch IDS/ids -element "*" \
+      -group ABST/abstract -element "*"
+}
+
+if [ "$xml" = true ]
+then
+  ConvertXMLtoASN
+else
+  ConvertXMLtoASN | xtract -pattern Pubmed-entry -element "."
+fi

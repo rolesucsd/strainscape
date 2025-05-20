@@ -1,0 +1,18 @@
+#!/bin/bash -norc
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# cat smear.asn | blst2gm > smear.tsv
+# AY046051.1    126    5613|-1|5599    119|1|14    minus|minus|minus
+
+xtract -pattern annot_E \
+  -group desc/user -if type/str -equals "Blast Type" -FOUND label/str \
+  -group annot_E -if "&FOUND" -equals "BLASTN - mrna" \
+    -block align_E -ACCVER "()" -SCORE "()" -STARTS "()" -LENGTHS "()" -STRANDS "()" \
+      -subset denseg -sep "." -ACCVER accession,version \
+      -subset score_E -if id/str -equals "score" -SCORE value/int \
+      -subset starts_E -position odd -sep "|" --STARTS starts_E \
+      -subset strands_E -position odd -sep "|" --STRANDS strands_E \
+      -subset lens_E -sep "|" --LENGTHS lens_E \
+      -subset align_E -def "-" -element "&ACCVER" "&SCORE" "&STARTS" "&LENGTHS" "&STRANDS" -deq "\n"

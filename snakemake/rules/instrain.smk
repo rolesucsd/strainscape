@@ -13,13 +13,6 @@ Dependencies:
 - STB files for strain tracking
 """
 
-# Import wildcard functions
-from scripts.wildcards import (
-    FILTERED_CONTIGS, SORT_BAM, STB_FILE,
-    SNV_FILE, SCF_FILE, INSTR_DIR,
-    COMBINED_SCAFFOLD_INFO, COMBINED_SNV_INFO
-)
-
 rule inStrain_profile:
     """
     Run InStrain profile on individual samples.

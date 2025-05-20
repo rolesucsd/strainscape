@@ -1,0 +1,129 @@
+#!/bin/sh
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+dbase=""
+recname=""
+recskip=0
+flag="none"
+target=""
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    -strict )
+      flag="strict"
+      shift
+      ;;
+    -mixed )
+      flag="mixed"
+      shift
+      ;;
+    -flag )
+      flag=$2
+      shift
+      shift
+      ;;
+    -db )
+      dbase=$2
+      shift
+      shift
+      ;;
+    -tag )
+      recname=$2
+      shift
+      shift
+      ;;
+    -skip )
+      recskip=$2
+      shift
+      shift
+      ;;
+    -xml )
+      shift
+      shift
+      ;;
+    -doctype )
+      shift
+      shift
+      ;;
+    -set )
+      shift
+      shift
+      ;;
+    -turbo )
+      shift
+      ;;
+    -* )
+      exec >&2
+      echo "$0: Unrecognized option $1"
+      exit 1
+      ;;
+    * )
+      break
+      ;;
+  esac
+done
+
+if [ -z "$dbase" ]
+then
+  echo "Must supply database in -db argument"
+  exit 1
+fi
+
+# get local master and working volumes from database
+ev=$( rchive -local "$dbase" )
+if [ -n "$ev" ]
+then
+  # only care about master volume and its Archive subfolder
+  target="${ev%:*}"
+fi
+
+if [ -z "$target" ]
+then
+  echo "ERROR: Must supply path to local data by setting EDIRECT_LOCAL_MASTER environment variable" >&2
+  exit 1
+fi
+
+osname=`uname -s | sed -e 's/_NT-.*$/_NT/; s/^MINGW[0-9]*/CYGWIN/'`
+if [ "$osname" = "CYGWIN_NT" -a -x /bin/cygpath ]
+then
+  target=`cygpath -w "$target"`
+fi
+
+# remove trailing slash
+target=${target%/}
+
+if [ ! -d "$target" ]
+then
+  echo "ERROR: Local archive ${target} is not mounted" >&2
+  exit 1
+fi
+
+target=$( echo "${target}/Archive")
+
+if [ -z "$recname" ]
+then
+  # handle built-in databases
+  case "$dbase" in
+    pubmed )
+      recname="PubmedArticle"
+      break
+      ;;
+    pmc )
+      recname="PMCInfo"
+      break
+      ;;
+    taxonomy )
+      recname="TaxonInfo"
+      break
+      ;;
+    * )
+      echo "Must supply record tag name in -tag argument"
+      exit 1
+      ;;
+  esac
+fi
+
+rchive -db "$dbase" -tag "$recname" -skip "$recskip" -flag "$flag" -stream "$target"

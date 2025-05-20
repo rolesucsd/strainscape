@@ -1,0 +1,133 @@
+{
+  "build": "h6f16272_1",
+  "build_number": 1,
+  "channel": "https://conda.anaconda.org/bioconda/linux-64",
+  "constrains": [],
+  "depends": [
+    "boost-cpp",
+    "libgcc >=13",
+    "libstdcxx >=13",
+    "_openmp_mutex >=4.5",
+    "libzlib >=1.3.1,<2.0a0",
+    "htslib >=1.21,<1.22.0a0",
+    "libdeflate >=1.22,<1.23.0a0",
+    "perl >=5"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/metabat2-2.17-h6f16272_1",
+  "features": "",
+  "files": [
+    "bin/aggregateBinDepths.pl",
+    "bin/aggregateContigOverlapsByBin.pl",
+    "bin/contigOverlaps",
+    "bin/filter_sam_by_min_len.py",
+    "bin/jgi_summarize_bam_contig_depths",
+    "bin/merge_abundances.py",
+    "bin/merge_depths-DEPRECATED.pl",
+    "bin/metabat",
+    "bin/metabat1",
+    "bin/metabat2",
+    "bin/runMetaBat.sh"
+  ],
+  "fn": "metabat2-2.17-h6f16272_1.tar.bz2",
+  "license": "BSD-3-Clause-LBNL",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/metabat2-2.17-h6f16272_1",
+    "type": 1
+  },
+  "md5": "8331d136f28709f6132da273acc33f06",
+  "name": "metabat2",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/metabat2-2.17-h6f16272_1.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "bin/aggregateBinDepths.pl",
+        "path_type": "hardlink",
+        "sha256": "466d774619a04e6c15d1b32ef88d0337e3cd9f99f7faf055707e97722166f8e7",
+        "sha256_in_prefix": "466d774619a04e6c15d1b32ef88d0337e3cd9f99f7faf055707e97722166f8e7",
+        "size_in_bytes": 1363
+      },
+      {
+        "_path": "bin/aggregateContigOverlapsByBin.pl",
+        "path_type": "hardlink",
+        "sha256": "c17f40a30a7d4f1ec67a37ff01c5d87b95ae004a8060590dec45fbfb8ecdbe8a",
+        "sha256_in_prefix": "c17f40a30a7d4f1ec67a37ff01c5d87b95ae004a8060590dec45fbfb8ecdbe8a",
+        "size_in_bytes": 2907
+      },
+      {
+        "_path": "bin/contigOverlaps",
+        "file_mode": "binary",
+        "path_type": "hardlink",
+        "prefix_placeholder": "/opt/conda/conda-bld/metabat2_1734244321298/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_plac",
+        "sha256": "4eec69e6ac3e50687643f6bdeb3813e4ed1b7eeb29829d49bfc232e2ff0e2790",
+        "sha256_in_prefix": "f0e5666d72f9e028a51ee350419074b7b7205fc0771047875f5fb2a05839a71f",
+        "size_in_bytes": 879264
+      },
+      {
+        "_path": "bin/filter_sam_by_min_len.py",
+        "path_type": "hardlink",
+        "sha256": "4184031d3e6a051a37eb18e5263dab12d790598094f47a414e22385732502d87",
+        "sha256_in_prefix": "4184031d3e6a051a37eb18e5263dab12d790598094f47a414e22385732502d87",
+        "size_in_bytes": 11347
+      },
+      {
+        "_path": "bin/jgi_summarize_bam_contig_depths",
+        "file_mode": "binary",
+        "path_type": "hardlink",
+        "prefix_placeholder": "/opt/conda/conda-bld/metabat2_1734244321298/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_plac",
+        "sha256": "2a86fcb8a0d8a79725882f4fe169aa594554da99fce9270f3937eaf3069d54b5",
+        "sha256_in_prefix": "7c2e8bb14a7114f946ba00cd11e3585cf5562bc2d764bac3f187dc42dd3ef5a3",
+        "size_in_bytes": 1118240
+      },
+      {
+        "_path": "bin/merge_abundances.py",
+        "path_type": "hardlink",
+        "sha256": "3f3048d2c7f69b4d66b6125c3364282489e7bf1c337fd79b4870f5c0ae3104d3",
+        "sha256_in_prefix": "3f3048d2c7f69b4d66b6125c3364282489e7bf1c337fd79b4870f5c0ae3104d3",
+        "size_in_bytes": 3346
+      },
+      {
+        "_path": "bin/merge_depths-DEPRECATED.pl",
+        "path_type": "hardlink",
+        "sha256": "5fc6e144822abc0bdebff63773fb485de61d1d32adc47cb989785284c0cf2bf2",
+        "sha256_in_prefix": "5fc6e144822abc0bdebff63773fb485de61d1d32adc47cb989785284c0cf2bf2",
+        "size_in_bytes": 1348
+      },
+      {
+        "_path": "bin/metabat",
+        "path_type": "softlink",
+        "sha256": "45d6a3979c2b5abaf7d72e653bce5a5dfed7ec7a1524750f130a776063b292a9",
+        "size_in_bytes": 445720
+      },
+      {
+        "_path": "bin/metabat1",
+        "path_type": "hardlink",
+        "sha256": "c89c3ef257d52e1bf7f295784b3e2b72366db277eefc36b0a92e3d66f262002e",
+        "sha256_in_prefix": "c89c3ef257d52e1bf7f295784b3e2b72366db277eefc36b0a92e3d66f262002e",
+        "size_in_bytes": 703592
+      },
+      {
+        "_path": "bin/metabat2",
+        "path_type": "hardlink",
+        "sha256": "45d6a3979c2b5abaf7d72e653bce5a5dfed7ec7a1524750f130a776063b292a9",
+        "sha256_in_prefix": "45d6a3979c2b5abaf7d72e653bce5a5dfed7ec7a1524750f130a776063b292a9",
+        "size_in_bytes": 445720
+      },
+      {
+        "_path": "bin/runMetaBat.sh",
+        "path_type": "hardlink",
+        "sha256": "3bbb6dad7340353db80132c9b7429fd364019ac022ad8b5011ac081c355bea95",
+        "sha256_in_prefix": "3bbb6dad7340353db80132c9b7429fd364019ac022ad8b5011ac081c355bea95",
+        "size_in_bytes": 2760
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "metabat2=2.17",
+  "sha256": "2898c7d316cde43d2a48587845fd6231d326bc353e14f5b8c2113acd29f9337c",
+  "size": 1284479,
+  "subdir": "linux-64",
+  "timestamp": 1734244516000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/bioconda/linux-64/metabat2-2.17-h6f16272_1.tar.bz2",
+  "version": "2.17"
+}

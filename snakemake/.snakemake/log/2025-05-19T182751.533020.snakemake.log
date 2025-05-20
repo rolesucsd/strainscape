@@ -1,0 +1,16 @@
+Assuming unrestricted shared filesystem usage.
+None
+host: b2-004
+Building DAG of jobs...
+AmbiguousRuleException:
+Rules make_bin_txt and metabat2_binning are ambiguous for the file /ddn_scratch/roles/strain_analysis/iHMP/output/bins/C3001_bins.txt.
+Consider starting rule output with a unique prefix, constrain your wildcards, or use the ruleorder directive.
+Wildcards:
+	make_bin_txt: patient=C3001
+	metabat2_binning: patient=C3001_bins.txt
+Expected input files:
+	make_bin_txt: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/C3001
+	metabat2_binning: /ddn_scratch/roles/strain_analysis/iHMP/output/assembly/C3001_bins.txt/contigs_gt1kb.fa /ddn_scratch/roles/strain_analysis/iHMP/output/depth/C3001_bins.txt.depth.txt
+Expected output files:
+	make_bin_txt: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/C3001_bins.txt
+	metabat2_binning: /ddn_scratch/roles/strain_analysis/iHMP/output/bins/C3001_bins.txt

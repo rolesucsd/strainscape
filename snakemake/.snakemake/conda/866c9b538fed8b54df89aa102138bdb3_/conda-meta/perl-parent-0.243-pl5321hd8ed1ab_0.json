@@ -1,0 +1,45 @@
+{
+  "build": "pl5321hd8ed1ab_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/conda-forge/noarch",
+  "constrains": [],
+  "depends": [
+    "perl >=5.32.1,<6.0a0 *_perl5"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/perl-parent-0.243-pl5321hd8ed1ab_0",
+  "features": "",
+  "files": [
+    "lib/perl5/vendor_perl/parent.pm"
+  ],
+  "fn": "perl-parent-0.243-pl5321hd8ed1ab_0.conda",
+  "license": "GPL-1.0-or-later OR Artistic-1.0-Perl",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/perl-parent-0.243-pl5321hd8ed1ab_0",
+    "type": 1
+  },
+  "md5": "314caa3b72d65f8078d426c6721dcacc",
+  "name": "perl-parent",
+  "noarch": "generic",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/perl-parent-0.243-pl5321hd8ed1ab_0.conda",
+  "package_type": "noarch_generic",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "lib/perl5/vendor_perl/parent.pm",
+        "path_type": "hardlink",
+        "sha256": "1a49a48b6ba5a56b3ad89ca879dbf24efaf7d89ab77731b71db6bbe8e5f81d74",
+        "sha256_in_prefix": "1a49a48b6ba5a56b3ad89ca879dbf24efaf7d89ab77731b71db6bbe8e5f81d74",
+        "size_in_bytes": 2775
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "ec57d9e56ba86d840d5a9e65c665365fb6a290851cd13e6719628f3295eabf34",
+  "size": 13933,
+  "subdir": "noarch",
+  "timestamp": 1733429736000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/noarch/perl-parent-0.243-pl5321hd8ed1ab_0.conda",
+  "version": "0.243"
+}

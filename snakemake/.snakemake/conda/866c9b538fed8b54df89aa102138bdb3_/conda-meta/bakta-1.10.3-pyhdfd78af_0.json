@@ -1,0 +1,630 @@
+{
+  "build": "pyhdfd78af_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/bioconda/noarch",
+  "constrains": [],
+  "depends": [
+    "piler-cr",
+    "biopython >=1.78",
+    "pyyaml >=6.0",
+    "requests >=2.25.1",
+    "infernal >=1.1.4",
+    "python >=3.9,<3.12",
+    "aragorn >=1.2.41",
+    "blast >=2.14.0",
+    "alive-progress 3.0.1",
+    "trnascan-se >=2.0.11",
+    "xopen >=1.5.0",
+    "pyhmmer >=0.10.15",
+    "diamond >=2.1.10",
+    "ncbi-amrfinderplus >=4.0.3",
+    "pycirclize >=1.7.0",
+    "pyrodigal >=3.5.0"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/bakta-1.10.3-pyhdfd78af_0",
+  "features": "",
+  "files": [
+    "lib/python3.11/site-packages/bakta-1.10.3.dist-info/INSTALLER",
+    "lib/python3.11/site-packages/bakta-1.10.3.dist-info/LICENSE",
+    "lib/python3.11/site-packages/bakta-1.10.3.dist-info/METADATA",
+    "lib/python3.11/site-packages/bakta-1.10.3.dist-info/RECORD",
+    "lib/python3.11/site-packages/bakta-1.10.3.dist-info/REQUESTED",
+    "lib/python3.11/site-packages/bakta-1.10.3.dist-info/WHEEL",
+    "lib/python3.11/site-packages/bakta-1.10.3.dist-info/direct_url.json",
+    "lib/python3.11/site-packages/bakta-1.10.3.dist-info/entry_points.txt",
+    "lib/python3.11/site-packages/bakta-1.10.3.dist-info/top_level.txt",
+    "lib/python3.11/site-packages/bakta/__init__.py",
+    "lib/python3.11/site-packages/bakta/config.py",
+    "lib/python3.11/site-packages/bakta/constants.py",
+    "lib/python3.11/site-packages/bakta/db.py",
+    "lib/python3.11/site-packages/bakta/expert/__init__.py",
+    "lib/python3.11/site-packages/bakta/expert/amrfinder.py",
+    "lib/python3.11/site-packages/bakta/expert/protein_hmms.py",
+    "lib/python3.11/site-packages/bakta/expert/protein_sequences.py",
+    "lib/python3.11/site-packages/bakta/features/__init__.py",
+    "lib/python3.11/site-packages/bakta/features/annotation.py",
+    "lib/python3.11/site-packages/bakta/features/cds.py",
+    "lib/python3.11/site-packages/bakta/features/crispr.py",
+    "lib/python3.11/site-packages/bakta/features/gaps.py",
+    "lib/python3.11/site-packages/bakta/features/nc_rna.py",
+    "lib/python3.11/site-packages/bakta/features/nc_rna_region.py",
+    "lib/python3.11/site-packages/bakta/features/orf.py",
+    "lib/python3.11/site-packages/bakta/features/ori.py",
+    "lib/python3.11/site-packages/bakta/features/r_rna.py",
+    "lib/python3.11/site-packages/bakta/features/s_orf.py",
+    "lib/python3.11/site-packages/bakta/features/t_rna.py",
+    "lib/python3.11/site-packages/bakta/features/tm_rna.py",
+    "lib/python3.11/site-packages/bakta/io/__init__.py",
+    "lib/python3.11/site-packages/bakta/io/fasta.py",
+    "lib/python3.11/site-packages/bakta/io/gff.py",
+    "lib/python3.11/site-packages/bakta/io/insdc.py",
+    "lib/python3.11/site-packages/bakta/io/json.py",
+    "lib/python3.11/site-packages/bakta/io/tsv.py",
+    "lib/python3.11/site-packages/bakta/ips.py",
+    "lib/python3.11/site-packages/bakta/json_io.py",
+    "lib/python3.11/site-packages/bakta/main.py",
+    "lib/python3.11/site-packages/bakta/plot.py",
+    "lib/python3.11/site-packages/bakta/proteins.py",
+    "lib/python3.11/site-packages/bakta/psc.py",
+    "lib/python3.11/site-packages/bakta/pscc.py",
+    "lib/python3.11/site-packages/bakta/so.py",
+    "lib/python3.11/site-packages/bakta/ups.py",
+    "lib/python3.11/site-packages/bakta/utils.py",
+    "lib/python3.11/site-packages/bakta/__pycache__/__init__.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/__pycache__/config.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/__pycache__/constants.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/__pycache__/db.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/expert/__pycache__/__init__.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/expert/__pycache__/amrfinder.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/expert/__pycache__/protein_hmms.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/expert/__pycache__/protein_sequences.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/features/__pycache__/__init__.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/features/__pycache__/annotation.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/features/__pycache__/cds.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/features/__pycache__/crispr.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/features/__pycache__/gaps.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/features/__pycache__/nc_rna.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/features/__pycache__/nc_rna_region.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/features/__pycache__/orf.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/features/__pycache__/ori.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/features/__pycache__/r_rna.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/features/__pycache__/s_orf.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/features/__pycache__/t_rna.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/features/__pycache__/tm_rna.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/io/__pycache__/__init__.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/io/__pycache__/fasta.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/io/__pycache__/gff.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/io/__pycache__/insdc.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/io/__pycache__/json.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/io/__pycache__/tsv.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/__pycache__/ips.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/__pycache__/json_io.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/__pycache__/main.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/__pycache__/plot.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/__pycache__/proteins.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/__pycache__/psc.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/__pycache__/pscc.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/__pycache__/so.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/__pycache__/ups.cpython-311.pyc",
+    "lib/python3.11/site-packages/bakta/__pycache__/utils.cpython-311.pyc",
+    "bin/bakta",
+    "bin/bakta_proteins",
+    "bin/bakta_db",
+    "bin/bakta_plot",
+    "bin/bakta_io"
+  ],
+  "fn": "bakta-1.10.3-pyhdfd78af_0.tar.bz2",
+  "license": "GPL-3.0-or-later",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/bakta-1.10.3-pyhdfd78af_0",
+    "type": 1
+  },
+  "md5": "9e984a9b560591a52359a9db5403bedd",
+  "name": "bakta",
+  "noarch": "python",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/bakta-1.10.3-pyhdfd78af_0.tar.bz2",
+  "package_type": "noarch_python",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "site-packages/bakta-1.10.3.dist-info/INSTALLER",
+        "path_type": "hardlink",
+        "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "size_in_bytes": 5
+      },
+      {
+        "_path": "site-packages/bakta-1.10.3.dist-info/LICENSE",
+        "path_type": "hardlink",
+        "sha256": "589ed823e9a84c56feb95ac58e7cf384626b9cbf4fda2a907bc36e103de1bad2",
+        "sha256_in_prefix": "589ed823e9a84c56feb95ac58e7cf384626b9cbf4fda2a907bc36e103de1bad2",
+        "size_in_bytes": 35141
+      },
+      {
+        "_path": "site-packages/bakta-1.10.3.dist-info/METADATA",
+        "path_type": "hardlink",
+        "sha256": "a4fedcd46699414f789f74b19b0b027dc7af87a17d152ea43bbf53943d8fc9c5",
+        "sha256_in_prefix": "a4fedcd46699414f789f74b19b0b027dc7af87a17d152ea43bbf53943d8fc9c5",
+        "size_in_bytes": 46878
+      },
+      {
+        "_path": "site-packages/bakta-1.10.3.dist-info/RECORD",
+        "path_type": "hardlink",
+        "sha256": "bbf36da5cdc2d4d38eed226b7257f623334dc9594cc4d3711f6d569798f91e28",
+        "sha256_in_prefix": "bbf36da5cdc2d4d38eed226b7257f623334dc9594cc4d3711f6d569798f91e28",
+        "size_in_bytes": 5794
+      },
+      {
+        "_path": "site-packages/bakta-1.10.3.dist-info/REQUESTED",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "site-packages/bakta-1.10.3.dist-info/WHEEL",
+        "path_type": "hardlink",
+        "sha256": "3d9504c5d7fbd548bfb28ebb417a724ae1ed0a2dfe277c2f1783912ba93f4bc5",
+        "sha256_in_prefix": "3d9504c5d7fbd548bfb28ebb417a724ae1ed0a2dfe277c2f1783912ba93f4bc5",
+        "size_in_bytes": 91
+      },
+      {
+        "_path": "site-packages/bakta-1.10.3.dist-info/direct_url.json",
+        "path_type": "hardlink",
+        "sha256": "c54a5013a247670d116989ea3712055aa96f39b69d2f60a6305dd20d422f63a0",
+        "sha256_in_prefix": "c54a5013a247670d116989ea3712055aa96f39b69d2f60a6305dd20d422f63a0",
+        "size_in_bytes": 79
+      },
+      {
+        "_path": "site-packages/bakta-1.10.3.dist-info/entry_points.txt",
+        "path_type": "hardlink",
+        "sha256": "c4dd6e7b1b8d6f7212124a80fc166dc11968b7a3b76a80d2abc340930f84455a",
+        "sha256_in_prefix": "c4dd6e7b1b8d6f7212124a80fc166dc11968b7a3b76a80d2abc340930f84455a",
+        "size_in_bytes": 163
+      },
+      {
+        "_path": "site-packages/bakta-1.10.3.dist-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "132a08b4301da58d772c8b33ce20235e29b369f02705ae292a3b216f3b30fad8",
+        "sha256_in_prefix": "132a08b4301da58d772c8b33ce20235e29b369f02705ae292a3b216f3b30fad8",
+        "size_in_bytes": 6
+      },
+      {
+        "_path": "site-packages/bakta/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "738f264165171035cbdb80ea159be6744814a37d45f7a1be084f2def54022e0c",
+        "sha256_in_prefix": "738f264165171035cbdb80ea159be6744814a37d45f7a1be084f2def54022e0c",
+        "size_in_bytes": 49
+      },
+      {
+        "_path": "site-packages/bakta/config.py",
+        "path_type": "hardlink",
+        "sha256": "25f771742e40bbf278b51eb6213dbb2cb17fffb7e7a09988c0c700d061ee3808",
+        "sha256_in_prefix": "25f771742e40bbf278b51eb6213dbb2cb17fffb7e7a09988c0c700d061ee3808",
+        "size_in_bytes": 17483
+      },
+      {
+        "_path": "site-packages/bakta/constants.py",
+        "path_type": "hardlink",
+        "sha256": "d19932596b1aeea524a937c49a9712c43a4e1be6ef88df0a408d941fee1501ea",
+        "sha256_in_prefix": "d19932596b1aeea524a937c49a9712c43a4e1be6ef88df0a408d941fee1501ea",
+        "size_in_bytes": 9710
+      },
+      {
+        "_path": "site-packages/bakta/db.py",
+        "path_type": "hardlink",
+        "sha256": "3d6f7f25a0dd99315a513732df13279bc11ceb6f0daaa970160e12fe0fbff791",
+        "sha256_in_prefix": "3d6f7f25a0dd99315a513732df13279bc11ceb6f0daaa970160e12fe0fbff791",
+        "size_in_bytes": 18862
+      },
+      {
+        "_path": "site-packages/bakta/expert/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "site-packages/bakta/expert/amrfinder.py",
+        "path_type": "hardlink",
+        "sha256": "a4a41d46a6f30b16006ee7d2ddd76de6a00a44dfc6b90d62d5be0063fb009653",
+        "sha256_in_prefix": "a4a41d46a6f30b16006ee7d2ddd76de6a00a44dfc6b90d62d5be0063fb009653",
+        "size_in_bytes": 3639
+      },
+      {
+        "_path": "site-packages/bakta/expert/protein_hmms.py",
+        "path_type": "hardlink",
+        "sha256": "3ddadbd40cfdfcc30c064824362a211ef1d9c754f8dfde0501421399fc5a86ca",
+        "sha256_in_prefix": "3ddadbd40cfdfcc30c064824362a211ef1d9c754f8dfde0501421399fc5a86ca",
+        "size_in_bytes": 3863
+      },
+      {
+        "_path": "site-packages/bakta/expert/protein_sequences.py",
+        "path_type": "hardlink",
+        "sha256": "13a114dde17048534ff653e781ce2e91b7d74e4fdeae5c8f25d2871de365e2e0",
+        "sha256_in_prefix": "13a114dde17048534ff653e781ce2e91b7d74e4fdeae5c8f25d2871de365e2e0",
+        "size_in_bytes": 9150
+      },
+      {
+        "_path": "site-packages/bakta/features/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "site-packages/bakta/features/annotation.py",
+        "path_type": "hardlink",
+        "sha256": "b1c823287c0d04e86402ee8961df677f573ccd0cc99acb2d38571e714f4dca1b",
+        "sha256_in_prefix": "b1c823287c0d04e86402ee8961df677f573ccd0cc99acb2d38571e714f4dca1b",
+        "size_in_bytes": 39139
+      },
+      {
+        "_path": "site-packages/bakta/features/cds.py",
+        "path_type": "hardlink",
+        "sha256": "2e6828abdff58289c1d2ddadf6f200582ebdfa4bdfb2b1be035a30c5d6ad1c08",
+        "sha256_in_prefix": "2e6828abdff58289c1d2ddadf6f200582ebdfa4bdfb2b1be035a30c5d6ad1c08",
+        "size_in_bytes": 55159
+      },
+      {
+        "_path": "site-packages/bakta/features/crispr.py",
+        "path_type": "hardlink",
+        "sha256": "c64d20db62493f7ca9d676ee4a3df60b066b75f8af799482d0f8c55fc68cf97d",
+        "sha256_in_prefix": "c64d20db62493f7ca9d676ee4a3df60b066b75f8af799482d0f8c55fc68cf97d",
+        "size_in_bytes": 7232
+      },
+      {
+        "_path": "site-packages/bakta/features/gaps.py",
+        "path_type": "hardlink",
+        "sha256": "b64487d68fc40f55992398f633149612035166ca223c6ee0df1816dfa0b316f9",
+        "sha256_in_prefix": "b64487d68fc40f55992398f633149612035166ca223c6ee0df1816dfa0b316f9",
+        "size_in_bytes": 937
+      },
+      {
+        "_path": "site-packages/bakta/features/nc_rna.py",
+        "path_type": "hardlink",
+        "sha256": "d817949c2367bf910fa714b646ff72044f4517ac55ed8896c4be8182e483965c",
+        "sha256_in_prefix": "d817949c2367bf910fa714b646ff72044f4517ac55ed8896c4be8182e483965c",
+        "size_in_bytes": 5401
+      },
+      {
+        "_path": "site-packages/bakta/features/nc_rna_region.py",
+        "path_type": "hardlink",
+        "sha256": "15207c1a765863aa1d9997d6d12fe456920dc19e63d3ba6581405d789f4be554",
+        "sha256_in_prefix": "15207c1a765863aa1d9997d6d12fe456920dc19e63d3ba6581405d789f4be554",
+        "size_in_bytes": 5633
+      },
+      {
+        "_path": "site-packages/bakta/features/orf.py",
+        "path_type": "hardlink",
+        "sha256": "de79eed9047de10e02f3204e8667603d61ac25de78b91bbe01ada219f84bb7ac",
+        "sha256_in_prefix": "de79eed9047de10e02f3204e8667603d61ac25de78b91bbe01ada219f84bb7ac",
+        "size_in_bytes": 3008
+      },
+      {
+        "_path": "site-packages/bakta/features/ori.py",
+        "path_type": "hardlink",
+        "sha256": "3afd94cba280f3daccabb96b24a63f6d393dca85a353905ad6d735f41cc746ca",
+        "sha256_in_prefix": "3afd94cba280f3daccabb96b24a63f6d393dca85a353905ad6d735f41cc746ca",
+        "size_in_bytes": 5941
+      },
+      {
+        "_path": "site-packages/bakta/features/r_rna.py",
+        "path_type": "hardlink",
+        "sha256": "7139c04b702f84e0eeedc096978181b90dabf030f195b8f293ae7e7d5df7ca2f",
+        "sha256_in_prefix": "7139c04b702f84e0eeedc096978181b90dabf030f195b8f293ae7e7d5df7ca2f",
+        "size_in_bytes": 5636
+      },
+      {
+        "_path": "site-packages/bakta/features/s_orf.py",
+        "path_type": "hardlink",
+        "sha256": "ad1c5cbf7661b609cc5f25ea349f3a2891adc40469a1088819e3c41f13c26022",
+        "sha256_in_prefix": "ad1c5cbf7661b609cc5f25ea349f3a2891adc40469a1088819e3c41f13c26022",
+        "size_in_bytes": 17409
+      },
+      {
+        "_path": "site-packages/bakta/features/t_rna.py",
+        "path_type": "hardlink",
+        "sha256": "ae20abebe32233d1c5a88784a4b76bad83fc46aa90a91c7b1695dec33613ef29",
+        "sha256_in_prefix": "ae20abebe32233d1c5a88784a4b76bad83fc46aa90a91c7b1695dec33613ef29",
+        "size_in_bytes": 4926
+      },
+      {
+        "_path": "site-packages/bakta/features/tm_rna.py",
+        "path_type": "hardlink",
+        "sha256": "3600a9b64ffebbe3c430920294785bf9ab29ed154a8ae8823e3a88c566ae4958",
+        "sha256_in_prefix": "3600a9b64ffebbe3c430920294785bf9ab29ed154a8ae8823e3a88c566ae4958",
+        "size_in_bytes": 3644
+      },
+      {
+        "_path": "site-packages/bakta/io/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "site-packages/bakta/io/fasta.py",
+        "path_type": "hardlink",
+        "sha256": "191a3b8c393229023f04e228e0b1b6b9b631f7066e8958449cbe206e871ea7da",
+        "sha256_in_prefix": "191a3b8c393229023f04e228e0b1b6b9b631f7066e8958449cbe206e871ea7da",
+        "size_in_bytes": 4752
+      },
+      {
+        "_path": "site-packages/bakta/io/gff.py",
+        "path_type": "hardlink",
+        "sha256": "b2c4b3218ebcfcdf3cf534d1db920cdff5883b70418b5303cd1a7dd07493c337",
+        "sha256_in_prefix": "b2c4b3218ebcfcdf3cf534d1db920cdff5883b70418b5303cd1a7dd07493c337",
+        "size_in_bytes": 24166
+      },
+      {
+        "_path": "site-packages/bakta/io/insdc.py",
+        "path_type": "hardlink",
+        "sha256": "d2cbc97b00b6a055674fdb70561c49938c701c289d1ab679b20c4eb639de49f5",
+        "sha256_in_prefix": "d2cbc97b00b6a055674fdb70561c49938c701c289d1ab679b20c4eb639de49f5",
+        "size_in_bytes": 22280
+      },
+      {
+        "_path": "site-packages/bakta/io/json.py",
+        "path_type": "hardlink",
+        "sha256": "cda12e7c362973ed811fab838503841df4d84e31e62144ca733d61fa8e07955d",
+        "sha256_in_prefix": "cda12e7c362973ed811fab838503841df4d84e31e62144ca733d61fa8e07955d",
+        "size_in_bytes": 1156
+      },
+      {
+        "_path": "site-packages/bakta/io/tsv.py",
+        "path_type": "hardlink",
+        "sha256": "2a736e1ad676dbeffb7eb37d53bca99d299b41b141f0023548ca0358861dce63",
+        "sha256_in_prefix": "2a736e1ad676dbeffb7eb37d53bca99d299b41b141f0023548ca0358861dce63",
+        "size_in_bytes": 9897
+      },
+      {
+        "_path": "site-packages/bakta/ips.py",
+        "path_type": "hardlink",
+        "sha256": "a3a355e2810f8cc11bf17bbeb2cb70d33fa2e754929c0e388bba63f07cee6328",
+        "sha256_in_prefix": "a3a355e2810f8cc11bf17bbeb2cb70d33fa2e754929c0e388bba63f07cee6328",
+        "size_in_bytes": 4275
+      },
+      {
+        "_path": "site-packages/bakta/json_io.py",
+        "path_type": "hardlink",
+        "sha256": "53749bd929d2a0dcafc59669e54ed780042d404eaa87483f5c459f655d44966c",
+        "sha256_in_prefix": "53749bd929d2a0dcafc59669e54ed780042d404eaa87483f5c459f655d44966c",
+        "size_in_bytes": 9676
+      },
+      {
+        "_path": "site-packages/bakta/main.py",
+        "path_type": "hardlink",
+        "sha256": "d95eee2c09093ab89e86a1b4c530d62c95708c19386d33a0a43f976885ace6e8",
+        "sha256_in_prefix": "d95eee2c09093ab89e86a1b4c530d62c95708c19386d33a0a43f976885ace6e8",
+        "size_in_bytes": 30030
+      },
+      {
+        "_path": "site-packages/bakta/plot.py",
+        "path_type": "hardlink",
+        "sha256": "6b5f6dcac792d2225d27e104a7fb9e0ff34939bae7f60b43ad0d3542d66c0665",
+        "sha256_in_prefix": "6b5f6dcac792d2225d27e104a7fb9e0ff34939bae7f60b43ad0d3542d66c0665",
+        "size_in_bytes": 29506
+      },
+      {
+        "_path": "site-packages/bakta/proteins.py",
+        "path_type": "hardlink",
+        "sha256": "9b4a0245628cf173decedfb710422bdcf1c05472cff83eab0cd90b7a29c1b243",
+        "sha256_in_prefix": "9b4a0245628cf173decedfb710422bdcf1c05472cff83eab0cd90b7a29c1b243",
+        "size_in_bytes": 13409
+      },
+      {
+        "_path": "site-packages/bakta/psc.py",
+        "path_type": "hardlink",
+        "sha256": "9037c6fc8abc4221cde34ac6cff6320af7b78b74924f68559f4fc7c24126d905",
+        "sha256_in_prefix": "9037c6fc8abc4221cde34ac6cff6320af7b78b74924f68559f4fc7c24126d905",
+        "size_in_bytes": 9182
+      },
+      {
+        "_path": "site-packages/bakta/pscc.py",
+        "path_type": "hardlink",
+        "sha256": "12c868a08a9635c9f9470b62f0c7c73c76de38c3a1eb57f74103bf23d863e939",
+        "sha256_in_prefix": "12c868a08a9635c9f9470b62f0c7c73c76de38c3a1eb57f74103bf23d863e939",
+        "size_in_bytes": 7077
+      },
+      {
+        "_path": "site-packages/bakta/so.py",
+        "path_type": "hardlink",
+        "sha256": "3fdd73973ddf95dec5ba5b249cbbcfba7b4af07a0095ca0fe5908e10a8e4bd0c",
+        "sha256_in_prefix": "3fdd73973ddf95dec5ba5b249cbbcfba7b4af07a0095ca0fe5908e10a8e4bd0c",
+        "size_in_bytes": 3352
+      },
+      {
+        "_path": "site-packages/bakta/ups.py",
+        "path_type": "hardlink",
+        "sha256": "0271715c2642cb8f0f5c25cca25b0f0fa8d634449769088bb0e8115b559f788b",
+        "sha256_in_prefix": "0271715c2642cb8f0f5c25cca25b0f0fa8d634449769088bb0e8115b559f788b",
+        "size_in_bytes": 3419
+      },
+      {
+        "_path": "site-packages/bakta/utils.py",
+        "path_type": "hardlink",
+        "sha256": "7b01c93819ea8fff47ac5fd8de51c0d9603d8bb42938562bb7bc6f8677fc005a",
+        "sha256_in_prefix": "7b01c93819ea8fff47ac5fd8de51c0d9603d8bb42938562bb7bc6f8677fc005a",
+        "size_in_bytes": 29027
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/__init__.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/config.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/constants.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/db.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/expert/__pycache__/__init__.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/expert/__pycache__/amrfinder.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/expert/__pycache__/protein_hmms.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/expert/__pycache__/protein_sequences.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/features/__pycache__/__init__.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/features/__pycache__/annotation.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/features/__pycache__/cds.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/features/__pycache__/crispr.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/features/__pycache__/gaps.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/features/__pycache__/nc_rna.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/features/__pycache__/nc_rna_region.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/features/__pycache__/orf.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/features/__pycache__/ori.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/features/__pycache__/r_rna.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/features/__pycache__/s_orf.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/features/__pycache__/t_rna.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/features/__pycache__/tm_rna.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/io/__pycache__/__init__.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/io/__pycache__/fasta.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/io/__pycache__/gff.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/io/__pycache__/insdc.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/io/__pycache__/json.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/io/__pycache__/tsv.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/ips.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/json_io.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/main.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/plot.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/proteins.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/psc.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/pscc.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/so.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/ups.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "lib/python3.11/site-packages/bakta/__pycache__/utils.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "bin/bakta",
+        "path_type": "unix_python_entry_point"
+      },
+      {
+        "_path": "bin/bakta_proteins",
+        "path_type": "unix_python_entry_point"
+      },
+      {
+        "_path": "bin/bakta_db",
+        "path_type": "unix_python_entry_point"
+      },
+      {
+        "_path": "bin/bakta_plot",
+        "path_type": "unix_python_entry_point"
+      },
+      {
+        "_path": "bin/bakta_io",
+        "path_type": "unix_python_entry_point"
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "bakta=1.10.3",
+  "sha256": "60e81e41d85e9ec7bea4dbee8bcf8ac164bd0db1add136d4b4075003a7042acb",
+  "size": 107392,
+  "subdir": "noarch",
+  "timestamp": 1734524134000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/bioconda/noarch/bakta-1.10.3-pyhdfd78af_0.tar.bz2",
+  "version": "1.10.3"
+}

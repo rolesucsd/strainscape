@@ -1,0 +1,65 @@
+EXAMPLES
+
+  phrase-search -fields
+
+  phrase-search -terms SUBH
+
+  phrase-search -count "catabolite repress*"
+
+  phrase-search -counts "catabolite repress*"
+
+  phrase-search -query "(literacy AND numeracy) NOT (adolescent OR child)"
+
+  phrase-search -query "selective serotonin reuptake inhibit*"
+
+  phrase-search -query "vitamin c + + common cold"
+
+  phrase-search -query "vitamin c ~ ~ common cold"
+
+  phrase-search -query "C14.907.617.812* [TREE] AND 2015:2018 [YEAR]"
+
+  phrase-search -title "Genetic Control of Biochemical Reactions in Neurospora."
+
+  phrase-search -match "nucleotide sequences required for tn3 transposition immunity [PAIR]" |
+  just-first-key | cut -f 2 |
+  efetch -db pubmed -format abstract
+
+  phrase-search -query "Cozzarelli NR [AUTH]" |
+  phrase-search -link CITED
+
+  phrase-search -totals YEAR |
+  print-columns '$2, $1, total += $1' | tee /dev/tty |
+  print-columns '$1, log($2)/log(10), log($3)/log(10)' |
+  filter-columns '$1 >= 1800 && $1 < YR' |
+  xy-plot annual-and-cumulative.png
+
+  ascend_mesh_tree() {
+    var="${1%\*}"
+    target=""
+    ev=$( rchive -local pubmed )
+    if [ -n "$ev" ]
+    then
+      # only care about master volume and its Data subfolder
+      target="${ev%:*}"
+      target=${target%/}
+    fi
+    while :
+    do
+      frst=$( phrase-search -count "$var* [TREE]" )
+      scnd=$( cat "${target}/Data/meshconv.xml" |
+              xtract -pattern Rec -if Tree -equals "$var" -first Code Name )
+      printf "${frst}\t${scnd}\n"
+      case "$var" in
+        *.* ) var="${var%????}" ;;
+        *   ) break             ;;
+      esac
+    done |
+    align-columns -g 4
+  }
+
+  ascend_mesh_tree "C01.925.782.417.415"
+
+  phrase-search -db taxonomy -totals RANK |
+  tbl2xml -set Set -rec Rec Count Name |
+  xtract -pattern Rec -element Count Name |
+  sort-table -k 1,1n

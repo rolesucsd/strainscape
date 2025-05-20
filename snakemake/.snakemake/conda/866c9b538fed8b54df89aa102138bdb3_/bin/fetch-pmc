@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+fetch-local -db pmc -tag PMCInfo -set PMCInfoSet \
+  -xml '<?xml version="1.0" encoding="UTF-8" ?>' \
+  -doctype '<!DOCTYPE PMCInfoSet>'

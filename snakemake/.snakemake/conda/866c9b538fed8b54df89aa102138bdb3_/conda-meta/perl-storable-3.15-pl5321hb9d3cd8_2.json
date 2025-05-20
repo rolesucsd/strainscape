@@ -1,0 +1,55 @@
+{
+  "build": "pl5321hb9d3cd8_2",
+  "build_number": 2,
+  "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+  "constrains": [],
+  "depends": [
+    "__glibc >=2.17,<3.0.a0",
+    "libgcc >=13",
+    "perl >=5.32.1,<5.33.0a0 *_perl5"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/perl-storable-3.15-pl5321hb9d3cd8_2",
+  "features": "",
+  "files": [
+    "lib/perl5/5.32/vendor_perl/Storable.pm",
+    "lib/perl5/5.32/vendor_perl/auto/Storable/Storable.so"
+  ],
+  "fn": "perl-storable-3.15-pl5321hb9d3cd8_2.conda",
+  "license": "GPL-1.0-or-later OR Artistic-1.0-Perl",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/perl-storable-3.15-pl5321hb9d3cd8_2",
+    "type": 1
+  },
+  "md5": "212f63a5c7c753ecf0a74c349b9270c5",
+  "name": "perl-storable",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/perl-storable-3.15-pl5321hb9d3cd8_2.conda",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "lib/perl5/5.32/vendor_perl/Storable.pm",
+        "path_type": "hardlink",
+        "sha256": "a3153bc2bccb0df6e4602f87c84e7e0f5dc69263912c969b7f98737fbf049499",
+        "sha256_in_prefix": "a3153bc2bccb0df6e4602f87c84e7e0f5dc69263912c969b7f98737fbf049499",
+        "size_in_bytes": 49780
+      },
+      {
+        "_path": "lib/perl5/5.32/vendor_perl/auto/Storable/Storable.so",
+        "file_mode": "binary",
+        "path_type": "hardlink",
+        "prefix_placeholder": "/home/conda/feedstock_root/build_artifacts/perl-storable_1741353728991/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho",
+        "sha256": "1fefaf9e3ef366386d893cd2b82af79ca425c8ce9a1f714ac9466cd8d2e08979",
+        "sha256_in_prefix": "15ccf852179fb43fe5920662aa85fc8e5f9cbc5651e652880b5b498ed6df750d",
+        "size_in_bytes": 117048
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "25beba40154a394189d0ff2afd31683d79c9106d47e77e12d20900d053dffaf6",
+  "size": 71475,
+  "subdir": "linux-64",
+  "timestamp": 1741353849000,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/linux-64/perl-storable-3.15-pl5321hb9d3cd8_2.conda",
+  "version": "3.15"
+}

@@ -1,0 +1,203 @@
+#!/bin/bash
+
+# Public domain notice for all NCBI EDirect scripts is located at:
+# https://www.ncbi.nlm.nih.gov/books/NBK179288/#chapter6.Public_Domain_Notice
+
+# refseq-nm-cds human
+# refseq-nm-cds all
+
+total_start=$(date "+%s")
+
+download=true
+process=true
+
+doHuman=false
+doMouse=false
+doRat=false
+doPig=false
+doCow=false
+doFrog=false
+doFish=false
+
+doAll=false
+
+if [ $# -gt 0 ]
+then
+  case "$1" in
+    all )
+      doAll=true
+      shift
+      ;;
+    cow )
+      doCow=true
+      shift
+      ;;
+    frog )
+      doFrog=true
+      shift
+      ;;
+    human | man )
+      doHuman=true
+      shift
+      ;;
+    mouse | mice )
+      doMouse=true
+      shift
+      ;;
+    pig )
+      doPig=true
+      shift
+      ;;
+    rat )
+      doRat=true
+      shift
+      ;;
+    fish | zebrafish )
+      doFish=true
+      shift
+      ;;
+    * )
+      break
+      echo "Unrecognized species '$1'" >&2
+      echo "Only use cow, frog, human, mouse, pig, rat, or zebrafish" >&2
+      exit 1
+      ;;
+  esac
+fi
+
+if [ "$doAll" = false ] && [ "$doMouse" = false ] && [ "$doRat" = false ] && [ "$doPig" = false ] && [ "$doCow" = false ] && [ "$doFrog" = false ] && [ "$doFish" = false ]
+then
+  doHuman=true
+fi
+
+DownloadSpecies() {
+
+  okay="$1"
+  species="$2"
+
+  if [ "$okay" = true ] || [ "$doAll" = true ]
+  then
+    echo "Downloading RefSeq $species mRNA Files" >&2
+
+    nquire -lst ftp.ncbi.nlm.nih.gov refseq "$species" mRNA_Prot |
+    grep rna.gbff.gz | sort -V |
+    skip-if-file-exists |
+    while read fl
+    do
+      echo "$fl" >&2
+      echo "$fl" |
+      nquire -asp ftp.ncbi.nlm.nih.gov refseq "$species" mRNA_Prot
+    done
+  fi
+}
+
+if [ "$download" = true ]
+then
+  seconds_start=$(date "+%s")
+
+  DownloadSpecies "$doHuman" "H_sapiens"
+
+  DownloadSpecies "$doMouse" "M_musculus"
+
+  DownloadSpecies "$doRat" "R_norvegicus"
+
+  DownloadSpecies "$doPig" "S_scrofa"
+
+  DownloadSpecies "$doCow" "B_taurus"
+
+  DownloadSpecies "$doFrog" "X_tropicalis"
+
+  DownloadSpecies "$doFish" "D_rerio"
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  DWN=$seconds
+  echo "Downloading $DWN seconds" >&2
+  echo "" >&2
+  sleep 1
+fi
+
+ProcessSpecies() {
+
+  okay="$1"
+  label="$2"
+
+  if [ "$okay" = true ] || [ "$doAll" = true ]
+  then
+    echo "Processing RefSeq $label mRNA Files" >&2
+
+    ls "${label}"*.rna.gbff.gz | sort -V |
+    while read fl
+    do
+      echo "$fl" >&2
+      gunzip -c "$fl" |
+      gbf2xml |
+      xtract -rec Rec -pattern INSDSeq \
+        -ACCN INSDSeq_accession-version -LCUS INSDSeq_locus -SEQ INSDSeq_sequence \
+        -division INSDSeq -if "&ACCN" -starts-with "NM_" \
+          -group INSDFeature -if INSDFeature_key -equals CDS \
+            -wrp Accession -first "&ACCN,&LCUS" -wrp Offset -min INSDInterval_from -wrp NumIvals -num INSDInterval \
+            -block INSDFeature_intervals -pkg Coding \
+              -subset INSDInterval -FR INSDInterval_from -TO INSDInterval_to -clr -nucleic "&SEQ[&FR:&TO]" |
+      xtract -rec Rec -pattern Rec \
+        -block Accession -element "*" -block Offset -wrp Offset -dec Offset -block Coding -element "*"
+    done |
+    xtract -pattern Rec -def "-" -element Accession Offset Coding |
+    sort -V | uniq -i > ${label}_cds.txt
+  fi
+}
+
+if [ "$process" = true ]
+then
+  seconds_start=$(date "+%s")
+
+  ProcessSpecies "$doHuman" "human"
+
+  ProcessSpecies "$doMouse" "mouse"
+
+  ProcessSpecies "$doRat" "rat"
+
+  ProcessSpecies "$doPig" "pig"
+
+  ProcessSpecies "$doCow" "cow"
+
+  ProcessSpecies "$doFrog" "frog"
+
+  ProcessSpecies "$doFish" "zebrafish"
+
+  seconds_end=$(date "+%s")
+  seconds=$((seconds_end - seconds_start))
+  PRC=$seconds
+  echo "Processing $PRC seconds" >&2
+  echo "" >&2
+fi
+
+function PrintTotalElapsedTime {
+  local L=$1
+  local T=$2
+  local D=$((T/60/60/24))
+  local H=$((T/60/60%24))
+  local M=$((T/60%60))
+  local S=$((T%60))
+  printf '%s %d second' "$L" $T 1>&2
+  (( $T > 1 )) && printf 's' 1>&2
+  if [ "$T" -gt 59 ]
+  then
+    printf ', or' 1>&2
+    (( $D > 0 )) && printf ' %d day' $D 1>&2
+    (( $D > 1 )) && printf 's' 1>&2
+    (( $H > 0 )) && printf ' %d hour' $H 1>&2
+    (( $H > 1 )) && printf 's' 1>&2
+    (( $M > 0 )) && printf ' %d minute' $M 1>&2
+    (( $M > 1 )) && printf 's' 1>&2
+    (( $S > 0 )) && printf ' %d second' $S 1>&2
+    (( $S > 1 )) && printf 's' 1>&2
+  fi
+  printf '\n' 1>&2
+}
+
+total_end=$(date "+%s")
+total=$((total_end - total_start))
+TOT=$total
+PrintTotalElapsedTime "TOT" "$TOT"
+echo "" >&2

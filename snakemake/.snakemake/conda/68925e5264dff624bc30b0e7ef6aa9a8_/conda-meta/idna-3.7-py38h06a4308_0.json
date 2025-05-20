@@ -1,0 +1,227 @@
+{
+  "build": "py38h06a4308_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/linux-64",
+  "constrains": [],
+  "depends": [
+    "python >=3.8,<3.9.0a0"
+  ],
+  "extracted_package_dir": "/home/roles/anaconda3/pkgs/idna-3.7-py38h06a4308_0",
+  "features": "",
+  "files": [
+    "lib/python3.8/site-packages/idna-3.7.dist-info/INSTALLER",
+    "lib/python3.8/site-packages/idna-3.7.dist-info/LICENSE.md",
+    "lib/python3.8/site-packages/idna-3.7.dist-info/METADATA",
+    "lib/python3.8/site-packages/idna-3.7.dist-info/RECORD",
+    "lib/python3.8/site-packages/idna-3.7.dist-info/REQUESTED",
+    "lib/python3.8/site-packages/idna-3.7.dist-info/WHEEL",
+    "lib/python3.8/site-packages/idna-3.7.dist-info/direct_url.json",
+    "lib/python3.8/site-packages/idna/__init__.py",
+    "lib/python3.8/site-packages/idna/__pycache__/__init__.cpython-38.pyc",
+    "lib/python3.8/site-packages/idna/__pycache__/codec.cpython-38.pyc",
+    "lib/python3.8/site-packages/idna/__pycache__/compat.cpython-38.pyc",
+    "lib/python3.8/site-packages/idna/__pycache__/core.cpython-38.pyc",
+    "lib/python3.8/site-packages/idna/__pycache__/idnadata.cpython-38.pyc",
+    "lib/python3.8/site-packages/idna/__pycache__/intranges.cpython-38.pyc",
+    "lib/python3.8/site-packages/idna/__pycache__/package_data.cpython-38.pyc",
+    "lib/python3.8/site-packages/idna/__pycache__/uts46data.cpython-38.pyc",
+    "lib/python3.8/site-packages/idna/codec.py",
+    "lib/python3.8/site-packages/idna/compat.py",
+    "lib/python3.8/site-packages/idna/core.py",
+    "lib/python3.8/site-packages/idna/idnadata.py",
+    "lib/python3.8/site-packages/idna/intranges.py",
+    "lib/python3.8/site-packages/idna/package_data.py",
+    "lib/python3.8/site-packages/idna/py.typed",
+    "lib/python3.8/site-packages/idna/uts46data.py"
+  ],
+  "fn": "idna-3.7-py38h06a4308_0.conda",
+  "license": "BSD-3-Clause",
+  "link": {
+    "source": "/home/roles/anaconda3/pkgs/idna-3.7-py38h06a4308_0",
+    "type": 1
+  },
+  "md5": "f0c739953ed9a313ea84bbe46d55fcf6",
+  "name": "idna",
+  "package_tarball_full_path": "/home/roles/anaconda3/pkgs/idna-3.7-py38h06a4308_0.conda",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "lib/python3.8/site-packages/idna-3.7.dist-info/INSTALLER",
+        "path_type": "hardlink",
+        "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "size_in_bytes": 5
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna-3.7.dist-info/LICENSE.md",
+        "path_type": "hardlink",
+        "sha256": "a59f0b0ef3635874109a4461ca44ff7a70d50696e814767bfaf721d4c9b0db0f",
+        "sha256_in_prefix": "a59f0b0ef3635874109a4461ca44ff7a70d50696e814767bfaf721d4c9b0db0f",
+        "size_in_bytes": 1541
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna-3.7.dist-info/METADATA",
+        "path_type": "hardlink",
+        "sha256": "3a2c4293e74a2d990fcbe31fbe23a688fbf02753b62bff2ba82ac58c2feec72e",
+        "sha256_in_prefix": "3a2c4293e74a2d990fcbe31fbe23a688fbf02753b62bff2ba82ac58c2feec72e",
+        "size_in_bytes": 9888
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna-3.7.dist-info/RECORD",
+        "path_type": "hardlink",
+        "sha256": "d84b0fc83173669a70239d67c0cd2205e586170c23ebe7893dc9200c7023bd7a",
+        "sha256_in_prefix": "d84b0fc83173669a70239d67c0cd2205e586170c23ebe7893dc9200c7023bd7a",
+        "size_in_bytes": 1543
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna-3.7.dist-info/REQUESTED",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna-3.7.dist-info/WHEEL",
+        "path_type": "hardlink",
+        "sha256": "1196c6921ec87b83e865f450f08d19b8ff5592537f4ef719e83484e546abe33e",
+        "sha256_in_prefix": "1196c6921ec87b83e865f450f08d19b8ff5592537f4ef719e83484e546abe33e",
+        "size_in_bytes": 81
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna-3.7.dist-info/direct_url.json",
+        "path_type": "hardlink",
+        "sha256": "6dd192d3816fe195b48da2d084c31ec99e0c8be93961d8be698f4ba7817396ca",
+        "sha256_in_prefix": "6dd192d3816fe195b48da2d084c31ec99e0c8be93961d8be698f4ba7817396ca",
+        "size_in_bytes": 64
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "28940dd5e401afc8882b948aac9e3b957bf11b4049ecb9b7f16e334f4bfff259",
+        "sha256_in_prefix": "28940dd5e401afc8882b948aac9e3b957bf11b4049ecb9b7f16e334f4bfff259",
+        "size_in_bytes": 849
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/__pycache__/__init__.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "3870f0a1c6ae47ba3667868b99a3602d50b708803ef60d48c0a5a8c5d5ee12c8",
+        "sha256_in_prefix": "3870f0a1c6ae47ba3667868b99a3602d50b708803ef60d48c0a5a8c5d5ee12c8",
+        "size_in_bytes": 864
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/__pycache__/codec.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "3a77c33a9205b660ae3569ff5bd3d554a07367596d0b42685ea7ff928ef25536",
+        "sha256_in_prefix": "3a77c33a9205b660ae3569ff5bd3d554a07367596d0b42685ea7ff928ef25536",
+        "size_in_bytes": 3262
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/__pycache__/compat.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "4492ec317ea109163e6d17802e1cae7a8af49702c50f19ebc77c8b9fabad98d8",
+        "sha256_in_prefix": "4492ec317ea109163e6d17802e1cae7a8af49702c50f19ebc77c8b9fabad98d8",
+        "size_in_bytes": 713
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/__pycache__/core.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "2e71ca89893080d88788df94c05c5916d9303d356ae800f5594c5b2df94d5024",
+        "sha256_in_prefix": "2e71ca89893080d88788df94c05c5916d9303d356ae800f5594c5b2df94d5024",
+        "size_in_bytes": 9665
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/__pycache__/idnadata.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "fa9e80bc30d0121ab6892c3cb5ca8cafdf56b010f48f3b08980ad769e6679cbb",
+        "sha256_in_prefix": "fa9e80bc30d0121ab6892c3cb5ca8cafdf56b010f48f3b08980ad769e6679cbb",
+        "size_in_bytes": 42039
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/__pycache__/intranges.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "5bfdc796e9be12d1bfa5a525c12b7c6df077f3bacb52727a7d8844263b77d30b",
+        "sha256_in_prefix": "5bfdc796e9be12d1bfa5a525c12b7c6df077f3bacb52727a7d8844263b77d30b",
+        "size_in_bytes": 1944
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/__pycache__/package_data.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "4d3b85b1ffa686d40d15794c65d9da5c065b7ccfacefd4a262dcbcaeb73b3921",
+        "sha256_in_prefix": "4d3b85b1ffa686d40d15794c65d9da5c065b7ccfacefd4a262dcbcaeb73b3921",
+        "size_in_bytes": 158
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/__pycache__/uts46data.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "d4bb364dd9e3268f4e7f74a41bc8d96770d7a1f942dc9b7a3ea9a8359280a623",
+        "sha256_in_prefix": "d4bb364dd9e3268f4e7f74a41bc8d96770d7a1f942dc9b7a3ea9a8359280a623",
+        "size_in_bytes": 185343
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/codec.py",
+        "path_type": "hardlink",
+        "sha256": "3d2ea6f9799d493ed68fb27bba544c6a43c3b7910127262b4f708fb6387eeede",
+        "sha256_in_prefix": "3d2ea6f9799d493ed68fb27bba544c6a43c3b7910127262b4f708fb6387eeede",
+        "size_in_bytes": 3426
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/compat.py",
+        "path_type": "hardlink",
+        "sha256": "d3fb0e114313e02570f5da03defc91857f345f5f4fc2a168501b3b816b05304e",
+        "sha256_in_prefix": "d3fb0e114313e02570f5da03defc91857f345f5f4fc2a168501b3b816b05304e",
+        "size_in_bytes": 321
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/core.py",
+        "path_type": "hardlink",
+        "sha256": "972869a1edafba511a07feb9c615e6a0a80efb152a143bdcc31bb986934d3b81",
+        "sha256_in_prefix": "972869a1edafba511a07feb9c615e6a0a80efb152a143bdcc31bb986934d3b81",
+        "size_in_bytes": 12663
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/idnadata.py",
+        "path_type": "hardlink",
+        "sha256": "76a470cadce48c81cc05ad91d6562f1c3c0009e9d93edf1e195bb563c50113e1",
+        "sha256_in_prefix": "76a470cadce48c81cc05ad91d6562f1c3c0009e9d93edf1e195bb563c50113e1",
+        "size_in_bytes": 78320
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/intranges.py",
+        "path_type": "hardlink",
+        "sha256": "601af87d162e587ee44ca4b6b579458ccdb8645d4f76f722afe6b2c278889ea8",
+        "sha256_in_prefix": "601af87d162e587ee44ca4b6b579458ccdb8645d4f76f722afe6b2c278889ea8",
+        "size_in_bytes": 1881
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/package_data.py",
+        "path_type": "hardlink",
+        "sha256": "4e4b742a721ec889671dd74e6b3f564a4922b25360a24240b84fa9e46a2b32aa",
+        "sha256_in_prefix": "4e4b742a721ec889671dd74e6b3f564a4922b25360a24240b84fa9e46a2b32aa",
+        "size_in_bytes": 21
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/py.typed",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "lib/python3.8/site-packages/idna/uts46data.py",
+        "path_type": "hardlink",
+        "sha256": "d4aba4b16a8bb9c70f5e6daec9156485f8852cd22133f1f69b86b309c9cea845",
+        "sha256_in_prefix": "d4aba4b16a8bb9c70f5e6daec9156485f8852cd22133f1f69b86b309c9cea845",
+        "size_in_bytes": 206503
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "8e807efea9645a4a739ae14c366ad9cfbe059afa365964ead23344a6540dd59d",
+  "size": 115324,
+  "subdir": "linux-64",
+  "timestamp": 1714398916000,
+  "track_features": "",
+  "url": "https://repo.anaconda.com/pkgs/main/linux-64/idna-3.7-py38h06a4308_0.conda",
+  "version": "3.7"
+}

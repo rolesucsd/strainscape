@@ -15,9 +15,6 @@ Dependencies:
 - Bakta for gene annotation
 """
 
-# Import wildcard functions
-from scripts.wildcards import COASSEMBLY, FILTERED_CONTIGS, STB_FILE, ASSEMBLY_DIR, REF_BAKTA_DIR, BAKTA_TSV, BAKTA_FNA
-
 rule megahit_coassembly:
     """
     Perform co-assembly of multiple samples using MEGAHIT.
@@ -49,7 +46,7 @@ rule megahit_coassembly:
         merge = "20,0.95",
         minlen = 200
     conda:
-        config['conda_envs']['assembly']
+        config['conda_envs']['megahit']
     threads: 8
     resources: mem = "200G"
     shell:
@@ -83,7 +80,7 @@ rule filter_contigs:
     output: 
         fa = FILTERED_CONTIGS("{patient}")
     conda:
-        config['conda_envs']['assembly']
+        config['conda_envs']['seqkit']
     shell: 
         "seqkit seq -m 1000 {input.fa} -o {output.fa}"
 
@@ -136,7 +133,7 @@ rule bakta_coassembly:
         outdir = REF_BAKTA_DIR("{patient}"),
         prefix = "{patient}"
     conda:
-        config['conda_envs']['annotation']
+        config['conda_envs']['bakta']
     resources: mem = "50G"
     shell:
         """

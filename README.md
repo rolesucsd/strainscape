@@ -8,7 +8,6 @@
 <p align="center">
   <a href="https://github.com/rolesucsd/strainscape/actions"><img alt="CI" src="https://github.com/rolesucsd/strainscape/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <a href="https://doi.org/10.5281/zenodo.12345678"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.12345678.svg" alt="DOI"></a>
 </p>
 
 ---

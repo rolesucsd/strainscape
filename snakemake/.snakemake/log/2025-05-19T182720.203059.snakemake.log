@@ -1,6 +1,0 @@
-Assuming unrestricted shared filesystem usage.
-None
-host: b2-004
-Building DAG of jobs...
-MissingRuleException:
-No rule to produce --cluster=sbatch --ntasks-per-node={resources.threads} --cpus-per-task={resources.cpus} --mem={resources.mem_mb} --job-name=smk-{rule}-{wildcards} --account=knightlab (if you use input functions make sure that they don't raise unexpected exceptions).

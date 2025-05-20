@@ -1,4 +1,0 @@
-WorkflowError in file /ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/rules/mapping.smk, line 113:
-Callable/function <function <lambda> at 0x2b904d6f16c0> is passed as value for sample in 'expand' statement. This is most likely not what you want, as expand takes iterables of values or single values for its arguments. If you want to use a function to generate the values, you can wrap the entire expand in another function that does the computation.
-  File "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/Snakefile", line 40, in <module>
-  File "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/rules/mapping.smk", line 113, in <module>

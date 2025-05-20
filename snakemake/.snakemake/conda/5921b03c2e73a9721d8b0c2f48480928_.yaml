@@ -1,9 +1,0 @@
-name: mapping
-channels:
-  - defaults
-  - bioconda
-  - conda-forge
-dependencies:
-  - python=3.8
-  - bwa
-  - samtools

@@ -14,7 +14,7 @@ FASTQ_LIST_DIR  = config["paths"]["fastq_list_dir"]
 LOG_DIR         = config["paths"]["log_dir"]
 
 # Read sample manifest and return dict {sample: R1_path}
-def get_samples(patient: str):
+def read_samples(patient: str):
     fp = os.path.join(FASTQ_LIST_DIR, f"{patient}_full_path.txt")
     df = pd.read_csv(fp, header=None, names=["R1"] )
     df["R1"]     = df["R1"].str.strip()
@@ -31,9 +31,9 @@ SCF_FILE   = lambda p, s: os.path.join(BASE_DIR, "instrain", p, "each", s, "outp
 
 # Flatten list of all flagstat files
 def all_flagstats():
-    return [FLAGSTAT(p, s) for p in PATIENT_IDS for s in get_samples(p)]
+    return [FLAGSTAT(p, s) for p in PATIENT_IDS for s in read_samples(p)]
 
-# Include shared snippets and rul
+# Include shared snippets and rules
 include: "../strainscape/utils.py"
 include: "../strainscape/wildcards.smk"
 include: "rules/assembly.smk"
@@ -55,8 +55,8 @@ rule all:
         expand(MUTATION_TYPES("{patient}"),       patient=PATIENT_IDS),
         # per-sample outputs
         lambda wc: all_flagstats(),
-        lambda wc: [SNV_FILE(p, s) for p in PATIENT_IDS for s in get_samples(p)],
-        lambda wc: [SCF_FILE(p, s) for p in PATIENT_IDS for s in get_samples(p)],
+        lambda wc: [SNV_FILE(p, s) for p in PATIENT_IDS for s in read_samples(p)],
+        lambda wc: [SCF_FILE(p, s) for p in PATIENT_IDS for s in read_samples(p)],
         # merged InStrain tables
         expand(os.path.join(INSTR_DIR("{patient}"), "combined_scaffold_info.tsv"),
                patient=PATIENT_IDS),

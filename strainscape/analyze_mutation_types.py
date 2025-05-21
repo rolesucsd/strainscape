@@ -161,6 +161,14 @@ def run(muts_tsv: Path, ref_fa: Path, out_tsv: Path) -> None:
     logger.info("Loading mutations …")
     muts = pd.read_csv(muts_tsv, sep="\t")
 
+    if muts.empty:
+        logger.warning("Mutations file is empty – writing empty output.")
+        # add the two columns so downstream code/rules don’t choke
+        muts["Mutation_Type"] = pd.Series(dtype=str)
+        muts["Coding_Status"] = pd.Series(dtype=str)
+        muts.to_csv(out_tsv, sep="\t", index=False)
+        return        
+
     from Bio.Data import CodonTable
     translation_table = CodonTable.unambiguous_dna_by_id[1].forward_table.copy()
     translation_table["TAA"] = translation_table["TAG"] = translation_table["TGA"] = "*"
@@ -181,7 +189,7 @@ if __name__ == "__main__":
     ap.add_argument("--mutation_file",  required=True)
     ap.add_argument("--reference_file", required=True)
     ap.add_argument("--output_file",    required=True)
-    ap.add_argument("--log_file")
+    ap.add_argument("--log_file", required=False)
     args = ap.parse_args()
 
     if args.log_file:

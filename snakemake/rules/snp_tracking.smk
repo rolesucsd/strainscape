@@ -2,6 +2,7 @@
 SNP tracking rules for the iHMP pipeline.
 Handles mutation analysis and tracking over time.
 """
+
 rule process_scaffolds:
     """
     Process combined scaffold information for downstream analysis.
@@ -29,22 +30,25 @@ rule process_scaffolds:
     """
     input:
         scaffold_file = COMBINED_SCAFFOLD_INFO("{patient}"),
-        bin_file = BIN_TXT("{patient}")
+        bin_file      = BIN_TXT("{patient}")
     output:
         processed_scaffolds = PROCESSED_SCAFFOLD("{patient}")
+    log:
+        f"{LOG_DIR}/process_scaffolds/{{patient}}.log"
     params:
-        min_length = 1000,
+        min_length   = 1000,
         min_coverage = 5,
-        min_breadth = 0.4
+        min_breadth  = 0.4
     shell:
         """
-        python strainscape/process_scaffolds.py \
+        python ../strainscape/process_scaffolds.py \
             --scaffold_file {input.scaffold_file} \
             --bin_file {input.bin_file} \
             --output_file {output.processed_scaffolds} \
             --min_length {params.min_length} \
             --min_coverage {params.min_coverage} \
-            --min_breadth {params.min_breadth}
+            --min_breadth {params.min_breadth} \
+            --log_file {log} 2>&1
         """
 
 rule merge_snv_info:
@@ -70,16 +74,18 @@ rule merge_snv_info:
         threads: 4
     """
     input:
-        snv_file = COMBINED_SNV_INFO("{patient}"),
+        snv_file                 = COMBINED_SNV_INFO("{patient}"),
         processed_scaffolds_file = PROCESSED_SCAFFOLD("{patient}")
     output:
         filtered_file = FILTERED_MUTATIONS("{patient}")
+    log:
+        f"{LOG_DIR}/merge_snv_info/{{patient}}.log"
     params:
         metadata_file = config['metadata']['file'],
-        min_coverage = 10
+        min_coverage  = 10
     shell:
         """
-        python strainscape/filter_mutations.py \
+        python ../strainscape/filter_mutations.py \
             --snv-file {input.snv_file} \
             --output-file {output.filtered_file} \
             --metadata-file {params.metadata_file} \
@@ -112,16 +118,19 @@ rule calculate_trends:
         filtered_file = FILTERED_MUTATIONS("{patient}")
     output:
         trends_file = MUTATION_TRENDS("{patient}")
+    log:
+        f"{LOG_DIR}/calculate_trends/{{patient}}.log"
     params:
         min_slope = 0.01,
-        p_value = 0.05
+        p_value   = 0.05
     shell:
         """
-        python strainscape/calculate_trends.py \
+        python ../strainscape/calculate_trends.py \
             --mutation_file {input.filtered_file} \
             --output_file {output.trends_file} \
             --min_slope {params.min_slope} \
-            --p_value {params.p_value}
+            --p_value {params.p_value} \
+            --log_file {log} 2>&1
         """
 
 rule map_genes:
@@ -145,14 +154,17 @@ rule map_genes:
     """
     input:
         trends_file = MUTATION_TRENDS("{patient}"),
-        gene_file = BAKTA_TSV("{patient}")
+        gene_file   = BAKTA_TSV("{patient}")
     output:
         mapped_file = MAPPED_MUTATIONS("{patient}")
+    log:
+        f"{LOG_DIR}/map_genes/{{patient}}.log"
     shell:
         """
-        python strainscape/map_genes.py \
+        python ../strainscape/map_genes.py \
             --trend_file {input.trends_file} \
-            --gene_file {input.gene_file}
+            --gene_file {input.gene_file} \
+            --output_file {output.mapped_file}
         """
 
 rule analyze_mutation_types:
@@ -174,14 +186,17 @@ rule analyze_mutation_types:
         threads: 4
     """
     input:
-        fa_file = BAKTA_FNA("{patient}"),
+        fa_file     = BAKTA_FNA("{patient}"),
         mapped_file = MAPPED_MUTATIONS("{patient}")
     output:
         analyzed_file = MUTATION_TYPES("{patient}")
+    log:
+        f"{LOG_DIR}/analyze_mutation_types/{{patient}}.log"
     shell:
         """
-        python strainscape/analyze_mutation_types.py \
+        python ../strainscape/analyze_mutation_types.py \
             --mutation_file {input.mapped_file} \
             --reference_file {input.fa_file} \
-            --output_file {output.analyzed_file}
-        """ 
+            --output_file {output.analyzed_file} \
+            --log_file {log} 2>&1
+        """

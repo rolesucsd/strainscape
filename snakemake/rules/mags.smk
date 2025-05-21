@@ -28,7 +28,7 @@ rule jgi_summarize_depths:
         depth: Depth file containing coverage information
     """
     input:
-        bams = lambda wc: [SORT_BAM(wc.patient, s) for s in get_samples(wc.patient)]
+        bams = lambda wc: [SORT_BAM(wc.patient, s) for s in read_samples(wc.patient)]
     output:
         depth = DEPTH_FILE("{patient}")
     conda:

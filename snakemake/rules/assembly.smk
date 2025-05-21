@@ -35,7 +35,7 @@ rule megahit_coassembly:
         cpu: 8 threads
     """
     input:
-        lambda wc: list(get_samples(wc.patient).values())
+        lambda wc: list(read_samples(wc.patient).values())
     output: 
         fa = COASSEMBLY("{patient}")
     params:

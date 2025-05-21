@@ -120,7 +120,7 @@ if __name__ == "__main__":
     ap.add_argument("--min_length",   type=int,   default=1000)
     ap.add_argument("--min_coverage", type=float, default=5.0)
     ap.add_argument("--min_breadth",  type=float, default=0.4)
-    ap.add_argument("--log_file",     required=True)
+    ap.add_argument("--log_file",     required=False)
     args = ap.parse_args()
 
     process_scaffolds(

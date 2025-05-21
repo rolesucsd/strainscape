@@ -117,7 +117,7 @@ if __name__ == "__main__":
     ap.add_argument("--output_file",    required=True)
     ap.add_argument("--min_slope",  type=float, default=0.01)
     ap.add_argument("--p_value",    type=float, default=0.05)
-    ap.add_argument("--log_file")
+    ap.add_argument("--log_file", required=False)
     args = ap.parse_args()
 
     if args.log_file:

@@ -73,7 +73,7 @@ rule map_reads_bwa:
         bwt = FILTERED_CONTIGS("{patient}") + ".bwt",
         pac = FILTERED_CONTIGS("{patient}") + ".pac",
         sa = FILTERED_CONTIGS("{patient}") + ".sa",
-        r1 = lambda wc: get_samples(wc.patient)[wc.sample]
+        r1 = lambda wc: read_samples(wc.patient)[wc.sample]
     output:
         bam_all = MAP_BAM("{patient}", "{sample}"),
         sorted = SORT_BAM("{patient}", "{sample}"),
@@ -112,7 +112,7 @@ rule combine_flagstats:
     input:
         flagstats = expand(FLAGSTAT("{patient}", "{sample}"),
                          patient=config["patient_ids"],
-                         sample=lambda wc: get_samples(wc.patient).keys())
+                         sample=lambda wc: read_samples(wc.patient).keys())
     output:
         combined = COMBINED_FLAGSTAT()
     params:

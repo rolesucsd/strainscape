@@ -69,7 +69,7 @@ rule combine_scaffold_info:
         combined: Combined scaffold information file
     """
     input:
-        lambda wc: [SCF_FILE(wc.patient, s) for s in get_samples(wc.patient)]
+        lambda wc: [SCF_FILE(wc.patient, s) for s in read_samples(wc.patient)]
     output:
         combined = COMBINED_SCAFFOLD_INFO("{patient}")
     run:
@@ -121,39 +121,40 @@ rule combine_scaffold_info:
 
 rule combine_SNV_info:
     """
-    Combine SNV information across samples.
-    
-    This rule merges SNV information from all samples for a patient,
-    creating a combined file for downstream analysis.
-
-    Input:
-        snv_files: Individual SNV information files
-    Output:
-        combined: Combined SNV information file
+    Combine SNV information across samples, but don’t blow up
+    if some of the per‐sample files are empty or unparseable.
     """
     input:
-        lambda wc: [SNV_FILE(wc.patient, s) for s in get_samples(wc.patient)]
+        lambda wc: [SNV_FILE(wc.patient, s) for s in read_samples(wc.patient)]
     output:
         combined = COMBINED_SNV_INFO("{patient}")
     run:
         import os, sys, pandas as pd
 
         dfs = []
-        for f in input:
-            if os.path.getsize(f):
-                df = pd.read_csv(f, sep="\t")
-                df["Sample"] = os.path.basename(os.path.dirname(f))
-                dfs.append(df)
-            else:
-                print(f"[combine_SNV_info] WARNING: {f} is empty – skipped", file=sys.stderr)
+        for fn in input:
+            # skip zero‐byte files immediately
+            if os.path.getsize(fn) == 0:
+                print(f"[combine_SNV_info] WARNING: {fn} is zero‐byte, skipping", file=sys.stderr)
+                continue
+            # try to read; catch truly empty/no-column cases
+            try:
+                df = pd.read_csv(fn, sep="\t")
+            except pd.errors.EmptyDataError:
+                print(f"[combine_SNV_info] WARNING: {fn} has no columns or is unparseable, skipping", file=sys.stderr)
+                continue
 
+            # tag and collect
+            df["Sample"] = os.path.basename(os.path.dirname(os.path.dirname(fn)))
+            dfs.append(df)
+
+        # write out
         if dfs:
-            pd.concat(dfs, ignore_index=True).to_csv(output.combined,
-                                                    sep="\t", index=False)
+            pd.concat(dfs, ignore_index=True) \
+              .to_csv(output.combined, sep="\t", index=False)
         else:
-            # write an empty table with the expected columns so downstream
-            # rules don't crash
-            pd.DataFrame(columns=["Sample"]).to_csv(output.combined,
-                                                    sep="\t", index=False)
-            print(f"[combine_SNV_info] WARNING: all input files empty → "
-                  f"wrote empty {output.combined}", file=sys.stderr)
+            # emit a header‐only file so downstream rules still see a TSV
+            pd.DataFrame(columns=["Sample"]) \
+              .to_csv(output.combined, sep="\t", index=False)
+            print(f"[combine_SNV_info] WARNING: all inputs empty → wrote header‐only {output.combined}",
+                  file=sys.stderr)

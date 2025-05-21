@@ -252,19 +252,6 @@ def load_config(config_file: str) -> Dict:
     with open(config_file, 'r') as f:
         return yaml.safe_load(f)
 
-def get_samples(patient: str) -> Dict[str, str]:
-    """
-    Get sample information for a patient.
-    
-    Args:
-        patient: Patient identifier
-    
-    Returns:
-        Dict mapping sample names to file paths
-    """
-    config = load_config("config/config.yaml")
-    return config["samples"][patient]
-
 # Memory efficient file reading
 def read_large_csv(file_path: str, chunksize: int = 10000) -> pd.DataFrame:
     """

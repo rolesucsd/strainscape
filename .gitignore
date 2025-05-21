@@ -36,3 +36,4 @@ ENV/
 coverage_summary.csv data/
 **/.snakemake/
 
+.snakemake/

@@ -124,10 +124,12 @@ rule checkm2:
         bin_dir = PATIENT_BIN_DIR("{patient}")
     output:
         results = directory(CHECKM2_OUT("{patient}"))
+    params:
+        db=config['reference']['checkm2_db']
     conda:
         config['conda_envs']['checkm2']
     shell:
         """
-        checkm2 predict -x fa {input.bin_dir} {output.results}
+        checkm2 predict -x fa --database_path {params.db} -i {input.bin_dir} -o {output.results}
         """
 

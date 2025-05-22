@@ -4,10 +4,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - python=3.10
   - checkm2
   - prodigal
   - hmmer
   - pplacer
-  - matplotlib  # for plotting output (optional but recommended)
-  - pandas      # for tabular outputs (optional but often needed)

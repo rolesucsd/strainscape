@@ -5,6 +5,7 @@ paths:
 
 reference:
   bakta_db: "/ddn_scratch/roles/Panpiper/panpiper/databases/bakta2/db"
+  checkm2_db: "/ddn_scratch/roles/Panpiper/panpiper/databases/checkm2/CheckM2_database/uniref100.KO.1.dmnd"
 
 metadata:
   file: "/ddn_scratch/roles/strain_analysis/iHMP/iHMP_scripts/metadata/hmp2_metadata_2018-08-20.csv"

@@ -1,82 +1,207 @@
-#' Analyze Scaffolds
-#' 
-#' @description Analyzes scaffold data from InStrain output to identify significant changes
-#' in scaffold coverage and mutation patterns across timepoints.
-#' 
-#' @param scaffold_data A data frame containing scaffold information
-#' @param metadata A data frame containing sample metadata
-#' @param output_dir Directory to save output files
-#' @param min_coverage Minimum coverage threshold (default: 5)
-#' @param min_freq Minimum frequency threshold (default: 0.1)
-#' 
-#' @return A list containing:
-#' \itemize{
-#'   \item significant_scaffolds: Data frame of scaffolds with significant changes
-#'   \item coverage_stats: Summary statistics of scaffold coverage
-#'   \item mutation_stats: Summary statistics of mutations
-#' }
-#' 
+# analyze_scaffolds_refactored.R
+# ---------------------------------
+# Author: Strainscape Assistant (ChatGPT)
+# Last updated: 2025‑05‑22
+#
+# Purpose
+# -------
+# Provide a fully‑annotated, publication‑ready analysis pipeline for combined
+# InStrain scaffold summaries that 
+#   * merges sample‑level scaffold data with iHMP metadata,
+#   * produces longitudinal summaries per patient and per week,
+#   * reports bin‑level summaries (while keeping bins sample‑specific), and
+#   * generates high‑quality graphical outputs suitable for a manuscript.
+#
+# Usage (minimal example)
+# ----------------------
+# source("analyze_scaffolds_refactored.R")
+# results <- analyze_scaffolds(
+#              scaffold_file  = "combined_processed_scaffolds_sample.txt",
+#              metadata_file  = "hmp2_metadata_2018-08-20.csv",
+#              out_dir        = "output"  # will be created if it doesn't exist
+#            )
+#
+# R/CRAN packages required
+# -----------------------
+# tidyverse  >= 2.0.0
+# janitor    >= 2.2.0   (clean names)
+# patchwork  >= 1.2.0   (plot assembly)
+# ggpubr     >= 0.6.0   (non‑parametric stats on plots)
+# scales     >= 1.3.0
+# ggrepel    >= 0.9.5   (optional – label repelling)
+#
+# ---------------------------------------------------------------------------
+# 1. Helper functions --------------------------------------------------------
+# ---------------------------------------------------------------------------
+
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(janitor)
+  library(patchwork)
+  library(ggpubr)
+  library(scales)
+})
+
+#' Read scaffold table (TSV) and clean column names.
+#' @param path  Character. Path to combined_processed_scaffolds file.
+#' @return tibble
+read_scaffolds <- function(path) {
+  read_tsv(path, show_col_types = FALSE) %>%
+    clean_names() %>%
+    mutate(sample = as.character(sample))
+}
+
+#' Read HMP2 metadata (CSV) and subset key columns.
+#' @param path Character. Metadata path.
+#' @param keep Default c("External.ID","diagnosis","Participant.ID","week.num")
+#' @return tibble with renamed keys (sample, patient_id, diagnosis, week)
+read_metadata <- function(path,
+                          keep = c("External.ID", "diagnosis", "Participant ID", "week_num")) {
+  read_csv(path, show_col_types = FALSE) %>%
+    select(all_of(keep)) %>%
+    janitor::clean_names() %>%
+    rename(sample = external_id,
+           patient_id = participant_id,
+           week = week_num)
+}
+
+#' Merge scaffold & metadata tables.
+#' @inheritParams read_scaffolds
+#' @inheritParams read_metadata
+#' @return joined tibble
+merge_scaffold_metadata <- function(scaffolds, metadata) {
+  left_join(scaffolds, metadata, by = "sample")
+}
+
+#' Longitudinal summaries per patient x week.
+#' Generates three summary tables (coverage, breadth, diversity) each in wide
+#' and long forms for flexible downstream plotting.
+patient_week_summaries <- function(data) {
+  long <- data %>%
+    group_by(patient_id, week) %>%
+    summarise(n_scaffolds   = n(),
+              mean_cov      = mean(coverage, na.rm = TRUE),
+              sd_cov        = sd(coverage,   na.rm = TRUE),
+              mean_breadth  = mean(breadth,   na.rm = TRUE),
+              mean_div      = mean(nucl_diversity, na.rm = TRUE),
+              .groups = "drop")
+
+  wide <- long %>%
+    pivot_wider(names_from = week,
+                values_from = c(n_scaffolds, mean_cov, mean_breadth, mean_div))
+
+  list(long = long, wide = wide)
+}
+
+#' Bin‑level summaries per patient (bins are sample‑specific!)
+#' We therefore summarise within each patient *and* sample.
+#' @return tibble of mean metrics per (patient, week, bin)
+patient_bin_summaries <- function(data) {
+  data %>%
+    group_by(patient_id, week, bin) %>%
+    summarise(mean_cov   = mean(coverage, na.rm = TRUE),
+              mean_bread = mean(breadth,  na.rm = TRUE),
+              mean_div   = mean(nucl_diversity, na.rm = TRUE),
+              .groups = "drop")
+}
+
+#' Save a tidy CSV to out_dir with a descriptive filename.
+write_out <- function(df, out_dir, fname) {
+  write_csv(df, file.path(out_dir, fname))
+}
+
+# ---------------------------------------------------------------------------
+# 2. Plotting utilities ------------------------------------------------------
+# ---------------------------------------------------------------------------
+
+#' Generic ggplot theme for publication.
+plot_theme <- function() {
+  theme_minimal(base_size = 11, base_family = "sans") +
+    theme(panel.grid.major = element_line(colour = "grey90"),
+          panel.grid.minor = element_blank(),
+          legend.position = "top",
+          plot.title      = element_text(face = "bold"))
+}
+
+#' Line plot of mean coverage over weeks for each patient.
+plot_cov_trend <- function(df) {
+  ggplot(df, aes(week, mean_cov, group = patient_id, colour = patient_id)) +
+    geom_line() + geom_point(size = 2) +
+    scale_y_continuous("Mean scaffold coverage", trans = "log10",
+                       labels = label_number()) +
+    scale_x_continuous("Study week", breaks = pretty_breaks()) +
+    labs(title = "Longitudinal coverage per patient") +
+    plot_theme()
+}
+
+#' Violin + jitter plot of bin diversity by diagnosis.
+plot_bin_div_by_dx <- function(bin_stats) {
+  ggplot(bin_stats, aes(diagnosis, log10(mean_div), fill = diagnosis)) +
+    geom_violin(trim = FALSE) +
+    geom_jitter(width = 0.15, alpha = 0.5, size = 1) +
+    stat_compare_means(method = "kruskal.test", label.y = 2.5) +
+    labs(y = "Log10 mean nucleotide diversity",
+         title = "Bin‑level diversity by diagnosis") +
+    scale_fill_brewer(palette = "Set2") +
+    plot_theme()
+}
+
+# ---------------------------------------------------------------------------
+# 3. Main user‑facing wrapper ------------------------------------------------
+# ---------------------------------------------------------------------------
+
+#' Analyze iHMP scaffold output with metadata context.
+#'
+#' @param scaffold_file Path to combined_processed_scaffolds file (tsv).
+#' @param metadata_file Path to hmp2 metadata CSV.
+#' @param out_dir       Directory for all outputs (created if missing).
+#' @return named list of tibbles + ggplot objects.
 #' @export
-analyze_scaffolds <- function(scaffold_data, metadata, output_dir, 
-                            min_coverage = 5, min_freq = 0.1) {
-  # Input validation
-  if (!is.data.frame(scaffold_data)) {
-    stop("scaffold_data must be a data frame")
+analyze_scaffolds <- function(scaffold_file, metadata_file, out_dir = "output") {
+  if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
+
+  # ---------- I/O ----------
+  scaffolds <- read_scaffolds(scaffold_file)
+  meta      <- read_metadata(metadata_file)
+  dat       <- merge_scaffold_metadata(scaffolds, meta)
+
+  # ---------- Summaries ----------
+  pw  <- patient_week_summaries(dat)
+  pb  <- patient_bin_summaries(dat)
+
+  # ---------- Write summaries ----------
+  write_out(pw$long, out_dir, "patient_week_long.csv")
+  write_out(pw$wide, out_dir, "patient_week_wide.csv")
+  write_out(pb,       out_dir, "patient_bin_summary.csv")
+
+  # ---------- Figures ----------
+  cov_plot <- plot_cov_trend(pw$long)
+  ggsave(file.path(out_dir, "coverage_trend.png"),  cov_plot, width = 7, height = 4)
+
+  bin_plot <- plot_bin_div_by_dx(pb %>%
+                                   left_join(meta, by = "patient_id"))
+
+  ggsave(file.path(out_dir, "bin_diversity_diagnosis.png"), bin_plot, width = 6, height = 4)
+
+  # ---------- Return ----------
+  list(raw            = dat,
+       patient_week   = pw,
+       patient_bin    = pb,
+       figures        = list(coverage_trend = cov_plot,
+                             bin_diversity  = bin_plot))
+}
+
+# ---------------------------------------------------------------------------
+# 4. Command‑line interface --------------------------------------------------
+# ---------------------------------------------------------------------------
+if (identical(Sys.getenv("R_SCRIPT_RUN"), "TRUE")) {
+  args <- commandArgs(trailingOnly = TRUE)
+  if (length(args) < 2) {
+    stop("Usage: R_SCRIPT_RUN=TRUE Rscript analyze_scaffolds_refactored.R <scaffold.tsv> <metadata.csv> [out_dir]",
+         call. = FALSE)
   }
-  if (!is.data.frame(metadata)) {
-    stop("metadata must be a data frame")
-  }
-  if (!dir.exists(output_dir)) {
-    dir.create(output_dir, recursive = TRUE)
-  }
-  
-  # Filter scaffolds by coverage and frequency
-  filtered_scaffolds <- scaffold_data %>%
-    filter(coverage >= min_coverage, frequency >= min_freq)
-  
-  # Calculate statistics
-  coverage_stats <- filtered_scaffolds %>%
-    group_by(scaffold) %>%
-    summarize(
-      mean_coverage = mean(coverage),
-      sd_coverage = sd(coverage),
-      max_coverage = max(coverage),
-      min_coverage = min(coverage)
-    )
-  
-  mutation_stats <- filtered_scaffolds %>%
-    group_by(scaffold) %>%
-    summarize(
-      total_mutations = n(),
-      unique_mutations = n_distinct(mutation),
-      mean_frequency = mean(frequency)
-    )
-  
-  # Identify significant changes
-  significant_scaffolds <- filtered_scaffolds %>%
-    group_by(scaffold) %>%
-    filter(n() > 1) %>%  # At least 2 timepoints
-    summarize(
-      coverage_change = max(coverage) - min(coverage),
-      mutation_change = max(frequency) - min(frequency)
-    ) %>%
-    filter(coverage_change > 0 | mutation_change > 0)
-  
-  # Save results
-  write.csv(significant_scaffolds, 
-            file.path(output_dir, "significant_scaffolds.csv"),
-            row.names = FALSE)
-  write.csv(coverage_stats,
-            file.path(output_dir, "coverage_stats.csv"),
-            row.names = FALSE)
-  write.csv(mutation_stats,
-            file.path(output_dir, "mutation_stats.csv"),
-            row.names = FALSE)
-  
-  # Return results
-  list(
-    significant_scaffolds = significant_scaffolds,
-    coverage_stats = coverage_stats,
-    mutation_stats = mutation_stats
-  )
-} 
+  scaffold_file <- args[[1]]
+  metadata_file <- args[[2]]
+  out_dir       <- ifelse(length(args) >= 3, args[[3]], "output")
+  analyze_scaffolds(scaffold_file, metadata_file, out_dir)
+}

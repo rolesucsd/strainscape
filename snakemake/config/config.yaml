@@ -38,6 +38,7 @@ conda_envs:
   metabat2: "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/metabat2.yml"
   mapping: "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/mapping.yml"
   instrain: "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/instrain.yml"
+  checkm2: "/ddn_scratch/roles/strain_analysis/iHMP/strainscape/snakemake/envs/checkm2.yml"
 
 default-resources:
   threads: 8

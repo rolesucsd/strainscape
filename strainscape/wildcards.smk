@@ -50,6 +50,9 @@ def PATIENT_BIN_DIR(patient):
 def BIN_TXT(patient):
     return f"{get_data_dir()}/assembly/{patient}/bins.txt"
 
+def CHECKM2_OUT(patient):
+    return f"{get_data_dir()}/checkm2/{patient}"
+
 # InStrain wildcards
 def INSTR_DIR(patient):
     return f"{get_data_dir()}/instrain/{patient}"

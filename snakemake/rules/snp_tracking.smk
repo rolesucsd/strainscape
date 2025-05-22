@@ -121,8 +121,8 @@ rule calculate_trends:
     log:
         f"{LOG_DIR}/calculate_trends/{{patient}}.log"
     params:
-        min_slope = 0.01,
-        p_value   = 0.05
+        min_slope = 0.00001,
+        p_value   = 1
     shell:
         """
         python ../strainscape/calculate_trends.py \
@@ -200,3 +200,44 @@ rule analyze_mutation_types:
             --output_file {output.analyzed_file} \
             --log_file {log} 2>&1
         """
+
+rule combine_trend_mapped_type:
+    """
+    Merge per-patient SNV trend/mapped/type tables into a single TSV and
+    prepend a 'Patient_ID' column to every row.
+    """
+    input:
+        lambda wc: expand(MUTATION_TYPES("{patient}"), patient=PATIENT_IDS)
+    output:
+        combined = os.path.join(INSTR_DIRECT, "combined_trend_mapped_type.txt")
+    log:
+        f"{LOG_DIR}/combine_mutation_types.log"
+    shell:
+        """
+        python ../strainscape/combine_trend_mapped_types.py \
+            --output {output.combined} \
+            --inputs {input} \
+            --chunksize 1000000 \
+            --log {log} 2>&1
+        """
+
+rule combine_processed_scaffolds:
+    """
+    Combine all processed_scaffolds.txt files into one large file.
+
+    This rule runs a Python script to concatenate scaffold info from each patient.
+    It assumes that the 'Sample' column is already present in each input file.
+    """
+    input:
+        scaffolds = expand(os.path.join(INSTR_DIRECT, "{patient}", "processed_scaffolds.txt"),
+                           patient=PATIENT_IDS)
+    output:
+        combined = os.path.join(INSTR_DIRECT, "combined_processed_scaffolds.txt")
+    shell:
+        """
+        python ../strainscape/combine_processed_scaffolds.py \
+            --input-files {input.scaffolds} \
+            --output-file {output.combined}
+        """
+
+

@@ -108,3 +108,26 @@ rule make_bin_txt:
             --output_file {output.bin_file} \
             --log_file {log} 2>&1
         """
+
+rule checkm2:
+    """
+    Classify and assess MAGs using CheckM2.
+
+    This rule runs CheckM2 to estimate the taxonomy and quality of bins.
+
+    Input:
+        bin_dir: Directory with binned MAGs (FASTA files)
+    Output:
+        results: Directory with CheckM2 output including taxonomy and QC
+    """
+    input:
+        bin_dir = PATIENT_BIN_DIR("{patient}")
+    output:
+        results = directory(CHECKM2_OUT("{patient}"))
+    conda:
+        config['conda_envs']['checkm2']
+    shell:
+        """
+        checkm2 predict -x fa {input.bin_dir} {output.results}
+        """
+

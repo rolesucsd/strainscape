@@ -116,11 +116,22 @@ write_out <- function(df, out_dir, fname) {
 
 #' Generic ggplot theme for publication.
 plot_theme <- function() {
-  theme_minimal(base_size = 11, base_family = "sans") +
-    theme(panel.grid.major = element_line(colour = "grey90"),
-          panel.grid.minor = element_blank(),
-          legend.position = "top",
-          plot.title      = element_text(face = "bold"))
+  theme_classic() +
+  theme(
+    text = element_text(family = "Arial", size = 12, color = "black"),  # Customize font, size, and color
+    axis.title.x = element_text(color = "black", size = 14),
+    axis.title.y = element_text(color = "black", size = 14),
+    axis.text = element_text(size = 12, color = "black"),
+    axis.text.y = element_text(color = "black"),
+    axis.ticks = element_line(size = 0.75, color = "black"),
+    axis.ticks.length = unit(0.3, "cm"),  # Make tick marks longer
+    axis.line = element_line(size = 0.75, color = "black"),
+    plot.title = element_text(hjust = 0.5, size = 12, color = "black"),
+    plot.margin = unit(c(1, 1, 1, 1), "lines"),
+    legend.position = "none",
+    strip.background = element_blank(),  # Remove the box from facet wrap titles
+    strip.text = element_text(size = 12, color = "black")  # Customize facet title text
+  )
 }
 
 #' Line plot of mean coverage over weeks for each patient.
@@ -137,13 +148,19 @@ plot_cov_trend <- function(df) {
 #' Violin + jitter plot of bin diversity by diagnosis.
 plot_bin_div_by_dx <- function(bin_stats) {
   ggplot(bin_stats, aes(diagnosis, log10(mean_div), fill = diagnosis)) +
-    geom_violin(trim = FALSE) +
-    geom_jitter(width = 0.15, alpha = 0.5, size = 1) +
-    stat_compare_means(method = "kruskal.test", label.y = 2.5) +
-    labs(y = "Log10 mean nucleotide diversity",
-         title = "Bin‑level diversity by diagnosis") +
-    scale_fill_brewer(palette = "Set2") +
-    plot_theme()
+    geom_boxplot(trim = FALSE) +
+  geom_hline(yintercept = c(-3,-2), linetype = "dashed", color = "grey") +
+  stat_compare_means(comparisons = list(c("nonIBD","UC"),
+                                        c("nonIBD","CD"),
+                                        c("UC","CD")),
+                     method = "wilcox.test", label = "p.format") +
+  stat_compare_means(method = "kruskal.test", label.y = -0.5) +  # Add Kruskal-Wallis test
+  labs(y = "Log10 mean nucleotide diversity",
+         title = "Bin level diversity by diagnosis") +
+  scale_fill_manual(values = c("UC"="#bb9df5",
+                               "nonIBD"="#71d987",
+                               "CD"="#ffc169")) +
+  plot_theme()
 }
 
 # ---------------------------------------------------------------------------
@@ -180,8 +197,7 @@ analyze_scaffolds <- function(scaffold_file, metadata_file, out_dir = "output") 
 
   bin_plot <- plot_bin_div_by_dx(pb %>%
                                    left_join(meta, by = "patient_id"))
-
-  ggsave(file.path(out_dir, "bin_diversity_diagnosis.png"), bin_plot, width = 6, height = 4)
+  ggsave(file.path(out_dir, "bin_diversity_diagnosis.png"), bin_plot, width = 6, height = 6)
 
   # ---------- Return ----------
   list(raw            = dat,

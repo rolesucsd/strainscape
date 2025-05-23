@@ -169,7 +169,8 @@ def main():
 
     # ────────────────────────────────────────────────────────────────────────
     print("🏁 Finished – wrote:")
-    print("   • sweep_variants/part-*.parquet   (all sweeping SNVs)")
+    print("   • all_snvs/part-*.parquet        (every SNV, flag = is_sweep)")
+    print("   • sweep_variants/part-*.parquet  (subset where is_sweep == TRUE)")
     print("   • gene_dnds.parquet | bin_dnds.parquet")
 
 if __name__ == "__main__":

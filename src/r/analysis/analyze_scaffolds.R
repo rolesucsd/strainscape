@@ -95,13 +95,15 @@ patient_week_summaries <- function(data) {
 
 #' Bin‑level summaries per patient (bins are sample‑specific!)
 #' We therefore summarise within each patient *and* sample.
-#' @return tibble of mean metrics per (patient, week, bin)
+#' @return tibble of mean metrics per (patient, week, bin), including completeness and contamination
 patient_bin_summaries <- function(data) {
   data %>%
     group_by(patient_id, week, bin) %>%
     summarise(mean_cov   = mean(coverage, na.rm = TRUE),
               mean_bread = mean(breadth,  na.rm = TRUE),
               mean_div   = mean(nucl_diversity, na.rm = TRUE),
+              completeness = first(Completeness),
+              contamination = first(Contamination),
               .groups = "drop")
 }
 
@@ -118,7 +120,7 @@ write_out <- function(df, out_dir, fname) {
 plot_theme <- function() {
   theme_classic() +
   theme(
-    text = element_text(family = "Arial", size = 12, color = "black"),  # Customize font, size, and color
+    text = element_text(family = "sans", size = 12, color = "black"),  # Changed from Arial to sans
     axis.title.x = element_text(color = "black", size = 14),
     axis.title.y = element_text(color = "black", size = 14),
     axis.text = element_text(size = 12, color = "black"),

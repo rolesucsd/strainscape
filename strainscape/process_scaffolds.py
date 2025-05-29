@@ -26,7 +26,10 @@ from strainscape.utils import setup_logging, get_logger
 logger = get_logger(__name__)
 
 # ────────── main pipeline ──────────
-def process(scaffold_info, bin_file, output_file, min_length=1000, min_coverage=5.0, min_breadth=0.4, log=None):
+def process(scaffold_info, bin_file, output_file, min_length=1000,
+            min_coverage=5.0, min_breadth=0.4,
+            min_completeness=50.0, max_contamination=10.0,
+            log=None):
     """Process scaffolds with quality filters.
     
     Args:
@@ -42,27 +45,38 @@ def process(scaffold_info, bin_file, output_file, min_length=1000, min_coverage=
         log = logger
 
     # 1. bin map -------------------------------------------------------------
-    bin_df = pd.read_csv(bin_file, sep="\t", names=["scaffold", "bin"], dtype={"scaffold": str, "bin": str})
+    bin_df = pd.read_csv(
+        bin_file,
+        sep="\t",
+        dtype={"scaffold": str, "bin": str, "Completeness": float, "Contamination": float, "Genome_Size": float}
+    )
+
     log.info(f"Loaded {len(bin_df):,} scaffold↦bin mappings from {bin_file}")
 
     # 3. scaffold_info ------------------------------------------------------
     usecols = ["scaffold", "length", "coverage", "breadth", "nucl_diversity", "Sample"]
-    dtypes  = {"scaffold": str,
-               "length":   np.int32,
-               "coverage": np.float32,
-               "breadth":  np.float32}
+    dtypes  = {
+        "scaffold": str,
+        "length":   np.int32,
+        "coverage": np.float32,
+        "breadth":  np.float32
+    }
     scaff = pd.read_csv(scaffold_info, sep="\t", usecols=usecols, dtype=dtypes)
     scaff = scaff.merge(bin_df, on="scaffold", how="left")
 
     log.info(f"Scaffolds loaded: {len(scaff):,}")
-    scaff = scaff.query("length >= @min_length and coverage >= @min_coverage and breadth >= @min_breadth")
+    scaff = scaff.query(
+        "length >= @min_length and coverage >= @min_coverage and breadth >= @min_breadth "
+        "and Completeness >= @min_completeness and Contamination <= @max_contamination"
+    )
     log.info(f"After quality filters: {len(scaff):,}")
 
-    # 6. summary ------------------------------------------------------------
-    summary = (scaff
-               .groupby("bin")[["length", "coverage", "breadth"]]
-               .agg(["mean", "std", "min", "max"])
-               .round(2))
+# 6. summary ------------------------------------------------------------
+    summary = (
+        scaff.groupby("bin")[["length", "coverage", "breadth", "Completeness", "Contamination", "Genome_Size"]]
+        .agg(["mean", "std", "min", "max"])
+        .round(2)
+    )
     log.info("Summary per bin:\n%s", summary)
 
     # 7. write --------------------------------------------------------------
@@ -77,6 +91,8 @@ def process_scaffolds(
     min_length: int = 1000,
     min_coverage: float = 5.0,
     min_breadth: float = 0.4,
+    min_completeness: float = 50,
+    max_contamination: float = 10,
     log_file: Optional[str] = None
 ) -> None:
     """
@@ -120,6 +136,8 @@ if __name__ == "__main__":
     ap.add_argument("--min_length",   type=int,   default=1000)
     ap.add_argument("--min_coverage", type=float, default=5.0)
     ap.add_argument("--min_breadth",  type=float, default=0.4)
+    ap.add_argument("--min_completeness", type=float, default=50.0)
+    ap.add_argument("--max_contamination", type=float, default=10.0)
     ap.add_argument("--log_file",     required=False)
     args = ap.parse_args()
 
@@ -130,5 +148,7 @@ if __name__ == "__main__":
         min_length=args.min_length,
         min_coverage=args.min_coverage,
         min_breadth=args.min_breadth,
+        min_completeness=args.min_completeness,
+        max_contamination=args.max_contamination,
         log_file=args.log_file
     )

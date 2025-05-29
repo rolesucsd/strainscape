@@ -38,7 +38,9 @@ rule process_scaffolds:
     params:
         min_length   = 1000,
         min_coverage = 5,
-        min_breadth  = 0.4
+        min_breadth  = 0.4,
+        min_comp = 50,
+        max_cont = 10
     shell:
         """
         python ../strainscape/process_scaffolds.py \
@@ -48,6 +50,8 @@ rule process_scaffolds:
             --min_length {params.min_length} \
             --min_coverage {params.min_coverage} \
             --min_breadth {params.min_breadth} \
+            --min_completeness {params.min_comp} \
+            --max_contamination {params.max_cont} \
             --log_file {log} 2>&1
         """
 

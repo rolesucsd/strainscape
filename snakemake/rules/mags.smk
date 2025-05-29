@@ -83,32 +83,6 @@ rule metabat2_binning:
                  --seed 1 --saveCls
         """
 
-rule make_bin_txt:
-    """
-    Generate a bin.txt file from a bin folder for each patient.
-
-    This rule runs the make_bin_txt.py script to read all FASTA files in the bin folder
-    and write a tab-separated bin.txt file (with columns: scaffold, bin) to the bins/{patient} folder.
-
-    Input:
-        bin_dir: Path to the bin folder containing FASTA files
-    Output:
-        bin_txt: Path to the output bin.txt file in bins/{patient}
-    """
-    input:
-        bin_dir = PATIENT_BIN_DIR("{patient}")
-    output:
-        bin_file = BIN_TXT("{patient}")
-    log:
-        os.path.join(config['paths']['log_dir'], "make_bin_txt_{patient}.log")
-    shell:
-        """
-        python ../strainscape/make_bin_txt.py \
-            --bin_dir {input.bin_dir} \
-            --output_file {output.bin_file} \
-            --log_file {log} 2>&1
-        """
-
 rule checkm2:
     """
     Classify and assess MAGs using CheckM2.
@@ -123,13 +97,36 @@ rule checkm2:
     input:
         bin_dir = PATIENT_BIN_DIR("{patient}")
     output:
-        results = directory(CHECKM2_OUT("{patient}"))
+        results = directory(CHECKM2_OUT("{patient}")),
+        tsv = os.path.join(CHECKM2_OUT("{patient}"), "quality_report.tsv")
     params:
         db=config['reference']['checkm2_db']
     conda:
         config['conda_envs']['checkm2']
+    resources:
+        mem = "50G"
     shell:
         """
         checkm2 predict -x fa --database_path {params.db} -i {input.bin_dir} -o {output.results}
         """
 
+rule make_bin_txt:
+    """
+    Generate a bin.txt file (scaffold→bin mapping) and merge
+    CheckM2 metrics (Completeness, Contamination, Genome_Size).
+    """
+    input:
+        bin_dir    = PATIENT_BIN_DIR("{patient}"),
+        checkm2_tsv = os.path.join(CHECKM2_OUT("{patient}"), "quality_report.tsv")
+    output:
+        bin_file = BIN_TXT("{patient}")
+    log:
+        os.path.join(config['paths']['log_dir'], "make_bin_txt_{patient}.log")
+    shell:
+        """
+        python ../strainscape/make_bin_txt.py \
+          --bin_dir {input.bin_dir} \
+          --checkm2-tsv {input.checkm2_tsv} \
+          --output_file {output.bin_file} \
+          --log_file {log} 2>&1
+        """

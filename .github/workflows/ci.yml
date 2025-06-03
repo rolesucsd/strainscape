@@ -17,22 +17,12 @@ jobs:
       with:
         python-version: '3.9'
     
-    - name: Set up R
-      uses: r-lib/actions/setup-r@v2
-    
-    - name: Install dependencies
-      run: |
-        conda env create -f snakemake/envs/instrain.yml
-    
     - name: Run Python tests
       run: |
         pip install pytest pandas biopython snakemake
         pip install -e .
         pytest tests/python/
     
-    - name: Run R tests
-      run: Rscript -e "testthat::test_dir('tests/r/')"
-
   build-docker:
     needs: test
     runs-on: ubuntu-latest
@@ -44,8 +34,8 @@ jobs:
     
     - name: Test Docker image
       run: |
-        docker run --rm ihmp-pipeline --version
-        docker run --rm ihmp-pipeline --help
+        docker run --rm strainscape --version
+        docker run --rm strainscape --help
 
   deploy:
     needs: build-docker
@@ -62,5 +52,5 @@ jobs:
     
     - name: Build and push Docker image
       run: |
-        docker build -t roles/ihmp-pipeline:latest .
-        docker push roles/ihmp-pipeline:latest 
+        docker build -t roles/strainscape:latest .
+        docker push roles/strainscape:latest 

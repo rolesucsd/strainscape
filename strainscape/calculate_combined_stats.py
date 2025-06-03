@@ -43,7 +43,8 @@ def split_dbxrefs(s: str):
     return [t.strip().lower() for t in str(s).split(",") if t.strip()]
 
 def extract_go(tok):   return [t for t in tok if t.startswith("go:")]
-def extract_kegg(tok): return [t for t in tok if t.startswith("ec:") or re.fullmatch(r"k\d{5}", t)]
+def extract_ec(tok): return [t for t in tok if t.startswith("ec:") or re.fullmatch(r"k\d{5}", t)]
+def extract_kegg(tok): return [t for t in tok if t.startswith("kegg:") or re.fullmatch(r"k\d{5}", t)]
 
 def load_bin_map(scaffold_file: str, meta_file: str) -> Dict[Tuple[str,str], str]:
     meta = pd.read_csv(meta_file, low_memory=False)
@@ -111,6 +112,7 @@ def main():
             toks = chunk.dbxrefs.apply(split_dbxrefs)
             chunk["go_terms"]   = toks.apply(extract_go)
             chunk["kegg_terms"] = toks.apply(extract_kegg)
+            chunk["ec_terms"] = toks.apply(extract_ec)
 
         # per-variant min/max freq ------------------------------------------
         id_cols = [c for c in chunk.columns if c not in map(str,week_cols)]
@@ -124,13 +126,13 @@ def main():
         # join min/max back to main table  ----------------------------------
         chunk = chunk.merge(var_mm, on=["patient_id","chromosome","position"])
 
-        # tag – but DO NOT drop – sweeping SNVs
+        freq_cols = list(map(str, week_cols))           # ensure week columns are strings
+        # apply row-wise; fine inside a 1 M-row chunk
         sweep_mask            = (chunk.min_f < .20) & (chunk.max_f > .80)
         chunk["is_sweep"]     = sweep_mask       # boolean column
-        append_parquet(out_dir/"all_snvs", chunk)
 
-        # optional: still keep a sweeps-only dataset if you like
-        append_parquet(out_dir/"sweep_variants", chunk.loc[sweep_mask])
+        append_parquet(out_dir / "all_snvs",   chunk)
+        append_parquet(out_dir / "sweep_variants", chunk.loc[sweep_mask])
 
         # dN/dS – still use ALL coding SNVs ---------------------------------
         is_dn, is_ds = classify_dn_ds(chunk.mutation_type)

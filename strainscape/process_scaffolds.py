@@ -15,12 +15,14 @@ Outputs:
 """
 
 from pathlib import Path
+import os
 import pandas as pd
 import numpy as np
 from Bio import SeqIO
 import argparse, logging, sys, textwrap
 from typing import Dict, List, Optional, Tuple, Union
 from strainscape.utils import setup_logging, get_logger
+from .make_bin_txt import make_bin_txt
 
 # Get module logger
 logger = get_logger(__name__)
@@ -54,26 +56,33 @@ def process(scaffold_info, bin_file, output_file, min_length=1000,
     log.info(f"Loaded {len(bin_df):,} scaffold↦bin mappings from {bin_file}")
 
     # 3. scaffold_info ------------------------------------------------------
-    usecols = ["scaffold", "length", "coverage", "breadth", "nucl_diversity", "Sample"]
-    dtypes  = {
+    desired_cols = ["scaffold", "length", "coverage", "breadth", "nucl_diversity", "Sample"]
+    with open(scaffold_info, "r") as f:
+        header = f.readline().strip().split("\t")
+    usecols = [c for c in desired_cols if c in header]
+    dtypes = {
         "scaffold": str,
-        "length":   np.int32,
+        "length": np.int32,
         "coverage": np.float32,
-        "breadth":  np.float32
+        "breadth": np.float32,
     }
     scaff = pd.read_csv(scaffold_info, sep="\t", usecols=usecols, dtype=dtypes)
     scaff = scaff.merge(bin_df, on="scaffold", how="left")
 
     log.info(f"Scaffolds loaded: {len(scaff):,}")
-    scaff = scaff.query(
-        "length >= @min_length and coverage >= @min_coverage and breadth >= @min_breadth "
-        "and Completeness >= @min_completeness and Contamination <= @max_contamination"
-    )
+    query = "length >= @min_length and coverage >= @min_coverage and breadth >= @min_breadth"
+    if "Completeness" in scaff.columns and "Contamination" in scaff.columns:
+        query += " and Completeness >= @min_completeness and Contamination <= @max_contamination"
+    scaff = scaff.query(query)
     log.info(f"After quality filters: {len(scaff):,}")
 
 # 6. summary ------------------------------------------------------------
+    summary_cols = ["length", "coverage", "breadth"]
+    for col in ["Completeness", "Contamination", "Genome_Size"]:
+        if col in scaff.columns:
+            summary_cols.append(col)
     summary = (
-        scaff.groupby("bin")[["length", "coverage", "breadth", "Completeness", "Contamination", "Genome_Size"]]
+        scaff.groupby("bin")[summary_cols]
         .agg(["mean", "std", "min", "max"])
         .round(2)
     )
@@ -86,14 +95,21 @@ def process(scaffold_info, bin_file, output_file, min_length=1000,
 
 def process_scaffolds(
     scaffold_file: str,
-    bin_file: str,
-    output_file: str,
+    bin_file: str | None = None,
+    output_file: str | None = None,
     min_length: int = 1000,
     min_coverage: float = 5.0,
     min_breadth: float = 0.4,
     min_completeness: float = 50,
     max_contamination: float = 10,
-    log_file: Optional[str] = None
+    log_file: Optional[str] = None,
+    *,
+    stb_file: str | None = None,
+    metadata_file: str | None = None,
+    bin_dir: str | None = None,
+    threads: int = 1,
+    chunksize: int = 10000,
+    **_: object,
 ) -> None:
     """
     Process scaffolds with quality filters.
@@ -109,16 +125,44 @@ def process_scaffolds(
     """
     if log_file:
         setup_logging(log_file)
-    
+
+    if bin_file is None and bin_dir:
+        tmp_bin = Path(output_file).with_suffix('.bin.txt')
+        make_bin_txt(Path(bin_dir), tmp_bin)
+        bin_file = str(tmp_bin)
+    elif bin_file is None:
+        raise ValueError("bin_file or bin_dir must be provided")
+
+    scaffold_path = Path(scaffold_file)
+    if stb_file:
+        scaff = pd.read_csv(scaffold_path, sep='\t')
+        stb_df = pd.read_csv(stb_file, sep='\t', names=['scaffold', 'Sample'])
+        scaff = scaff.merge(stb_df, on='scaffold', how='left')
+        scaffold_path = Path(output_file).with_suffix('.scaff.tmp.tsv')
+        scaff.to_csv(scaffold_path, sep='\t', index=False)
+
     process(
-        scaffold_info=scaffold_file,
+        scaffold_info=str(scaffold_path),
         bin_file=bin_file,
         output_file=output_file,
         min_length=min_length,
         min_coverage=min_coverage,
         min_breadth=min_breadth,
+        min_completeness=min_completeness,
+        max_contamination=max_contamination,
         log=logger
     )
+
+    if metadata_file:
+        df = pd.read_csv(output_file, sep='\t')
+        meta = pd.read_csv(metadata_file, dtype=str)
+        df = df.merge(meta, left_on='Sample', right_on='External.ID', how='left')
+        df.to_csv(output_file, sep='\t', index=False)
+
+    if stb_file:
+        os.remove(scaffold_path)
+    if bin_dir:
+        os.remove(bin_file)
 
 
 # ────────── CLI ──────────

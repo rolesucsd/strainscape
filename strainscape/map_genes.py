@@ -25,7 +25,7 @@ def map_genes_fast(trend_path: Path, gene_path: Path, out_path: Path) -> None:
         trend_path: TSV with columns ['scaffold','position','ref_base','new_base']
         gene_path: TSV (Bakta) with header line prefixed '#' and columns including
                    ['Sequence Id','Type','Start','Stop','Strand',
-                    'Locus Tag','Gene','Product','Dbxref']
+                    'Locus Tag','Gene','Product','DbXrefs']
         out_path:   Path to write annotated TSV
     """
     # Load trends

@@ -279,4 +279,18 @@ def get_output_path(base_path, patient, sample=None, suffix=None):
         path = path / sample
     if suffix:
         path = path.with_suffix(suffix)
-    return str(path) 
+    return str(path)
+
+def get_patient_samples(metadata: pd.DataFrame) -> List[str]:
+    """Extract unique sample IDs from metadata.
+    
+    Args:
+        metadata: DataFrame containing metadata with columns:
+            - External.ID: Sample identifier
+            - Participant ID: Patient identifier
+            - week_num: Week number
+    
+    Returns:
+        List of unique sample IDs
+    """
+    return metadata['External.ID'].unique().tolist() 

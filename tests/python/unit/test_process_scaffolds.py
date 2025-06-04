@@ -9,64 +9,54 @@ from strainscape.process_scaffolds import process
 
 def test_process_scaffolds():
     with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = Path(tmpdir)
-        # Create dummy bin_dir with a .fa file
-        bin_dir = tmpdir / "bins"
-        bin_dir.mkdir()
-        fa_file = bin_dir / "bin1.fa"
-        with open(fa_file, 'w') as f:
-            f.write(">scaf1\nATGC\n")
-        # Create dummy scaffold_info.tsv
-        scaff_file = tmpdir / "scaffold_info.tsv"
+        # Create test files
+        scaffold_file = os.path.join(tmpdir, 'scaffold_info.tsv')
+        bin_file = os.path.join(tmpdir, 'bin.txt')
+        output_file = os.path.join(tmpdir, 'processed_scaffolds.tsv')
+        log_file = os.path.join(tmpdir, 'process_scaffolds.log')
+
+        # Create test scaffold data
         pd.DataFrame({
-            'scaffold': ['scaf1'],
-            'length': [2000],
-            'coverage': [10.0],
-            'breadth': [0.8]
-        }).to_csv(scaff_file, sep='\t', index=False)
-        # Create dummy stb.tsv
-        stb_file = tmpdir / "assembly.stb"
+            'scaffold': ['scaffold1', 'scaffold2'],
+            'length': [2000, 500],
+            'coverage': [10.0, 2.0],
+            'breadth': [0.8, 0.3],
+            'nucl_diversity': [0.01, 0.02],
+            'Sample': ['sample1', 'sample1']
+        }).to_csv(scaffold_file, sep='\t', index=False)
+
+        # Create test bin data
         pd.DataFrame({
-            'scaffold': ['scaf1'],
-            'Sample': ['S1']
-        }).to_csv(stb_file, sep='\t', index=False, header=False)
-        # Create dummy metadata.csv
-        meta_file = tmpdir / "meta.csv"
-        pd.DataFrame({
-            'External.ID': ['S1'],
-            'week_num': [1],
-            'Participant ID': ['P1'],
-            'sex': ['F'],
-            'diagnosis': ['CD'],
-            'Height': [160],
-            'Weight': [60],
-            'BMI': [23],
-            'fecalcal_ng_ml': [100],
-            'Alcohol (beer, brandy, spirits, hard liquor, wine, aperitif, etc.)': ['No'],
-            'Antibiotics': ['No'],
-            'Immunosuppressants (e.g. oral corticosteroids)': ['No']
-        }, columns=[
-            'External.ID',
-            'week_num',
-            'Participant ID',
-            'sex',
-            'diagnosis',
-            'Height',
-            'Weight',
-            'BMI',
-            'fecalcal_ng_ml',
-            'Alcohol (beer, brandy, spirits, hard liquor, wine, aperitif, etc.)',
-            'Antibiotics',
-            'Immunosuppressants (e.g. oral corticosteroids)'
-        ]).to_csv(meta_file, index=False)
-        # Output file
-        out_file = tmpdir / "out.tsv"
-        # Run the function
-        process(scaff_file, stb_file, meta_file, bin_dir, out_file, log=logging.getLogger("test"))
-        # Check output file exists and is not empty
-        assert out_file.exists()
-        df = pd.read_csv(out_file, sep='\t')
-        assert not df.empty
+            'scaffold': ['scaffold1', 'scaffold2'],
+            'bin': ['bin1', 'bin2'],
+            'Completeness': [90.0, 85.0],
+            'Contamination': [5.0, 8.0],
+            'Genome_Size': [2000000, 1500000]
+        }).to_csv(bin_file, sep='\t', index=False)
+
+        # Run the process_scaffolds function
+        process_scaffolds(
+            scaffold_file=scaffold_file,
+            bin_file=bin_file,
+            output_file=output_file,
+            min_length=1000,
+            min_coverage=5.0,
+            min_breadth=0.4,
+            min_completeness=50.0,
+            max_contamination=10.0,
+            log_file=log_file
+        )
+
+        # Verify the output file exists
+        assert os.path.exists(output_file), "Output file was not created."
+
+        # Verify the output file contains data
+        df = pd.read_csv(output_file, sep='\t')
+        assert not df.empty, "Output file is empty."
+
+        # Clean up
+        os.remove(output_file)
+        os.remove(log_file)
 
     # Sample input files
     scaffold_file = 'tests/python/unit/data/instrain/M2042/combined/scaffold_info.tsv'

@@ -24,6 +24,7 @@ from strainscape.utils import (
     load_config,
     read_large_csv,
     get_output_path,
+    get_patient_samples,
 )
 
 @pytest.fixture
@@ -214,10 +215,18 @@ def test_load_config(tmp_path):
     assert "samples" in config
     assert "patient1" in config["samples"]
 
-def test_get_samples(monkeypatch):
-    monkeypatch.setattr("strainscape.utils.load_config", lambda _: {"samples": {"patient1": {"sample1": "file1.txt"}}})
-    result = get_samples("patient1")
-    assert result == {"sample1": "file1.txt"}
+def test_get_samples():
+    # Create test data
+    metadata = pd.DataFrame({
+        'External.ID': ['S1', 'S2', 'S3'],
+        'Participant ID': ['P1', 'P1', 'P2'],
+        'week_num': [1, 2, 1]
+    })
+    
+    # Test the function
+    samples = get_patient_samples(metadata)
+    assert len(samples) > 0
+    assert all(isinstance(s, str) for s in samples)
 
 def test_read_large_csv(tmp_path):
     csv_file = tmp_path / "big.csv"

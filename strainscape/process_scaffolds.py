@@ -105,6 +105,8 @@ def process_scaffolds(
         min_length: Minimum scaffold length
         min_coverage: Minimum coverage
         min_breadth: Minimum breadth
+        min_completeness: Minimum completeness threshold
+        max_contamination: Maximum contamination threshold
         log_file: Optional path to log file
     """
     if log_file:
@@ -117,6 +119,8 @@ def process_scaffolds(
         min_length=min_length,
         min_coverage=min_coverage,
         min_breadth=min_breadth,
+        min_completeness=min_completeness,
+        max_contamination=max_contamination,
         log=logger
     )
 

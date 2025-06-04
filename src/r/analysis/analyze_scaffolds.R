@@ -73,23 +73,32 @@ merge_scaffold_metadata <- function(scaffolds, metadata) {
   left_join(scaffolds, metadata, by = "sample")
 }
 
+wmean <- function(x, w) {
+  ok <- !is.na(x) & !is.na(w)
+  if (!any(ok)) return(NA_real_)
+  sum(x[ok] * w[ok]) / sum(w[ok])
+}
+
 #' Longitudinal summaries per patient x week.
 #' Generates three summary tables (coverage, breadth, diversity) each in wide
 #' and long forms for flexible downstream plotting.
 patient_week_summaries <- function(data) {
   long <- data %>%
     group_by(patient_id, week) %>%
-    summarise(n_scaffolds   = n(),
-              mean_cov      = mean(coverage, na.rm = TRUE),
-              sd_cov        = sd(coverage,   na.rm = TRUE),
-              mean_breadth  = mean(breadth,   na.rm = TRUE),
-              mean_div      = mean(nucl_diversity, na.rm = TRUE),
-              .groups = "drop")
-
+    summarise(
+      n_scaffolds  = n(),
+      mean_cov     = wmean(coverage,        length),
+      sd_cov       = sqrt(wmean((coverage - mean_cov)^2, length)),  # length-weighted SD
+      mean_breadth = wmean(breadth,         length),
+      mean_div     = wmean(nucl_diversity,  length),
+      .groups = "drop"
+    )
+  
   wide <- long %>%
     pivot_wider(names_from = week,
-                values_from = c(n_scaffolds, mean_cov, mean_breadth, mean_div))
-
+                values_from = c(n_scaffolds, mean_cov,
+                                mean_breadth, mean_div))
+  
   list(long = long, wide = wide)
 }
 
@@ -99,13 +108,16 @@ patient_week_summaries <- function(data) {
 patient_bin_summaries <- function(data) {
   data %>%
     group_by(patient_id, week, bin) %>%
-    summarise(mean_cov   = mean(coverage, na.rm = TRUE),
-              mean_bread = mean(breadth,  na.rm = TRUE),
-              mean_div   = mean(nucl_diversity, na.rm = TRUE),
-              completeness = first(Completeness),
-              contamination = first(Contamination),
-              .groups = "drop")
+    summarise(
+      mean_cov   = wmean(coverage,       length),
+      mean_bread = wmean(breadth,        length),
+      mean_div   = wmean(nucl_diversity, length),
+      completeness  = first(completeness),   # unchanged
+      contamination = first(contamination),  # unchanged
+      .groups = "drop"
+    )
 }
+
 
 #' Save a tidy CSV to out_dir with a descriptive filename.
 write_out <- function(df, out_dir, fname) {

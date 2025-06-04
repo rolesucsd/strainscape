@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 import tempfile
 import os
+import logging
 
 # Import the functions to test
 from strainscape.utils import (
@@ -236,4 +237,14 @@ def test_read_large_csv(tmp_path):
 
 def test_get_output_path():
     path = get_output_path("base", "pat", "samp", ".txt")
-    assert path.endswith("pat/samp.txt") 
+    assert path.endswith("pat/samp.txt")
+
+def test_setup_logging_file_without_dir(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    log_file = "temp.log"
+    logger = setup_logging(log_file)
+    logger.info("test")
+    for h in logger.handlers:
+        if isinstance(h, logging.FileHandler):
+            h.flush()
+    assert Path(log_file).exists()

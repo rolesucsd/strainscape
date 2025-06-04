@@ -24,31 +24,31 @@ def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
     Returns:
         Logger instance configured with appropriate handlers.
     """
-    # Get the root logger
     logger = logging.getLogger()
-    
-    # If logger already has handlers, don't add more
-    if logger.handlers:
-        return logger
-        
-    # Set basic configuration
-    logger.setLevel(logging.INFO)
-    
-    # Create formatter
+
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    
-    # Add console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-    
-    # Add file handler if log_file specified
+
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+
     if log_file:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+        log_file = Path(log_file)
+        log_dir = log_file.parent
+        if log_dir and str(log_dir) != '.':
+            os.makedirs(log_dir, exist_ok=True)
+        if not any(
+            isinstance(h, logging.FileHandler) and h.baseFilename == str(log_file)
+            for h in logger.handlers
+        ):
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
 
     return logger
 
@@ -163,8 +163,9 @@ def save_data(data: pd.DataFrame, file_path: str) -> None:
         data: DataFrame to save
         file_path: Path where to save the file
     """
-    # Ensure the directory exists
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    directory = os.path.dirname(file_path)
+    if directory and not os.path.exists(directory):
+        raise OSError(f"Directory does not exist: {directory}")
     data.to_csv(file_path, index=False)
 
 def filter_data(data: pd.DataFrame, condition: str) -> pd.DataFrame:

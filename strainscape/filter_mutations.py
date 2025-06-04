@@ -39,7 +39,7 @@ logger = get_logger(__name__)
 perf_monitor = PerformanceMonitor(logger)
 
 # ─── Helper functions --------------------------------------------------------
-def load_mutation_data(snv_file: Path) -> pd.DataFrame:
+def load_mutation_data(snv_file: Path | str) -> pd.DataFrame:
     """Load mutation data from a TSV file.
 
     Parameters
@@ -59,8 +59,12 @@ def load_mutation_data(snv_file: Path) -> pd.DataFrame:
     pd.DataFrame
         Mutation table.
     """
+    snv_file = Path(snv_file)
     logger.info("Loading mutation data from %s", snv_file)
-    return pd.read_csv(snv_file, sep="\t")
+    df = pd.read_csv(snv_file, sep="\t")
+    if "Sample" not in df.columns:
+        df["Sample"] = snv_file.parent.parent.name
+    return df
 
 
 def filter_by_coverage(

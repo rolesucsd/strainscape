@@ -43,10 +43,3 @@ snakemake --use-conda --conda-frontend conda \
 print_status "Running Python analysis..."
 python src/python/ihmp/main.py \
     --config "$CONFIG_FILE" || print_error "Python analysis failed"
-
-# Run R analysis
-print_status "Running R analysis..."
-Rscript src/r/run_analysis.R \
-    --config "$CONFIG_FILE" || print_error "R analysis failed"
-
-print_status "Pipeline completed successfully!" 

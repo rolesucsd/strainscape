@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 DIR   = Path("/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/output")
 META  = Path("/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/metadata/hmp2_metadata_2018-08-20.csv")
 BINS  = Path("/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/output/patient_bin_summary.csv")
-PREP  = Path("prep")
+PREP  = Path("/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/output/prep")
 PREP.mkdir(exist_ok=True)
 
 # ───────────── helpers ─────────────
@@ -37,6 +37,38 @@ def clean_colnames(df: pd.DataFrame) -> pd.DataFrame:
                            .str.replace(r"_+", "_", regex=True)
                            .str.strip("_"))
     return df
+
+def write_delta_histogram(
+    snvs: pd.DataFrame,
+    out_path: Path,
+    edges: Sequence[float] = np.linspace(0, 1, 21)  # 0.05-wide bins by default
+) -> None:
+    """
+    Compute |max_freq – min_freq| for each SNV, bin the values,
+    and write a tidy table to `out_path` with columns:
+        bin, count
+    Ready for ggplot2::geom_col() or geom_bar().
+    """
+    # 1. ensure frequencies are within [0, 1]
+    clipped = snvs[["min_freq", "max_freq"]].clip(lower=0, upper=1)
+
+    # 2. delta = absolute difference
+    delta = (clipped["max_freq"] - clipped["min_freq"]).abs()
+
+    # 3. bin the deltas
+    labels = [f"{edges[i]:.2f}–{edges[i+1]:.2f}" for i in range(len(edges) - 1)]
+    binned = pd.cut(delta, bins=edges, labels=labels, right=False)
+
+    # 4. histogram
+    hist = (
+        binned.value_counts(sort=False, dropna=False)
+              .reset_index(name="count")
+              .rename(columns={"index": "bin"})
+              .sort_values("bin")
+    )
+
+    hist.to_csv(out_path, index=False)
+    logger.info("Δ-frequency histogram written → %s", out_path)
 
 
 def middle_slash_split(val: str) -> Optional[Tuple[str, str]]:
@@ -94,7 +126,8 @@ def snvs_per_bin(snvs: pd.DataFrame) -> pd.DataFrame:
 def filter_bins_summary(bins_sum: pd.DataFrame, snv_counts: pd.DataFrame) -> pd.DataFrame:
     df = bins_sum.merge(snv_counts, on=["patient_id","bin"], how="inner")
     before = len(df)
-    df = df[df["TRUE"] <= 1000].dropna(subset=["TRUE","FALSE"])
+    feather.write_feather(df, PREP/"bins_summary_filter.feather")
+    df = df[df["TRUE"] <= 500].dropna(subset=["TRUE","FALSE"])
     logger.info("Filter bins TRUE≤1000: %d → %d", before, len(df))
     df["prop"]  = df["TRUE"] / df["FALSE"].replace(0, np.nan)
     df["total"] = df["TRUE"] + df["FALSE"]
@@ -124,7 +157,7 @@ def explode_feature(df: pd.DataFrame, feature_col: str) -> pd.DataFrame:
         mut_type = row.get("mutation_type")
 
         # intergenic middle‑slash
-        if mut_type == "intergenic" and "/" in val:
+        if mut_type == "Intergenic" and "/" in val:
             halves = middle_slash_split(val)
             if halves:
                 for half in halves:
@@ -145,33 +178,77 @@ def explode_feature(df: pd.DataFrame, feature_col: str) -> pd.DataFrame:
     return expanded
 
 
-def fisher_enrich_py(df: pd.DataFrame, feature_col: str) -> pd.DataFrame:
+# ── replace the whole function ───────────────────────────────────────────────
+def fisher_enrich_py(df: pd.DataFrame,
+                     feature_col: str,
+                     min_prop: float = 0.02,
+                     min_abs:  int   = 0) -> pd.DataFrame:
+    """
+    One-sided Fisher enrichment
+    """
+    # explode nested fields, one row per SNV/feature
     expanded = explode_feature(df, feature_col)
-    group_sizes = (expanded[["patient_id","bin","group"]]
-                   .drop_duplicates().groupby("group").size().to_dict())
-    feature_counts = expanded.groupby([feature_col,"group"], as_index=False).size()
-    comparisons: Dict[str, Tuple[str,str]] = {
-        "CD_vs_nonIBD": ("CD","nonIBD"),
-        "CD_vs_UC":     ("CD","UC"),
-        "UC_vs_nonIBD": ("UC","nonIBD")
+
+    # drop rare features
+    total_isolates = expanded[["patient_id", "bin"]].drop_duplicates().shape[0]
+    feat_isolates  = (
+        expanded.groupby(feature_col)
+             .apply(lambda d: d[["patient_id", "bin"]]
+                       .drop_duplicates()
+                       .shape[0], include_groups=False)
+             .reset_index(name="iso_n")
+    )
+    min_needed = max(min_abs, int(min_prop * total_isolates))
+    keep_feats = feat_isolates.loc[feat_isolates.iso_n >= min_needed, feature_col]
+    if keep_feats.empty:
+        return pd.DataFrame()                       # nothing to test
+    expanded = expanded[expanded[feature_col].isin(keep_feats)]
+
+    group_sizes = (
+        expanded[["patient_id", "bin", "group"]]
+             .drop_duplicates()
+             .groupby("group").size().to_dict()
+    )
+    feature_counts = expanded.groupby([feature_col, "group"], as_index=False).size()
+
+    # Fisher for each comparison
+    recs, pairs = [], {
+        "CD_vs_nonIBD": ("CD",  "nonIBD"),
+        "CD_vs_UC":     ("CD",  "UC"),
+        "UC_vs_nonIBD": ("UC",  "nonIBD")
     }
-    recs = []
-    for cname,(g1,g2) in comparisons.items():
-        sub = feature_counts[feature_counts.group.isin([g1,g2])]
-        wide = sub.pivot(index=feature_col, columns="group", values="size").fillna(0)
+    for cname, (g1, g2) in pairs.items():
+        sub  = feature_counts[feature_counts.group.isin([g1, g2])]
+        wide = sub.pivot(index=feature_col,
+                         columns="group",
+                         values="size").fillna(0)
         for feat, row in wide.iterrows():
-            n1,n2 = int(row.get(g1,0)), int(row.get(g2,0))
-            t1,t2 = int(group_sizes.get(g1,0)), int(group_sizes.get(g2,0))
+            n1, n2 = int(row.get(g1, 0)), int(row.get(g2, 0))
+            t1, t2 = int(group_sizes.get(g1, 0)), int(group_sizes.get(g2, 0))
             try:
-                odds,p = fisher_exact([[n1,t1-n1],[n2,t2-n2]])
-            except ValueError:
-                odds,p = np.nan,np.nan
-            enr = ((n1+0.5)/(t1+1e-9))/((n2+0.5)/(t2+1e-9))
-            recs.append({"comparison":cname,"feature":feat,
-                          f"n_{g1}":n1,f"total_{g1}":t1,
-                          f"n_{g2}":n2,f"total_{g2}":t2,
-                          "enrichment":enr,"odds_ratio":odds,"p_value":p})
-    return pd.DataFrame.from_records(recs)
+                odds, p = fisher_exact([[n1, t1 - n1],
+                                        [n2, t2 - n2]])
+            except ValueError:                       # zero marginal
+                odds, p = np.nan, 1.0               # neutral
+            enr = ((n1 + 0.5) / (t1 + 1e-9)) / ((n2 + 0.5) / (t2 + 1e-9))
+            recs.append(dict(comparison=cname, feature=feat,
+                             **{f"n_{g1}": n1, f"total_{g1}": t1,
+                                f"n_{g2}": n2, f"total_{g2}": t2},
+                             enrichment=enr, odds_ratio=odds, p_value=p))
+    out = pd.DataFrame.from_records(recs)
+    if out.empty:
+        return out
+
+    # Benjamini–Hochberg (safe-fill NAs with 1.0)
+    pvals = out.p_value.fillna(1.0).to_numpy()
+    out["FDR"] = multipletests(pvals, method="fdr_bh")[1]
+
+    # convenience columns for volcanoes
+    out["logE"] = np.log10(out.enrichment.replace(0, np.nan))
+    out["logP"] = -np.log10(out.p_value.replace(0, np.nan))
+    out["sig"]  = (out.enrichment > 2) & (out.p_value < 0.05)
+    return out
+
 
 # ───────── main ─────────
 
@@ -181,14 +258,21 @@ def main():
     feather.write_feather(bins_sum, PREP/"bins_summary.feather")
 
     logger.info("Loading SNVs parquet – grab coffee…")
-    snvs      = compute_sweeps(load_snvs_parquet(DIR/"all_snvs"))
+    snvs_raw = load_snvs_parquet(DIR / "all_snvs")
 
+    write_delta_histogram(
+        snvs_raw,
+        PREP / "freq_histogram.csv",
+        edges=np.linspace(0, 1, 21)
+    )
+
+    snvs     = compute_sweeps(snvs_raw)
     sweeps    = snvs[snvs.is_sweep].copy()
+    feather.write_feather(sweeps, PREP/"sweeps.feather")
     counts    = snvs_per_bin(snvs)
     feather.write_feather(counts, PREP/"snvs_per_bin.feather")
 
     bins_filt = filter_bins_summary(bins_sum, counts)
-    feather.write_feather(bins_filt, PREP/"bins_summary_filter.feather")
 
     sweeps_f  = sweeps.merge(bins_filt[["patient_id","bin"]])
     logger.info("Sweeps ≤1k: %d rows", len(sweeps_f))
@@ -206,6 +290,18 @@ def main():
     all_res = []
     for sname,df in subsets.items():
         df = df.merge(meta, on="patient_id", how="left")
+        # Convert numpy arrays/lists to comma-separated strings before dropping duplicates
+        def flatten_val(x):
+            if isinstance(x, (list, np.ndarray, pd.Series)):
+                # Remove NaNs and convert to string
+                vals = [str(i) for i in x if not pd.isna(i)]
+                return ','.join(vals)
+            return x
+        for col in ["gene", "product", "kegg_terms", "go_terms", "ec_terms"]:
+            if col in df.columns:
+                df[col] = df[col].apply(flatten_val)
+        df = df.drop_duplicates(subset=["patient_id", "bin", "gene", "product", 
+                                        "kegg_terms", "go_terms", "ec_terms"])
         logger.info("Subset %s (%d rows)", sname, len(df))
         for fname,col in feat_cols.items():
             if col not in df.columns: continue

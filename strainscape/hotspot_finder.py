@@ -132,7 +132,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--window", type=int, default=10, help="Sliding window size (bp)")
     grp = p.add_mutually_exclusive_group()
     grp.add_argument("--cutoff", type=float, default=0.99, help="Quantile cutoff (e.g. 0.99) within gene")
-    grp.add_argument("--absolute", type=int, help="Absolute count threshold (e.g. 5 mutations)")
+    grp.add_argument("--absolute", type=int, default=5, help="Absolute count threshold (e.g. 5 mutations)")
     p.add_argument("--gene-col", default="gene")
     p.add_argument("--pos-col", default="position")
     p.add_argument("--start", default="start")

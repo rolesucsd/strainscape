@@ -10,7 +10,7 @@ Inputs
 ------
 * ``snv_info.tsv``      : Raw mutation data from inStrain
 * ``processed_scaffolds.tsv`` : Filtered scaffolds that passed QC
-* ``metadata.csv``      : Sample-level metadata
+* ``metadata.txt``      : Sample-level metadata
 
 Outputs
 -------
@@ -27,7 +27,7 @@ from typing import Optional
 
 import pandas as pd
 
-from strainscape.utils import (
+from utils import (
     setup_logging,
     get_logger,
     PerformanceMonitor,
@@ -101,11 +101,20 @@ def load_metadata(meta_csv: Path, *, log: Optional[logging.Logger] = None) -> pd
         "Immunosuppressants (e.g. oral corticosteroids)",
         "hbi",
         "sccai",
+        "calprotectin_less_than_50", "blood_crp_less_than_1", "lysozyme_less_than_600", "secretory_iga_50_to_200"
     ]
 
     # Inspect header first so we can trim eagerly --------------------------------
     with open(meta_csv, "r") as f:
-        header = f.readline().strip().split(",")
+        first_line = f.readline().strip()
+        # Detect delimiter: tab or comma
+        if '\t' in first_line:
+            delimiter = '\t'
+            header = first_line.split('\t')
+        else:
+            delimiter = ','
+            header = first_line.split(',')
+    
     meta_keep = [c for c in essential_cols if c in header]
     missing_essentials = [c for c in essential_cols if c not in header]
     if missing_essentials:
@@ -118,7 +127,7 @@ def load_metadata(meta_csv: Path, *, log: Optional[logging.Logger] = None) -> pd
         missing_optional,
     )
 
-    meta = pd.read_csv(meta_csv, usecols=meta_keep, dtype=str)
+    meta = pd.read_csv(meta_csv, usecols=meta_keep, dtype=str, sep=delimiter)
     # Normalise column names
     meta = meta.rename(
         columns={
@@ -135,8 +144,16 @@ def filter_mutations(
     metadata_file: Path,
     processed_scaffolds_file: Path,
     min_coverage: int = 10,
+    min_week_occurrence: int = 3,
 ) -> None:
-    """Core pipeline for filtering, merging, and writing mutations."""
+    """Core pipeline for filtering, merging, and writing mutations.
+    
+    The pipeline applies the following filters:
+    1. Coverage filter: Keep mutations with coverage >= min_coverage
+    2. Scaffold filter: Keep mutations only on processed scaffolds
+    3. Week occurrence filter: Keep mutations that occur in >= min_week_occurrence weeks
+    4. Duplicate removal: Remove duplicate scaffold+position+Sample combinations
+    """
     # 1) Load -------------------------------------------------------------------
     mutations = load_mutation_data(snv_file)
     logger.info("Loaded %s rows from SNV file", len(mutations))
@@ -164,7 +181,30 @@ def filter_mutations(
     )
     logger.info("%s rows remain after metadata merge", len(mutations))
 
-    # 5) Drop duplicates --------------------------------------------------------
+    # 5) Filter by minimum occurrence across weeks -----------------------------
+    # This filter ensures mutations are only kept if they occur in at least 
+    # min_week_occurrence different weeks for the same scaffold+position.
+    # This helps filter out sequencing errors, rare mutations, and noise.
+    # Count distinct weeks per scaffold+position combination
+    week_counts = mutations.groupby(['scaffold', 'position'])['week_num'].nunique()
+    mutations = mutations.merge(
+        week_counts.reset_index().rename(columns={'week_num': 'week_count'}),
+        on=['scaffold', 'position'],
+        how='inner'
+    )
+    
+    # Filter to keep only mutations that occur in at least min_week_occurrence weeks
+    before = len(mutations)
+    mutations = mutations[mutations['week_count'] >= min_week_occurrence]
+    logger.info(
+        "Filtered to mutations occurring in ≥%s weeks: %s rows remain (dropped %s)",
+        min_week_occurrence, len(mutations), before - len(mutations)
+    )
+    
+    # Drop the temporary week_count column
+    mutations = mutations.drop(columns=['week_count'])
+    
+    # 6) Drop duplicates --------------------------------------------------------
     before = len(mutations)
     mutations = mutations.drop_duplicates(
         subset=["scaffold", "position", "Sample"], keep="first"
@@ -201,6 +241,10 @@ def parse_cli():
         "--min-coverage", type=int, default=10, help="Minimum coverage threshold"
     )
     p.add_argument(
+        "--min-week-occurrence", type=int, default=3, 
+        help="Minimum number of weeks a mutation must occur in (default: 3)"
+    )
+    p.add_argument(
         "--log-file",
         type=Path,
         help="Write detailed log to this file (and still echo to stderr)",
@@ -226,6 +270,7 @@ def main() -> None:
         metadata_file=args.metadata_file,
         processed_scaffolds_file=args.processed_scaffolds_file,
         min_coverage=args.min_coverage,
+        min_week_occurrence=args.min_week_occurrence,
     )
     perf_monitor.end_operation("filter_mutations")
 

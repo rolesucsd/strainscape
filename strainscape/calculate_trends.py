@@ -16,7 +16,7 @@ from pathlib import Path
 import logging, argparse, sys
 import numpy as np, pandas as pd
 from scipy.stats import t
-from strainscape.utils import setup_logging, get_logger
+from utils import setup_logging, get_logger
 
 # Get module logger
 logger = get_logger(__name__)
@@ -24,8 +24,8 @@ logger = get_logger(__name__)
 # ────────── main routine ──────────
 def calc_trends_fast(muts_f  : Path,
                      out_f   : Path,
-                     min_slope=0.01,
-                     p_thr    =0.05):
+                     min_slope=0.00,
+                     p_thr    =1):
 
     logger.info("Load mutations")
     muts = pd.read_csv(muts_f, sep="\t",
@@ -106,6 +106,13 @@ def calc_trends_fast(muts_f  : Path,
     # ── filter by slope & p ──
     out = res[(np.abs(res["slope"])>=min_slope) & (res["p_value"]<=p_thr)]
     logger.info(f"Significant: {len(out):,}")
+    
+    # Save variance = 0 mutations to separate file
+    variance_zero_file = out_f.parent / f"{out_f.stem}_variance_zero.tsv"
+    variance_zero_mutations = res[res['freq_range'] == 0]
+    variance_zero_mutations.to_csv(variance_zero_file, sep="\t", index=False)
+    logger.info(f"Saved {len(variance_zero_mutations):,} variance=0 mutations to {variance_zero_file}")
+    
     out.to_csv(out_f, sep="\t", index=False)
     logger.info(f"Saved → {out_f}")
 
@@ -115,8 +122,8 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     ap.add_argument("--mutation_file",  required=True)
     ap.add_argument("--output_file",    required=True)
-    ap.add_argument("--min_slope",  type=float, default=0.01)
-    ap.add_argument("--p_value",    type=float, default=0.05)
+    ap.add_argument("--min_slope",  type=float, default=0.0)
+    ap.add_argument("--p_value",    type=float, default=1.0)
     ap.add_argument("--log_file", required=False)
     args = ap.parse_args()
 

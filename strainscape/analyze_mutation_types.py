@@ -43,42 +43,46 @@ def get_mutation_type(row: pd.Series, sequences: Dict[str, str], translation_tab
     
     Args:
         row: DataFrame row containing mutation information with columns:
-            - Chromosome: str, chromosome/scaffold name
-            - Position: int, 1-based position
+            - scaffold: str, scaffold name (should match FASTA headers)
+            - position: int, 1-based position
             - ref_base: str, reference base
             - new_base: str, alternate base
-            - coding: str, "genic" or "intergenic"
-            - Start: int, gene start position
-            - Stop: int, gene stop position
-            - Strand: str, "+" or "-"
-        sequences: Dictionary mapping chromosome names to DNA sequences.
+            - intergenic: str, "genic" or "intergenic"
+            - Bakta_Start: int, gene start position
+            - Bakta_Stop: int, gene stop position
+            - Bakta_Strand: str, "+" or "-"
+        sequences: Dictionary mapping scaffold names to DNA sequences.
         translation_table: Optional codon->amino acid translation table.
     Returns:
         Tuple (Mutation_Type, Coding_Status)
     """
     # intergenic fast-exit
-    if row.get("gene_type") == "intergenic":
+    if row.get("intergenic") == "intergenic":
         return ("Intergenic", "Non-Coding")
 
-    # Convert positions to float first, then int to handle decimal points
-    start = int(float(row["Start"]))
-    stop = int(float(row["Stop"]))
-    strand = row["Strand"]
-    pos1 = int(row["Position"])  # 1-based
+    # For genic mutations, we need the gene coordinates to determine mutation type
+    if pd.isna(row.get("Bakta_Start")) or pd.isna(row.get("Bakta_Stop")):
+        return ("Unknown", "Error")
+    
+    start = int(float(row["Bakta_Start"]))
+    stop = int(float(row["Bakta_Stop"]))
+    strand = row["Bakta_Strand"]
+    pos1 = int(row["position"])  # 1-based
     ref_b = row["ref_base"].upper()
     alt_b = row["new_base"].upper()
-    chrom = row["Chromosome"]
+    scaffold = row["scaffold_full"]
 
-    seq = sequences.get(chrom)
-    if seq is None:
-        return ("Silent", "Error")
-
+    # Extract contig part from scaffold name for FASTA matching
+    # scaffold: bc2204_MetaBAT_bin.115|s0.ctg000083l -> contig: s0.ctg000083l
+    contig = scaffold.split('|')[-1] if '|' in scaffold else scaffold
+    
+    seq = sequences.get(contig)
     gene_fwd = seq[start-1:stop]  # forward string
     idx = pos1 - start + 1  # 0-based in gene_fwd
     if idx < 0 or idx >= len(gene_fwd):
-        return ("Silent", "Error")
+        return ("Intergenic", "Intergenic")
     if gene_fwd[idx].upper() != ref_b:
-        return ("Silent", "Error")
+        return ("Silent", "Mismatch")
 
     mut_fwd = gene_fwd[:idx] + alt_b + gene_fwd[idx+1:]
     codon0 = (idx // 3) * 3
@@ -113,19 +117,19 @@ def analyze_mutation_types(mutations: pd.DataFrame, sequences: Dict[str, str]) -
     
     Args:
         mutations: DataFrame containing mutation data with columns:
-            - Chromosome: str, chromosome/scaffold name
-            - Position: int, 1-based position
+            - scaffold_full: str, scaffold name (should match FASTA headers)
+            - position: int, 1-based position
             - ref_base: str, reference base
             - new_base: str, alternate base
-            - coding: str, "genic" or "intergenic"
-            - Start: int, gene start position
-            - Stop: int, gene stop position
-            - Strand: str, "+" or "-"
-        sequences: Dictionary mapping chromosome names to DNA sequences.
+            - intergenic: str, "genic" or "intergenic"
+            - Bakta_Start: int, gene start position
+            - Bakta_Stop: int, gene stop position
+            - Bakta_Strand: str, "+" or "-"
+        sequences: Dictionary mapping scaffold names to DNA sequences.
         
     Returns:
         DataFrame with added columns:
-            - Mutation_Type: str, one of "Silent", "Missense", "Nonsense"
+            - Mutation_Type: str, one of "Silent", "Missense", "Nonsense", "Intergenic", "Unknown"
             - Coding_Status: str, one of "Coding", "Non-Coding", "Error"
     """
     result = mutations.copy()

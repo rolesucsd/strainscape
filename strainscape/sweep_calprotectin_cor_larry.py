@@ -225,6 +225,7 @@ def extract_piecewise_windows(
                     end_idx = j
         
         # Check plateau condition (only when about to stop)
+        net_gain = 0  # Initialize for split_reason logic
         if end_idx - start_idx >= plateau_length:
             recent_points = values[end_idx - plateau_length + 1:end_idx + 1]
             if is_increase:
@@ -240,6 +241,14 @@ def extract_piecewise_windows(
         
         # Create window if it has meaningful length
         if end_idx > start_idx:
+            # Determine split reason
+            if counter_move_length > len_max:
+                split_reason = 'S1'
+            elif end_idx - start_idx >= plateau_length and net_gain <= 0:
+                split_reason = 'S2'
+            else:
+                split_reason = 'S3'
+                
             window = {
                 'series_type': series_type,
                 'direction': 'increase' if is_increase else 'decrease',
@@ -251,7 +260,7 @@ def extract_piecewise_windows(
                 'peak_value': float(peak_val),
                 'amplitude': abs(values[end_idx] - values[start_idx]),
                 'length_weeks': float(times[end_idx] - times[start_idx]),
-                'split_reason': 'S1' if counter_move_length > len_max else 'S2' if net_gain <= 0 else 'S3',
+                'split_reason': split_reason,
                 'merged_from': []
             }
             windows.append(window)

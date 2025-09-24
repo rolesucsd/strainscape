@@ -239,8 +239,9 @@ def extract_piecewise_windows(
                 # Plateau detected - stop window
                 end_idx = end_idx - plateau_length + 1
         
-        # Create window if it has meaningful length
-        if end_idx > start_idx:
+        # Create window if it has meaningful length AND meets amplitude threshold
+        window_amplitude = abs(values[end_idx] - values[start_idx])
+        if end_idx > start_idx and window_amplitude >= amp_max:
             # Determine split reason
             if counter_move_length > len_max:
                 split_reason = 'S1'
@@ -258,7 +259,7 @@ def extract_piecewise_windows(
                 'start_value': float(values[start_idx]),
                 'end_value': float(values[end_idx]),
                 'peak_value': float(peak_val),
-                'amplitude': abs(values[end_idx] - values[start_idx]),
+                'amplitude': window_amplitude,
                 'length_weeks': float(times[end_idx] - times[start_idx]),
                 'split_reason': split_reason,
                 'merged_from': []
@@ -292,20 +293,28 @@ def extract_piecewise_windows(
                 if len(gap_values) > 0:
                     gap_amp = max(gap_values) - min(gap_values)
                     if gap_amp <= amp_max:
-                        # Merge windows
-                        current['end_time'] = next_window['end_time']
-                        current['end_value'] = next_window['end_value']
-                        current['amplitude'] = abs(current['end_value'] - current['start_value'])
-                        current['length_weeks'] = current['end_time'] - current['start_time']
-                        current['merged_from'].append(j)
+                        # Calculate what the merged amplitude would be
+                        merged_amplitude = abs(next_window['end_value'] - current['start_value'])
                         
-                        # Update peak if next window has higher peak
-                        if (current['direction'] == 'increase' and next_window['peak_value'] > current['peak_value']) or \
-                           (current['direction'] == 'decrease' and next_window['peak_value'] < current['peak_value']):
-                            current['peak_time'] = next_window['peak_time']
-                            current['peak_value'] = next_window['peak_value']
-                        
-                        j += 1
+                        # Only merge if the merged amplitude meets the threshold
+                        if merged_amplitude >= amp_max:
+                            # Merge windows
+                            current['end_time'] = next_window['end_time']
+                            current['end_value'] = next_window['end_value']
+                            current['amplitude'] = merged_amplitude
+                            current['length_weeks'] = current['end_time'] - current['start_time']
+                            current['merged_from'].append(j)
+                            
+                            # Update peak if next window has higher peak
+                            if (current['direction'] == 'increase' and next_window['peak_value'] > current['peak_value']) or \
+                               (current['direction'] == 'decrease' and next_window['peak_value'] < current['peak_value']):
+                                current['peak_time'] = next_window['peak_time']
+                                current['peak_value'] = next_window['peak_value']
+                            
+                            j += 1
+                        else:
+                            # Merged amplitude would be too small, stop merging
+                            break
                     else:
                         break
                 else:

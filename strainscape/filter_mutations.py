@@ -27,7 +27,7 @@ from typing import Optional
 
 import pandas as pd
 
-from utils import (
+from strainscape.utils import (
     setup_logging,
     get_logger,
     PerformanceMonitor,
@@ -64,8 +64,8 @@ def load_mutation_data(snv_file: Path | str) -> pd.DataFrame:
     df = pd.read_csv(snv_file, sep="\t")
     if "Sample" not in df.columns:
         df["Sample"] = snv_file.parent.parent.name
+    df["position_coverage"] = pd.to_numeric(df["position_coverage"], errors='coerce').fillna(0).astype(int)
     return df
-
 
 def filter_by_coverage(
     mutations: pd.DataFrame, min_coverage: int = 10

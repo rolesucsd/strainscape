@@ -25,7 +25,7 @@ def get_args():
                    help="combined_processed_scaffolds.txt")
     p.add_argument("--meta-file",     required=True,
                    help="hmp2_metadata_2018-08-20.csv  (only to map sample→patient)")
-    p.add_argument("--out-dir",       default="summaries")
+    p.add_argument("--out-dir",       default="mutation_to_snv_sweep_parquet")
     p.add_argument("--chunk-size",    type=int, default=1_000_000)
     p.add_argument("--low-mem",       action="store_true",
                    help="pass low_memory=False to pandas read_csv")

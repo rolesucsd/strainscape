@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 DIR   = Path("/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/output")
 META  = Path("/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/metadata/hmp2_metadata_2018-08-20.csv")
 BINS  = Path("/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/output/patient_bin_summary.csv")
-PREP  = Path("/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/output/prep")
+PREP  = Path("/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/output/snv_sweeps_enrichment")
 PREP.mkdir(exist_ok=True)
 
 # ───────────── helpers ─────────────
@@ -127,7 +127,8 @@ def filter_bins_summary(bins_sum: pd.DataFrame, snv_counts: pd.DataFrame) -> pd.
     df = bins_sum.merge(snv_counts, on=["patient_id","bin"], how="inner")
     before = len(df)
     feather.write_feather(df, PREP/"bins_summary_filter.feather")
-    df = df[df["TRUE"] <= 500].dropna(subset=["TRUE","FALSE"])
+#    df = df[df["TRUE"] <= 500].dropna(subset=["TRUE","FALSE"])
+    df = df.dropna(subset=["TRUE","FALSE"])
     logger.info("Filter bins TRUE≤1000: %d → %d", before, len(df))
     df["prop"]  = df["TRUE"] / df["FALSE"].replace(0, np.nan)
     df["total"] = df["TRUE"] + df["FALSE"]

@@ -3,13 +3,11 @@ library(tidyverse)
 library(scales)
 library(ggridges)
 
-bin_indentify <- read.delim("/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/output/gtdbtk.bac120.summary.tsv")
-colnames(bin_indentify)[1] <- "bin"
 
 # all events 
 ds <- open_dataset("/Users/reneeoles/Library/CloudStorage/OneDrive-UniversityofCalifornia,SanDiegoHealth/Research/Strain_Evolution/iHMP/output/all_snvs")
 feoB <- ds %>% 
-  filter(gene == "cirA") %>%      # row-level predicate pushed down to each file
+  filter(gene == "feoB") %>%      # row-level predicate pushed down to each file
   collect() %>%
   mutate(is_sweep = freq_range >= 0.7)
 num_cols <- names(feoB)[grepl("^\\d+$", names(feoB))]
@@ -54,7 +52,7 @@ ggplot(feoB_table, aes(x = Var2, y = Perc, fill = Var1)) +
     axis.text.x = element_text(angle = 45, hjust = 1),
     strip.text = element_text(size = 11)
   )
-ggsave(file.path(OUT, "feoA_bars.png"), width = 4, height = 3.5, dpi = 320)
+ggsave(file.path(OUT, "feoB_bars.png"), width = 4, height = 3.5, dpi = 320)
 
 # test for significance
 sweep_by_group <- xtabs(Freq ~ Var3 + Var1, data = feoB_table)
@@ -76,7 +74,7 @@ pairwise_results
 feoB_plot <- feoB_map %>% 
   mutate(
     mut_class = if_else(mutation_type == "Silent", "s", "ns"),
-    group     = factor(group, levels = c("UC", "nonIBD", "CD"))
+    group     = factor(group, levels = c("nonIBD", "UC", "CD"))
   ) %>% 
   group_by(group, mut_class) %>%           # size of each subgroup
   mutate(w = 1 / n()) %>%                  # weight so ∑w = 1 per subgroup
@@ -98,7 +96,7 @@ ggplot(
     name   = "") +
   facet_wrap(~ mut_class, ncol = 1) +
   labs(x = "Frequency range",y = NULL)
-ggsave(file.path(OUT, "feoA_ridge.png"), width = 3.5, height = 3.5, dpi = 320)
+ggsave(file.path(OUT, "feoB_ridge.png"), width = 3.5, height = 3.5, dpi = 320)
 
 # BY species
 feoB_species <- (as.data.frame(table(feoB_map$classification, feoB_map$group)))

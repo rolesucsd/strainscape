@@ -15,8 +15,7 @@ then correlate mutation windows to calprotectin windows.
 Vocabulary
 ----------
 - Point: one measurement in time (usually ~weekly).
-- Trend: direction of change (increase or decrease), determined on a lightly
-  smoothed series (e.g., 3-point median) to suppress single-point noise.
+- Trend: direction of change (increase or decrease)
 - Temporary counter-move (a.k.a. drawdown/drawup): a brief move opposite the
   current trend.
 - Window: a contiguous span of points that is monotone "with tolerance."
@@ -165,22 +164,39 @@ def extract_piecewise_windows(
     i = 0
     
     while i < n - 1:
-        # Find next local extremum to start window
+        # Start from current position - be more permissive about starting windows
         start_idx = i
-        while start_idx < n - 1:
-            if start_idx < 1 or start_idx >= n - 1:
-                break
-            slope = calculate_3point_slope(values, start_idx)
-            if abs(slope) > 1e-6:  # Found a clear trend
-                break
-            start_idx += 1
+        
+        # If we're at the very beginning, start there regardless of slope
+        if start_idx == 0:
+            pass  # Start from beginning
+        else:
+            # For other positions, look for a clear trend
+            while start_idx < n - 1:
+                if start_idx < 1 or start_idx >= n - 1:
+                    break
+                slope = calculate_3point_slope(values, start_idx)
+                if abs(slope) > 1e-6:  # Found a clear trend
+                    break
+                start_idx += 1
+            
+            # If we couldn't find a clear trend, but we're near the end, start anyway
+            if start_idx >= n - 1 and i < n - 2:
+                start_idx = i  # Start from current position
         
         if start_idx >= n - 1:
             break
             
         # Determine initial direction
-        slope = calculate_3point_slope(values, start_idx)
-        is_increase = slope > 0
+        if start_idx == 0:
+            # At the beginning, determine direction by looking at the first few points
+            if len(values) >= 2:
+                is_increase = values[1] > values[0]
+            else:
+                is_increase = True  # Default to increase
+        else:
+            slope = calculate_3point_slope(values, start_idx)
+            is_increase = slope > 0
         
         # Grow window
         end_idx = start_idx
@@ -190,6 +206,12 @@ def extract_piecewise_windows(
         
         for j in range(start_idx + 1, n):
             current_val = values[j]
+            
+            # Check for large time gaps (should split windows)
+            if j > 0:
+                time_gap = times[j] - times[j-1]
+                if time_gap >= 3.0:  # Large time gap detected
+                    break
             
             # Check if this point continues the trend
             if is_increase and current_val >= peak_val:
@@ -217,6 +239,15 @@ def extract_piecewise_windows(
                 # Check length tolerance
                 len_violation = counter_move_length > len_max
                 
+                # Check if this counter-move would lead to a large drop
+                # If the current counter-move is significant, stop the window
+                if is_increase and (peak_val - current_val) > amp_max * 0.8:  # 80% of threshold
+                    # Significant counter-move detected, stop window
+                    break
+                elif not is_increase and (current_val - peak_val) > amp_max * 0.8:  # 80% of threshold
+                    # Significant counter-move detected, stop window
+                    break
+                
                 if amp_violation or len_violation:
                     # Stop window here
                     break
@@ -224,9 +255,10 @@ def extract_piecewise_windows(
                     # Continue with counter-move
                     end_idx = j
         
-        # Check plateau condition (only when about to stop)
+        # Check plateau condition (only when about to stop naturally, not due to violations)
         net_gain = 0  # Initialize for split_reason logic
-        if end_idx - start_idx >= plateau_length:
+        # Only check plateau if we didn't stop due to amplitude/length violation
+        if end_idx - start_idx >= plateau_length and counter_move_length <= len_max:
             recent_points = values[end_idx - plateau_length + 1:end_idx + 1]
             if is_increase:
                 net_gain = recent_points[-1] - recent_points[0]
@@ -235,12 +267,13 @@ def extract_piecewise_windows(
                 net_gain = recent_points[0] - recent_points[-1]
                 avg_gain = net_gain / plateau_length
             
-            if net_gain <= 0 and avg_gain < plateau_threshold:
+            if avg_gain < plateau_threshold:
                 # Plateau detected - stop window
                 end_idx = end_idx - plateau_length + 1
         
         # Create window if it has meaningful length AND meets amplitude threshold
-        window_amplitude = abs(values[end_idx] - values[start_idx])
+        # Use peak value for amplitude calculation, not end value
+        window_amplitude = abs(peak_val - values[start_idx])
         if end_idx > start_idx and window_amplitude >= amp_max:
             # Determine split reason
             if counter_move_length > len_max:
@@ -266,7 +299,8 @@ def extract_piecewise_windows(
             }
             windows.append(window)
         
-        i = end_idx + 1
+        # Start next window from the peak of the current window, not the end
+        i = peak_idx + 1
     
     # Merge adjacent windows with same direction and < 3 week gap
     merged_windows = []
@@ -470,16 +504,32 @@ def correlate_sweep_calprotectin(
         elif len(overlapping_events) == 1:
             cal_event = overlapping_events[0]
             if cal_event['event_type'] == 'surge':
+                # Determine relationship sign: positive if both increase or both decrease, negative otherwise
+                if (sweep['sweep_type'] == 'increase' and cal_event['event_type'] == 'surge') or \
+                   (sweep['sweep_type'] == 'decrease' and cal_event['event_type'] == 'drop'):
+                    relationship_sign = 'positive'
+                else:
+                    relationship_sign = 'negative'
+                
                 correlations['surge_correlated'].append({
                     'sweep': sweep,
                     'calprotectin_event': cal_event,
-                    'correlation_direction': f"sweep_{sweep['sweep_type']}_with_calprotectin_{cal_event['event_type']}"
+                    'correlation_direction': f"sweep_{sweep['sweep_type']}_with_calprotectin_{cal_event['event_type']}",
+                    'relationship_sign': relationship_sign
                 })
             else:
+                # Determine relationship sign: positive if both increase or both decrease, negative otherwise
+                if (sweep['sweep_type'] == 'increase' and cal_event['event_type'] == 'drop') or \
+                   (sweep['sweep_type'] == 'decrease' and cal_event['event_type'] == 'surge'):
+                    relationship_sign = 'positive'
+                else:
+                    relationship_sign = 'negative'
+                
                 correlations['drop_correlated'].append({
                     'sweep': sweep,
                     'calprotectin_event': cal_event,
-                    'correlation_direction': f"sweep_{sweep['sweep_type']}_with_calprotectin_{cal_event['event_type']}"
+                    'correlation_direction': f"sweep_{sweep['sweep_type']}_with_calprotectin_{cal_event['event_type']}",
+                    'relationship_sign': relationship_sign
                 })
         else:
             correlations['multiple_events'].append({

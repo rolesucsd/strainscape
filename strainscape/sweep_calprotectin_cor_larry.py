@@ -2,44 +2,117 @@
 """
 sweep_calprotectin_cor_larry.py
 
-Purpose
--------
-Rapidly correlate mutation sweep events with host inflammation dynamics measured
-by fecal calprotectin. The script keeps all input columns from the mutation file
-and appends correlation annotations per detected sweep.
+===============================================================================
+Windowing & Correlation Rules (Final Spec)
+===============================================================================
 
-High-level flow
----------------
-1) Input mutation table is scanned for timepoint trajectory columns and for an
-   existing per-row sweep flag via `freq_range` (range across the trajectory).
-   We treat rows with `freq_range >= min_sweep_range` as sweeps.
-2) For each swept row, we infer sweep direction (increase/decrease) and window
-   using the min/max of the trajectory and their times.
-3) Calprotectin time series is parsed with robust delimiter detection and then
-   calprotectin events (surges/drops) are identified using biologically grounded
-   thresholds and a rolling baseline.
-4) A permissive temporal overlap check associates each sweep with zero, one,
-   or multiple calprotectin events, recording the directionality context.
+Goal
+----
+Segment each time series (mutation frequency or calprotectin) into
+"piecewise, mostly one-direction" windows that tolerate brief counter-moves,
+then correlate mutation windows to calprotectin windows.
 
-Biological thresholds (calprotectin)
-------------------------------------
-Values in mcg/g are categorized as follows:
-- Normal: < 50
-- Borderline: 50–120
-- Active: >= 120
+Vocabulary
+----------
+- Point: one measurement in time (usually ~weekly).
+- Trend: direction of change (increase or decrease), determined on a lightly
+  smoothed series (e.g., 3-point median) to suppress single-point noise.
+- Temporary counter-move (a.k.a. drawdown/drawup): a brief move opposite the
+  current trend.
+- Window: a contiguous span of points that is monotone "with tolerance."
 
-An event is called when either a category transition occurs relative to the
-rolling baseline category, or when the absolute deviation from baseline is
->= 50 mcg/g. Legacy fold thresholds may also trigger events but are not required.
+Series-specific thresholds
+--------------------------
+We apply the same rules to both series, but with different amplitudes.
 
-Outputs
--------
-Appends to each matched sweep row:
-- correlation_type: uncorrelated / surge_correlated / drop_correlated / multiple_events
-- sweep_type: increase / decrease
-- sweep window metrics (start/end/peak times and frequencies)
-- correlation_direction (e.g., sweep_increase_with_calprotectin_surge)
-- calprotectin event details where applicable
+• MUTATION FREQUENCY (0–1 scale; volatile)
+  - Allowable temporary counter-move amplitude (δ_amp_max_mut): 0.60
+  - Allowable temporary counter-move length    (δ_len_max):     3 points (≈ 3 wks)
+  - Plateau stop test:
+      — No net gain in trend direction for L = 5 points
+      — AND average per-point gain < 0.01 (1 percentage point)
+  - Sweep call: no minimum duration; "net change" gate is handled elsewhere
+    (e.g., freq_range ≥ 0.60).
+
+• CALPROTECTIN (µg/g)
+  - Allowable temporary counter-move amplitude (δ_amp_max_cal): 50 µg/g
+  - Allowable temporary counter-move length    (δ_len_max):     3 points (≈ 3 wks)
+  - Plateau stop test:
+      — No net gain in trend direction for L = 5 points
+      — AND average per-point gain < 10 µg/g
+  - Biological context retained (for reporting, not for splitting):
+      Normal < 50; Borderline 50–120; Active ≥ 120 µg/g.
+
+Piecewise window extraction (applies to BOTH series)
+----------------------------------------------------
+Given a time-ordered series after light smoothing:
+
+1) Seed / start:
+   Scan left→right. Start a new window at a local extremum where the robust
+   slope (e.g., over last 2–3 points) establishes a trend sign.
+
+2) Grow (monotone-with-tolerance):
+   While growing an INCREASE window, maintain the running peak value P.
+   Allow counter-moves that satisfy BOTH:
+     (a) instantaneous amplitude against trend ≤ δ_amp_max (series-specific), and
+     (b) consecutive length of that counter-move ≤ δ_len_max (3 points).
+   Update P whenever a new high is observed. (Mirror with trough for DECREASE.)
+
+3) Stop & split (start next window at the reversal extremum) when ANY holds:
+   S1. Counter-move violates tolerance: amplitude > δ_amp_max OR lasts > δ_len_max.
+   S2. Plateau: over the last L = 5 points, net gain in the trend direction ≤ 0
+       AND the average per-point gain < series threshold (0.01 for mutations,
+       10 µg/g for calprotectin).
+   S3. Persistent reversal: robust slope opposite to the window’s direction for
+       ≥ 3 consecutive points (use if you prefer a stricter reversal criterion).
+
+4) Minimum to KEEP a window:
+   - MUTATIONS: rely on your existing net-change gate (e.g., freq_range ≥ 0.60).
+     No explicit minimum duration imposed here.
+   - CALPROTECTIN: keep any window that passes the rules above; amplitude naturally
+     clears ≥ 50 µg/g when counter-moves are limited to ≤ 50 µg/g.
+
+5) Merge (prevent over-segmentation):
+   If two adjacent windows have the SAME trend direction and the gap between
+   them is < 3 weeks AND the gap's counter-move amplitude stays within the
+   series-specific tolerance (≤ δ_amp_max), MERGE them into one longer window.
+
+Correlation between mutation and calprotectin windows
+-----------------------------------------------------
+- Time units: weeks for everything (lags already converted by caller).
+- For each calprotectin window, define an expanded “influence” interval by
+  adding a pre-event lag and post-event effect (both in weeks).
+- A mutation window is considered correlated if its [start,end] interval
+  overlaps the expanded calprotectin interval.
+- If multiple calprotectin windows overlap a mutation window and are mostly
+  non-overlapping with each other, REPORT THEM ALL (multi-event evidence).
+  When you need a single link, choose the calprotectin window whose midpoint
+  is closest to the mutation window midpoint; break ties by larger amplitude.
+
+Reporting
+---------
+For EVERY kept window, record:
+  series_type (mutation/calprotectin),
+  direction (increase/decrease),
+  start_time, end_time, peak_time (extreme within the window),
+  start_value, end_value, peak_value,
+  amplitude = |end − start|,
+  length_weeks = end − start,
+  split_reason (S1/S2/S3), merged_from (IDs) if applicable.
+
+Notes & Rationale
+-----------------
+- High δ_amp_max for mutations (0.60) is intentional to absorb volatility and
+  preserve long sweeps; the plateau rule (L = 5 with 1%/pt) prevents windows
+  from drifting forever with tiny gains.
+- Calprotectin uses absolute units (50 µg/g tolerance) so windows reflect
+  clinically meaningful swings; 10 µg/g per-point plateau is ~20% of the
+  50 µg/g absolute threshold.
+- The merge rule (< 4 weeks gap) captures short interruptions without losing
+  a biologically continuous episode.
+- Multi-event reporting is ON: if both series go up together, then weeks later
+  both go down together, both episodes are reported—useful corroborative signal.
+===============================================================================
 """
 
 import argparse
@@ -54,53 +127,187 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # -----------------------------
-# Calprotectin event detection (pairwise windows)
+# Piecewise window extraction (both mutation and calprotectin)
 # -----------------------------
 
-# -----------------------------
-# Sweep event extraction (trajectory-level)
-# -----------------------------
-def extract_pairwise_sweeps(
-    traj: pd.Series,
-    min_abs_change_freq: float = 0.6,
+def calculate_3point_slope(values: np.ndarray, idx: int) -> float:
+    """Calculate 3-point slope at index idx."""
+    if idx < 1 or idx >= len(values) - 1:
+        return 0.0
+    return (values[idx + 1] - values[idx - 1]) / 2.0
+
+def extract_piecewise_windows(
+    times: np.ndarray,
+    values: np.ndarray,
+    series_type: str,
+    amp_max: float,
+    len_max: int = 3,
+    plateau_length: int = 5,
+    plateau_threshold: float = 0.01,
 ) -> List[Dict]:
     """
-    Generate all sweep windows from any pair of timepoints (i<j) whose
-    absolute frequency change >= min_abs_change_freq. No preference for
-    shorter windows; return all windows.
-
-    Direction is increase if freq[j] > freq[i], decrease if freq[j] < freq[i].
+    Extract piecewise windows following the specification.
+    
+    Args:
+        times: Time array (weeks)
+        values: Value array
+        series_type: 'mutation' or 'calprotectin'
+        amp_max: Maximum counter-move amplitude tolerance
+        len_max: Maximum counter-move length (points)
+        plateau_length: Points to check for plateau (L=5)
+        plateau_threshold: Per-point gain threshold for plateau detection
     """
-    if len(traj) < 2:
+    if len(values) < 2:
         return []
-
-    times = np.asarray(traj.index, dtype=float)
-    vals = np.asarray(traj.values, dtype=float)
-    n = len(vals)
-    sweeps: List[Dict] = []
-    for i in range(n - 1):
-        for j in range(i + 1, n):
-            vi, vj = float(vals[i]), float(vals[j])
-            if abs(vj - vi) >= float(min_abs_change_freq):
-                ti, tj = float(times[i]), float(times[j])
-                if vj > vi:
-                    sweep_type = 'increase'
-                elif vj < vi:
-                    sweep_type = 'decrease'
+    
+    windows = []
+    n = len(values)
+    i = 0
+    
+    while i < n - 1:
+        # Find next local extremum to start window
+        start_idx = i
+        while start_idx < n - 1:
+            if start_idx < 1 or start_idx >= n - 1:
+                break
+            slope = calculate_3point_slope(values, start_idx)
+            if abs(slope) > 1e-6:  # Found a clear trend
+                break
+            start_idx += 1
+        
+        if start_idx >= n - 1:
+            break
+            
+        # Determine initial direction
+        slope = calculate_3point_slope(values, start_idx)
+        is_increase = slope > 0
+        
+        # Grow window
+        end_idx = start_idx
+        peak_val = values[start_idx]
+        peak_idx = start_idx
+        counter_move_length = 0
+        
+        for j in range(start_idx + 1, n):
+            current_val = values[j]
+            
+            # Check if this point continues the trend
+            if is_increase and current_val >= peak_val:
+                # New high - continue trend
+                peak_val = current_val
+                peak_idx = j
+                end_idx = j
+                counter_move_length = 0
+            elif not is_increase and current_val <= peak_val:
+                # New low - continue trend
+                peak_val = current_val
+                peak_idx = j
+                end_idx = j
+                counter_move_length = 0
+            else:
+                # Counter-move detected
+                counter_move_length += 1
+                
+                # Check amplitude tolerance (one consecutive point)
+                if is_increase:
+                    amp_violation = (peak_val - current_val) > amp_max
                 else:
-                    sweep_type = 'flat'
-                sweeps.append({
-                    'sweep_type': sweep_type,
-                    'start_time': ti,
-                    'peak_time': tj,
-                    'end_time': tj,
-                    'start_freq': vi,
-                    'peak_freq': vj,
-                    'end_freq': vj,
-                    'total_change': vj - vi,
-                    'window_size': int(max(1, round(tj - ti + 1)))
-                })
-    return sweeps
+                    amp_violation = (current_val - peak_val) > amp_max
+                
+                # Check length tolerance
+                len_violation = counter_move_length > len_max
+                
+                if amp_violation or len_violation:
+                    # Stop window here
+                    break
+                else:
+                    # Continue with counter-move
+                    end_idx = j
+        
+        # Check plateau condition (only when about to stop)
+        if end_idx - start_idx >= plateau_length:
+            recent_points = values[end_idx - plateau_length + 1:end_idx + 1]
+            if is_increase:
+                net_gain = recent_points[-1] - recent_points[0]
+                avg_gain = net_gain / plateau_length
+            else:
+                net_gain = recent_points[0] - recent_points[-1]
+                avg_gain = net_gain / plateau_length
+            
+            if net_gain <= 0 and avg_gain < plateau_threshold:
+                # Plateau detected - stop window
+                end_idx = end_idx - plateau_length + 1
+        
+        # Create window if it has meaningful length
+        if end_idx > start_idx:
+            window = {
+                'series_type': series_type,
+                'direction': 'increase' if is_increase else 'decrease',
+                'start_time': float(times[start_idx]),
+                'end_time': float(times[end_idx]),
+                'peak_time': float(times[peak_idx]),
+                'start_value': float(values[start_idx]),
+                'end_value': float(values[end_idx]),
+                'peak_value': float(peak_val),
+                'amplitude': abs(values[end_idx] - values[start_idx]),
+                'length_weeks': float(times[end_idx] - times[start_idx]),
+                'split_reason': 'S1' if counter_move_length > len_max else 'S2' if net_gain <= 0 else 'S3',
+                'merged_from': []
+            }
+            windows.append(window)
+        
+        i = end_idx + 1
+    
+    # Merge adjacent windows with same direction and < 3 week gap
+    merged_windows = []
+    i = 0
+    while i < len(windows):
+        current = windows[i]
+        j = i + 1
+        
+        # Look for windows to merge
+        while j < len(windows):
+            next_window = windows[j]
+            
+            # Check if mergeable
+            gap = next_window['start_time'] - current['end_time']
+            same_direction = current['direction'] == next_window['direction']
+            small_gap = gap < 3.0
+            
+            if same_direction and small_gap:
+                # Check if gap amplitude is within tolerance
+                gap_start_idx = np.where(times == current['end_time'])[0][0]
+                gap_end_idx = np.where(times == next_window['start_time'])[0][0]
+                gap_values = values[gap_start_idx:gap_end_idx + 1]
+                
+                if len(gap_values) > 0:
+                    gap_amp = max(gap_values) - min(gap_values)
+                    if gap_amp <= amp_max:
+                        # Merge windows
+                        current['end_time'] = next_window['end_time']
+                        current['end_value'] = next_window['end_value']
+                        current['amplitude'] = abs(current['end_value'] - current['start_value'])
+                        current['length_weeks'] = current['end_time'] - current['start_time']
+                        current['merged_from'].append(j)
+                        
+                        # Update peak if next window has higher peak
+                        if (current['direction'] == 'increase' and next_window['peak_value'] > current['peak_value']) or \
+                           (current['direction'] == 'decrease' and next_window['peak_value'] < current['peak_value']):
+                            current['peak_time'] = next_window['peak_time']
+                            current['peak_value'] = next_window['peak_value']
+                        
+                        j += 1
+                    else:
+                        break
+                else:
+                    break
+            else:
+                break
+        
+        merged_windows.append(current)
+        i = j
+    
+    return merged_windows
 
 def get_calprotectin_category(value: float, normal_upper: float, active_lower: float) -> str:
     if value < normal_upper:
@@ -144,46 +351,47 @@ def detect_calprotectin_events(
         List of dicts, one per event window, including start/end times/levels,
         categories at both ends, direction, and absolute delta.
     """
-    events = []
     data = calprotectin_data.sort_values('week_num')
     
-    if len(data) < window_size * 2:
-        return events
+    if len(data) < 2:
+        return []
     
     calprotectin = data['calprotectin'].values
     weeks = data['week_num'].values
     
-    # Calculate rolling baseline
     logger.info(
-        "Calprotectin pairwise detection: normal<%.1f, borderline[%.1f, %.1f), active>=%.1f; abs_change>=%.1f",
+        "Calprotectin piecewise detection: normal<%.1f, borderline[%.1f, %.1f), active>=%.1f; amp_max=%.1f",
         normal_upper, normal_upper, active_lower, active_lower, abs_change_threshold
     )
 
-    events: List[Dict] = []
-    for i in range(len(calprotectin) - 1):
-        vi = float(calprotectin[i]); wi = float(weeks[i])
-        ci = get_calprotectin_category(vi, normal_upper, active_lower)
-        for j in range(i+1, len(calprotectin)):
-            vj = float(calprotectin[j]); wj = float(weeks[j])
-            cj = get_calprotectin_category(vj, normal_upper, active_lower)
-            abs_delta = abs(vj - vi)
-            category_change = (ci != cj)
-            if abs_delta >= abs_change_threshold or category_change:
-                event_type = 'surge' if vj > vi else ('drop' if vj < vi else 'flat')
-                events.append({
-                    'event_type': event_type,
-                    'start_time': wi,
-                    'peak_time': wj,
-                    'end_time': wj,
-                    'start_level': vi,
-                    'peak_level': vj,
-                    'end_level': vj,
-                    'fold_change': (vj / vi) if vi not in (0.0,) else np.nan,
-                    'baseline': np.nan,
-                    'baseline_category': ci,
-                    'peak_category': cj,
-                    'abs_delta': abs_delta
-                })
+    # Extract windows using piecewise algorithm
+    windows = extract_piecewise_windows(
+        times=weeks,
+        values=calprotectin,
+        series_type='calprotectin',
+        amp_max=abs_change_threshold,
+        len_max=3,
+        plateau_length=5,
+        plateau_threshold=10.0  # 10 mcg/g per point for calprotectin
+    )
+    
+    # Convert to event format for compatibility
+    events = []
+    for window in windows:
+        events.append({
+            'event_type': 'surge' if window['direction'] == 'increase' else 'drop',
+            'start_time': window['start_time'],
+            'peak_time': window['peak_time'],
+            'end_time': window['end_time'],
+            'start_level': window['start_value'],
+            'peak_level': window['peak_value'],
+            'end_level': window['end_value'],
+            'fold_change': (window['end_value'] / window['start_value']) if window['start_value'] != 0 else np.nan,
+            'baseline': np.nan,
+            'baseline_category': get_calprotectin_category(window['start_value'], normal_upper, active_lower),
+            'peak_category': get_calprotectin_category(window['peak_value'], normal_upper, active_lower),
+            'abs_delta': window['amplitude']
+        })
 
     logger.info("Detected %d calprotectin events", len(events))
     
@@ -288,23 +496,26 @@ def analyze_mutation_trajectories(
     """
     logger.info(f"Analyzing {len(mutation_data)} mutations for sweep events")
     
+    # Filter mutation data first to only include rows with freq_range >= min_sweep_range
+    filtered_mutations = mutation_data[
+        mutation_data['freq_range'].notna() & 
+        (mutation_data['freq_range'] >= min_sweep_range)
+    ].copy()
+    
+    logger.info(f"Filtered to {len(filtered_mutations)} mutations with freq_range >= {min_sweep_range}")
+    
     # Detect calprotectin events once
     calprotectin_events = detect_calprotectin_events(
         calprotectin_data,
         surge_threshold=surge_threshold,
         drop_threshold=drop_threshold,
     )
+    logger.info(f"Detected {len(calprotectin_events)} calprotectin events")
     
     results = []
-    
-    num_gated_out = 0
     num_processed = 0
-    for idx, row in mutation_data.iterrows():
-        # Gate by existing sweep annotation using freq_range
-        freq_range_val = row.get('freq_range', np.nan)
-        if pd.isna(freq_range_val) or float(freq_range_val) < float(min_sweep_range):
-            num_gated_out += 1
-            continue
+    
+    for idx, row in filtered_mutations.iterrows():
         
         # Extract trajectory and normalize time index to numeric weeks
         trajectory = row[traj_cols].dropna()
@@ -318,10 +529,37 @@ def analyze_mutation_trajectories(
         if len(traj) < 2:
             continue
         
-        # Extract all pairwise sweep windows that pass threshold
-        sweep_events = extract_pairwise_sweeps(traj, min_abs_change_freq=float(min_sweep_range))
-        if not sweep_events:
+        # Extract piecewise windows from mutation trajectory
+        times = np.array(traj.index, dtype=float)
+        values = np.array(traj.values, dtype=float)
+        
+        mutation_windows = extract_piecewise_windows(
+            times=times,
+            values=values,
+            series_type='mutation',
+            amp_max=min_sweep_range,  # Use freq_range threshold as amplitude tolerance
+            len_max=3,
+            plateau_length=5,
+            plateau_threshold=0.01  # 1% per point for mutations
+        )
+        
+        if not mutation_windows:
             continue
+        
+        # Convert to sweep events format for compatibility
+        sweep_events = []
+        for window in mutation_windows:
+            sweep_events.append({
+                'sweep_type': window['direction'],
+                'start_time': window['start_time'],
+                'peak_time': window['peak_time'],
+                'end_time': window['end_time'],
+                'start_freq': window['start_value'],
+                'peak_freq': window['peak_value'],
+                'end_freq': window['end_value'],
+                'total_change': window['end_value'] - window['start_value'],
+                'window_size': int(max(1, round(window['length_weeks'])))
+            })
         
         # Correlate each sweep event with calprotectin events
         correlations = correlate_sweep_calprotectin(sweep_events, calprotectin_events, lag_days, effect_days)
@@ -379,10 +617,7 @@ def analyze_mutation_trajectories(
                 results.append(result)
                 num_processed += 1
 
-    logger.info(
-        "Sweep gating summary: kept %d (freq_range>=%.2f), filtered %d",
-        num_processed, min_sweep_range, num_gated_out
-    )
+    logger.info(f"Processed {num_processed} sweep events from {len(filtered_mutations)} filtered mutations")
     
     return pd.DataFrame(results)
 

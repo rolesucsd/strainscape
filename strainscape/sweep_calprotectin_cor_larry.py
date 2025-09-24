@@ -192,22 +192,22 @@ def detect_calprotectin_events(
 def correlate_sweep_calprotectin(
     sweep_events: List[Dict],
     calprotectin_events: List[Dict],
-    lag_days: int = 7,
-    effect_days: int = 14,
+    lag_days: int = 2,
+    effect_days: int = 2,
 ) -> Dict:
     """
     Associate sweep windows with calprotectin event windows.
 
     A calprotectin event window is expanded by a permissive margin to account for
-    anticipated biological lag before sweeps (lag_days) and extended downstream
-    effects after the event (effect_days). Any overlap is considered a positive
+    anticipated biological lag before sweeps (lag_days, in weeks) and extended downstream
+    effects after the event (effect_days, in weeks). Any overlap is considered a positive
     association; directionality is annotated (surge vs drop, increase vs decrease).
 
     Args:
         sweep_events: List of inferred sweep windows and metrics for one row.
         calprotectin_events: Global list of detected calprotectin events.
-        lag_days: Pre-event margin for permissive matching.
-        effect_days: Post-event margin for permissive matching.
+        lag_days: Pre-event margin for permissive matching (weeks).
+        effect_days: Post-event margin for permissive matching (weeks).
 
     Returns:
         Dict keyed by correlation type containing matched sweep-to-event associations.
@@ -271,8 +271,8 @@ def analyze_mutation_trajectories(
     min_sweep_range: float = 0.6,
     surge_threshold: float = 2.0,
     drop_threshold: float = 0.5,
-    lag_days: int = 7,
-    effect_days: int = 14,
+    lag_days: int = 2,
+    effect_days: int = 2,
 ) -> pd.DataFrame:
     """
     For each mutation row, if `freq_range >= min_sweep_range`, infer a single
@@ -396,8 +396,8 @@ def main():
     parser.add_argument("mutation_file", help="analyzed_mutation_types.tsv file")
     parser.add_argument("calprotectin_file", help="CSV with week_num and calprotectin columns")
     parser.add_argument("output_file", help="Output TSV file")
-    parser.add_argument("--lag-days", type=int, default=7, help="Days before calprotectin event to consider")
-    parser.add_argument("--effect-days", type=int, default=14, help="Days after calprotectin event to consider")
+    parser.add_argument("--lag-days", type=int, default=2, help="Weeks before calprotectin event to consider")
+    parser.add_argument("--effect-days", type=int, default=2, help="Weeks after calprotectin event to consider")
     parser.add_argument("--surge-threshold", type=float, default=2.0, help="Fold increase for calprotectin surge")
     parser.add_argument("--drop-threshold", type=float, default=0.5, help="Fold decrease for calprotectin drop")
     parser.add_argument("--min-sweep-change", type=float, default=0.6, help="Minimum frequency change (increase or decrease) for sweep")
@@ -406,13 +406,9 @@ def main():
     args = parser.parse_args()
     
     logger.info("=== Starting Sweep-Calprotectin Correlation Analysis ===")
-    logger.info(f"Parameters: lag_days={args.lag_days}, effect_days={args.effect_days}")
+    logger.info(f"Parameters (weeks): lag={args.lag_days}, effect={args.effect_days}")
     logger.info(f"Thresholds: surge={args.surge_threshold}, drop={args.drop_threshold}")
-    logger.info(
-        "Biology: normal<50, borderline[50,120), active>=120; abs_change>=50 mcg/g; lag=%dd, effect=%dd",
-        args.lag_days,
-        args.effect_days,
-    )
+    logger.info("Biology: normal<50, borderline[50,120), active>=120; abs_change>=50 mcg/g")
     
     # Load data
     logger.info(f"Loading mutation data from {args.mutation_file}")

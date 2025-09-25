@@ -2,53 +2,69 @@
 """
 sweep_calprotectin_cor_larry.py
 
+Correlate mutation sweep events with calprotectin dynamics during sweep timepoints.
+Uses direct slope and absolute change analysis of calprotectin data within sweep windows.
+
 ===============================================================================
-Windowing & Correlation Rules (Final Spec)
+New Correlation Approach (v3.0)
 ===============================================================================
 
 Goal
 ----
-Segment each time series (mutation frequency or calprotectin) into
-"piecewise, mostly one-direction" windows that tolerate brief counter-moves,
-then correlate mutation windows to calprotectin windows.
+For each mutation sweep event, extract calprotectin data within the sweep timepoints
+(± padding), calculate slope and absolute change, and determine if there's a significant
+association based on biologically meaningful thresholds.
 
-Vocabulary
-----------
-- Point: one measurement in time (usually ~weekly).
-- Trend: direction of change (increase or decrease)
-- Temporary counter-move (a.k.a. drawdown/drawup): a brief move opposite the
-  current trend.
-- Window: a contiguous span of points that is monotone "with tolerance."
+Key Algorithm Changes (v3.0)
+----------------------------
+- Direct calprotectin analysis: Extract data during sweep timepoints ± padding_weeks
+- Slope-based correlation: Calculate calprotectin slope (mcg/g per week) during sweep
+- Absolute change correlation: Calculate total calprotectin change during sweep
+- Threshold-based significance: Either absolute slope (|slope|) or absolute change must meet thresholds
+- Direction classification: Positive (same direction) vs Negative (opposite direction)
 
-Series-specific thresholds
---------------------------
-We apply the same rules to both series, but with different amplitudes.
+Mutation Sweep Detection (Unchanged)
+------------------------------------
+- Hard amplitude threshold: ALL mutation windows MUST have sweep_change ≥ 0.6
+- Initial direction: Compare values[1] vs values[0] at start_idx=0
+- Amplitude calculation: Use |peak_val − values[start_idx]|
+- Plateau detection: avg_gain < plateau_threshold (mutations: 0.01 per point)
+- Window continuation: Start next window from peak_idx + 1
+- Merge guard: Only merge windows that maintain amplitude threshold
 
-• MUTATION FREQUENCY (0–1 scale; volatile)
-  - Allowable temporary counter-move amplitude (δ_amp_max_mut): 0.60
-  - Allowable temporary counter-move length    (δ_len_max):     3 points (≈ 3 wks)
-  - Plateau stop test:
-      — No net gain in trend direction for L = 5 points
-      — AND average per-point gain < 0.01 (1 percentage point)
-  - Sweep call: no minimum duration; "net change" gate is handled elsewhere
-    (e.g., freq_range ≥ 0.60).
+Calprotectin Analysis (New)
+---------------------------
+• Extraction window: calprotectin data during [sweep_start − padding_weeks, sweep_end + padding_weeks]
+• Slope (mcg/g per week): (end_value − start_value) / (end_week − start_week)
+• Absolute change (mcg/g): |end_value − start_value|
+• Significance thresholds (defaults):
+  - slope_threshold: |slope| ≥ 5.0 mcg/g/week
+  - abs_change_threshold: |Δ| ≥ 50.0 mcg/g
+  - is_significant = (|slope| ≥ slope_threshold) OR (|Δ| ≥ abs_change_threshold)
+• Correlation classification:
+  - positive_correlated: sweep direction matches calprotectin direction (both rise or both fall)
+  - negative_correlated: sweep direction opposes calprotectin direction (one rises, other falls)
+  - uncorrelated: insufficient points (<2) or not significant
 
-• CALPROTECTIN (µg/g)
-  - Allowable temporary counter-move amplitude (δ_amp_max_cal): 50 µg/g
-  - Allowable temporary counter-move length    (δ_len_max):     3 points (≈ 3 wks)
-  - Plateau stop test:
-      — No net gain in trend direction for L = 5 points
-      — AND average per-point gain < 10 µg/g
-  - Biological context retained (for reporting, not for splitting):
-      Normal < 50; Borderline 50–120; Active ≥ 120 µg/g.
-
-Piecewise window extraction (applies to BOTH series)
+Output Columns
+--------------
+• All original mutation data columns preserved
+• New correlation columns:
+  - correlation_type: positive_correlated/negative_correlated/uncorrelated
+  - relationship_sign: positive/negative (for correlated events)
+  - calprotectin_slope: mcg/g per week during sweep window
+  - calprotectin_abs_change: mcg/g absolute change during sweep window
+  - calprotectin_significant_slope: Boolean (slope >= threshold)
+  - calprotectin_significant_change: Boolean (abs_change >= threshold)
+  - calprotectin_is_significant: Boolean (either slope or change significant)
 ----------------------------------------------------
-Given a time-ordered series after light smoothing:
+Given a time-ordered series (raw data, no smoothing):
 
 1) Seed / start:
    Scan left→right. Start a new window at a local extremum where the robust
    slope (e.g., over last 2–3 points) establishes a trend sign.
+   SPECIAL CASE: At start_idx=0, determine initial direction by comparing
+   values[1] vs values[0] directly (3-point slope returns 0.0 at index 0).
 
 2) Grow (monotone-with-tolerance):
    While growing an INCREASE window, maintain the running peak value P.
@@ -59,15 +75,13 @@ Given a time-ordered series after light smoothing:
 
 3) Stop & split (start next window at the reversal extremum) when ANY holds:
    S1. Counter-move violates tolerance: amplitude > δ_amp_max OR lasts > δ_len_max.
-   S2. Plateau: over the last L = 5 points, net gain in the trend direction ≤ 0
-       AND the average per-point gain < series threshold (0.01 for mutations,
+   S2. Plateau: average per-point gain < series threshold (0.01 for mutations,
        10 µg/g for calprotectin).
-   S3. Persistent reversal: robust slope opposite to the window’s direction for
-       ≥ 3 consecutive points (use if you prefer a stricter reversal criterion).
+   S4. Early counter-move detection: significant counter-move > 0.8 * amp_max
+       detected during window growth (prevents continuing through large drops).
 
 4) Minimum to KEEP a window:
-   - MUTATIONS: rely on your existing net-change gate (e.g., freq_range ≥ 0.60).
-     No explicit minimum duration imposed here.
+   - MUTATIONS: HARD THRESHOLD - sweep_change MUST be >= 0.6 (amplitude from start to peak)
    - CALPROTECTIN: keep any window that passes the rules above; amplitude naturally
      clears ≥ 50 µg/g when counter-moves are limited to ≤ 50 µg/g.
 
@@ -75,18 +89,27 @@ Given a time-ordered series after light smoothing:
    If two adjacent windows have the SAME trend direction and the gap between
    them is < 3 weeks AND the gap's counter-move amplitude stays within the
    series-specific tolerance (≤ δ_amp_max), MERGE them into one longer window.
+   CRITICAL: Only merge if the merged window maintains the amplitude threshold
+   (>= 0.6 for mutations, >= 50 µg/g for calprotectin).
 
-Correlation between mutation and calprotectin windows
------------------------------------------------------
-- Time units: weeks for everything (lags already converted by caller).
-- For each calprotectin window, define an expanded “influence” interval by
-  adding a pre-event lag and post-event effect (both in weeks).
-- A mutation window is considered correlated if its [start,end] interval
-  overlaps the expanded calprotectin interval.
-- If multiple calprotectin windows overlap a mutation window and are mostly
-  non-overlapping with each other, REPORT THEM ALL (multi-event evidence).
-  When you need a single link, choose the calprotectin window whose midpoint
-  is closest to the mutation window midpoint; break ties by larger amplitude.
+6) Window continuation:
+   After creating a window, start the next window from peak_idx + 1 (not end_idx + 1)
+   to allow detection of subsequent events (e.g., decrease after increase).
+
+7) Adjacent timepoint gap cap:
+   A window may span more than 100 weeks overall, but if any consecutive
+   timepoints within the candidate window are separated by ≥ 100 weeks,
+   cancel that window (do not keep it). This prevents single-step jumps from
+   stitching together unrelated epochs.
+
+Correlation analysis (direct, windowed)
+---------------------------------------
+- Time units: weeks for everything.
+- For each mutation sweep window, analyze calprotectin within the padded
+  interval [sweep_start − padding_weeks, sweep_end + padding_weeks].
+- Compute slope and absolute change; apply thresholds as above to set
+  is_significant, then classify positive/negative by relative directions.
+  If not significant or <2 points, classify as uncorrelated.
 
 Reporting
 ---------
@@ -95,22 +118,27 @@ For EVERY kept window, record:
   direction (increase/decrease),
   start_time, end_time, peak_time (extreme within the window),
   start_value, end_value, peak_value,
-  amplitude = |end − start|,
+  amplitude = |peak_value − start_value| (corrected calculation),
   length_weeks = end − start,
-  split_reason (S1/S2/S3), merged_from (IDs) if applicable.
+  correlation_type (uncorrelated/surge_correlated/drop_correlated/multiple_events),
+  relationship_sign ('positive' or 'negative' correlation direction),
+  split_reason (S1/S2/S4), merged_from (IDs) if applicable.
 
 Notes & Rationale
 -----------------
-- High δ_amp_max for mutations (0.60) is intentional to absorb volatility and
-  preserve long sweeps; the plateau rule (L = 5 with 1%/pt) prevents windows
-  from drifting forever with tiny gains.
-- Calprotectin uses absolute units (50 µg/g tolerance) so windows reflect
-  clinically meaningful swings; 10 µg/g per-point plateau is ~20% of the
-  50 µg/g absolute threshold.
-- The merge rule (< 4 weeks gap) captures short interruptions without losing
-  a biologically continuous episode.
-- Multi-event reporting is ON: if both series go up together, then weeks later
-  both go down together, both episodes are reported—useful corroborative signal.
+- Mutation amp tolerance (δ_amp_max = 0.60) absorbs small drawdowns while the
+  plateau rule (avg_gain < 0.01 per point) prevents drifting on noise.
+- Calprotectin uses absolute units (50 mcg/g) so windows reflect clinically
+  meaningful swings; 10 mcg/g per-point plateau is ~20% of that absolute threshold.
+- Merge rule (< 3 weeks gap) captures short interruptions without losing a
+  biologically continuous episode; merged amplitude must still meet the threshold.
+- Hard amplitude threshold (0.6 for mutations) ensures detected sweep events
+  meet biological significance.
+- Amplitude uses peak_value − start_value (not end − start) to reflect the
+  sweep magnitude.
+- Starting next window from peak_idx + 1 enables detecting multiple events
+  (e.g., increase followed by decrease).
+- relationship_sign records correlation directionality explicitly.
 ===============================================================================
 """
 
@@ -159,6 +187,18 @@ def extract_piecewise_windows(
     if len(values) < 2:
         return []
     
+    # Filter out NA values by creating masks
+    valid_mask = ~np.isnan(values)
+    if not np.any(valid_mask):
+        return []
+    
+    # Apply masks to get clean data
+    times = times[valid_mask]
+    values = values[valid_mask]
+    
+    if len(values) < 2:
+        return []
+    
     windows = []
     n = len(values)
     i = 0
@@ -204,14 +244,14 @@ def extract_piecewise_windows(
         peak_idx = start_idx
         counter_move_length = 0
         
+        cancelled_due_to_gap = False
         for j in range(start_idx + 1, n):
             current_val = values[j]
+            # Cancel window if any adjacent timepoint gap within it is ≥ 100 weeks
+            if times[j] - times[j - 1] >= 100.0:
+                cancelled_due_to_gap = True
+                break
             
-            # Check for large time gaps (should split windows)
-            if j > 0:
-                time_gap = times[j] - times[j-1]
-                if time_gap >= 3.0:  # Large time gap detected
-                    break
             
             # Check if this point continues the trend
             if is_increase and current_val >= peak_val:
@@ -274,7 +314,7 @@ def extract_piecewise_windows(
         # Create window if it has meaningful length AND meets amplitude threshold
         # Use peak value for amplitude calculation, not end value
         window_amplitude = abs(peak_val - values[start_idx])
-        if end_idx > start_idx and window_amplitude >= amp_max:
+        if not cancelled_due_to_gap and end_idx > start_idx and window_amplitude >= amp_max:
             # Determine split reason
             if counter_move_length > len_max:
                 split_reason = 'S1'
@@ -300,7 +340,8 @@ def extract_piecewise_windows(
             windows.append(window)
         
         # Start next window from the peak of the current window, not the end
-        i = peak_idx + 1
+        # But ensure we advance to avoid infinite loops
+        i = max(peak_idx, i + 1)
     
     # Merge adjacent windows with same direction and < 3 week gap
     merged_windows = []
@@ -451,91 +492,158 @@ def detect_calprotectin_events(
 
 def correlate_sweep_calprotectin(
     sweep_events: List[Dict],
-    calprotectin_events: List[Dict],
-    lag_days: int = 2,
-    effect_days: int = 2,
+    calprotectin_data: pd.DataFrame,
+    padding_weeks: float = 3.0,
+    slope_threshold: float = 5.0,  # mcg/g per week
+    abs_change_threshold: float = 50.0,  # mcg/g absolute change
+    min_sweep_range: float = 0.6,
 ) -> Dict:
     """
-    Associate sweep windows with calprotectin event windows.
-
-    A calprotectin event window is expanded by a permissive margin to account for
-    anticipated biological lag before sweeps (lag_days, in weeks) and extended downstream
-    effects after the event (effect_days, in weeks). Any overlap is considered a positive
-    association; directionality is annotated (surge vs drop, increase vs decrease).
-
+    Correlate sweep events with calprotectin dynamics during the sweep timepoints.
+    
+    For each sweep event:
+    1. Extract calprotectin data within sweep timepoints ± padding_weeks
+    2. Calculate slope and absolute change of calprotectin during this period
+    3. Apply thresholds to determine if association is significant
+    4. Classify as positive/negative/uncorrelated based on sweep direction vs calprotectin direction
+    
     Args:
-        sweep_events: List of inferred sweep windows and metrics for one row.
-        calprotectin_events: Global list of detected calprotectin events.
-        lag_days: Pre-event margin for permissive matching (weeks).
-        effect_days: Post-event margin for permissive matching (weeks).
-
+        sweep_events: List of sweep event dictionaries
+        calprotectin_data: DataFrame with week_num and calprotectin columns
+        padding_weeks: Weeks to pad around sweep timepoints
+        slope_threshold: Minimum slope (mcg/g per week) for significant association
+        abs_change_threshold: Minimum absolute change (mcg/g) for significant association
+    
     Returns:
-        Dict keyed by correlation type containing matched sweep-to-event associations.
+        Dictionary with correlation classifications
     """
     correlations = {
-        'surge_correlated': [],
-        'drop_correlated': [],
-        'uncorrelated': [],
-        'multiple_events': []
+        'positive_correlated': [],
+        'negative_correlated': [],
+        'uncorrelated': []
     }
     
     for sweep in sweep_events:
         sweep_start = sweep['start_time']
         sweep_end = sweep['end_time']
+
+        # Use the mutation's active change segment (start -> peak) for calprotectin analysis
+        # Fall back to end_time if peak_time is unavailable
+        mutation_change_end = sweep.get('peak_time', sweep_end)
+        # Ensure ordering (some edge cases may have peak before start due to sparse data)
+        if mutation_change_end < sweep_start:
+            mutation_change_end = sweep_end
+
+        # Active slope segment: recent monotonic ramp into the peak
+        # This captures where the mutation actually changes (not the full sweep span)
+        mutation_change_start = sweep_start
+        if 'local_times' in sweep and 'local_values' in sweep:
+            lt = np.array(sweep['local_times'], dtype=float)
+            lv = np.array(sweep['local_values'], dtype=float)
+            try:
+                # indices for start and peak within local window
+                start_idx = int(np.argmin(np.abs(lt - sweep_start)))
+                peak_idx = int(np.argmin(np.abs(lt - mutation_change_end)))
+                if start_idx > peak_idx:
+                    start_idx, peak_idx = peak_idx, start_idx
+                # walk backwards from peak while monotonic in sweep direction
+                i = max(start_idx, peak_idx - 1)
+                if sweep.get('sweep_type') == 'increase':
+                    while i >= start_idx and lv[i] <= lv[i + 1]:
+                        i -= 1
+                else:
+                    while i >= start_idx and lv[i] >= lv[i + 1]:
+                        i -= 1
+                mutation_change_start = lt[max(start_idx, i + 1)]
+            except Exception:
+                pass
         
-        # Find overlapping calprotectin events
-        overlapping_events = []
+        # Define analysis window with padding around the active mutation change segment
+        window_start = mutation_change_start - padding_weeks
+        window_end = mutation_change_end + padding_weeks
         
-        for cal_event in calprotectin_events:
-            # Create permissive window for calprotectin event
-            event_start = cal_event['start_time'] - lag_days
-            event_end = cal_event['end_time'] + effect_days
-            
-            # Check for overlap
-            if (sweep_start <= event_end and sweep_end >= event_start):
-                overlapping_events.append(cal_event)
+        # Extract calprotectin data within the window
+        window_data = calprotectin_data[
+            (calprotectin_data['week_num'] >= window_start) & 
+            (calprotectin_data['week_num'] <= window_end)
+        ].copy()
         
-        # Classify the sweep (any correlation is positive signal)
-        if len(overlapping_events) == 0:
+        if len(window_data) < 2:
+            # Not enough data points for analysis
             correlations['uncorrelated'].append({
                 'sweep': sweep,
-                'calprotectin_events': []
+                'calprotectin_analysis': {
+                    'n_points': len(window_data),
+                    'slope': None,
+                    'abs_change': None,
+                    'start_value': None,
+                    'end_value': None,
+                    'reason': 'insufficient_data'
+                }
             })
-        elif len(overlapping_events) == 1:
-            cal_event = overlapping_events[0]
-            if cal_event['event_type'] == 'surge':
-                # Determine relationship sign: positive if both increase or both decrease, negative otherwise
-                if (sweep['sweep_type'] == 'increase' and cal_event['event_type'] == 'surge') or \
-                   (sweep['sweep_type'] == 'decrease' and cal_event['event_type'] == 'drop'):
-                    relationship_sign = 'positive'
-                else:
-                    relationship_sign = 'negative'
-                
-                correlations['surge_correlated'].append({
-                    'sweep': sweep,
-                    'calprotectin_event': cal_event,
-                    'correlation_direction': f"sweep_{sweep['sweep_type']}_with_calprotectin_{cal_event['event_type']}",
-                    'relationship_sign': relationship_sign
-                })
-            else:
-                # Determine relationship sign: positive if both increase or both decrease, negative otherwise
-                if (sweep['sweep_type'] == 'increase' and cal_event['event_type'] == 'drop') or \
-                   (sweep['sweep_type'] == 'decrease' and cal_event['event_type'] == 'surge'):
-                    relationship_sign = 'positive'
-                else:
-                    relationship_sign = 'negative'
-                
-                correlations['drop_correlated'].append({
-                    'sweep': sweep,
-                    'calprotectin_event': cal_event,
-                    'correlation_direction': f"sweep_{sweep['sweep_type']}_with_calprotectin_{cal_event['event_type']}",
-                    'relationship_sign': relationship_sign
-                })
+            continue
+        
+        # Sort by time
+        window_data = window_data.sort_values('week_num')
+        
+        # Calculate calprotectin dynamics
+        # Find min and max values within the window (regardless of temporal position)
+        min_value = window_data['calprotectin'].min()
+        max_value = window_data['calprotectin'].max()
+        abs_change = abs(max_value - min_value)
+        
+        # Calculate slope using first and last values for temporal trend
+        start_value = window_data['calprotectin'].iloc[0]
+        end_value = window_data['calprotectin'].iloc[-1]
+        time_diff = window_data['week_num'].iloc[-1] - window_data['week_num'].iloc[0]
+        if time_diff > 0:
+            slope = (end_value - start_value) / time_diff
         else:
-            correlations['multiple_events'].append({
+            slope = 0.0
+        
+        # Determine if association is significant
+        significant_slope = abs(slope) >= slope_threshold
+        significant_change = abs_change >= abs_change_threshold
+        is_significant = significant_slope or significant_change
+        
+        calprotectin_analysis = {
+            'n_points': len(window_data),
+            'slope': slope,
+            'abs_change': abs_change,
+            'start_value': start_value,
+            'end_value': end_value,
+            'min_value': min_value,
+            'max_value': max_value,
+            'significant_slope': significant_slope,
+            'significant_change': significant_change,
+            'is_significant': is_significant
+        }
+        
+        if not is_significant:
+            correlations['uncorrelated'].append({
                 'sweep': sweep,
-                'calprotectin_events': overlapping_events,
-                'correlation_direction': f"sweep_{sweep['sweep_type']}_with_multiple_calprotectin_events"
+                'calprotectin_analysis': calprotectin_analysis
+            })
+        else:
+            # Determine correlation direction
+            # Positive: sweep and calprotectin change in same direction
+            # Negative: sweep and calprotectin change in opposite directions
+            
+            sweep_direction = 1 if sweep['sweep_type'] == 'increase' else -1
+            calprotectin_direction = 1 if slope > 0 else -1
+            
+            if sweep_direction * calprotectin_direction > 0:
+                correlation_type = 'positive_correlated'
+                relationship_sign = 'positive'
+            else:
+                correlation_type = 'negative_correlated'
+                relationship_sign = 'negative'
+            
+            correlations[correlation_type].append({
+                'sweep': sweep,
+                'calprotectin_analysis': calprotectin_analysis,
+                'correlation_direction': f"sweep_{sweep['sweep_type']}_with_calprotectin_{'increase' if slope > 0 else 'decrease'}",
+                'relationship_sign': relationship_sign
             })
     
     return correlations
@@ -545,19 +653,14 @@ def analyze_mutation_trajectories(
     calprotectin_data: pd.DataFrame,
     traj_cols: List[str],
     min_sweep_range: float = 0.6,
-    surge_threshold: float = 2.0,
-    drop_threshold: float = 0.5,
-    lag_days: int = 2,
-    effect_days: int = 2,
+    padding_weeks: float = 3.0,
+    slope_threshold: float = 5.0,
+    abs_change_threshold: float = 50.0,
 ) -> pd.DataFrame:
     """
-    For each mutation row, if `freq_range >= min_sweep_range`, infer a single
-    sweep window and direction from trajectory min/max, then correlate it with
-    detected calprotectin events using permissive windows.
-
-    Notes on direction inference:
-      - If the minimum occurs earlier than the maximum, we call it an increase.
-      - Otherwise, we call it a decrease.
+    For each mutation row, if `freq_range >= min_sweep_range`, extract sweep events
+    using piecewise window detection, then correlate each sweep with calprotectin
+    dynamics during the sweep timepoints ± padding.
 
     Returns a DataFrame of annotated rows preserving all original columns plus
     added sweep/correlation annotations.
@@ -571,14 +674,6 @@ def analyze_mutation_trajectories(
     ].copy()
     
     logger.info(f"Filtered to {len(filtered_mutations)} mutations with freq_range >= {min_sweep_range}")
-    
-    # Detect calprotectin events once
-    calprotectin_events = detect_calprotectin_events(
-        calprotectin_data,
-        surge_threshold=surge_threshold,
-        drop_threshold=drop_threshold,
-    )
-    logger.info(f"Detected {len(calprotectin_events)} calprotectin events")
     
     results = []
     num_processed = 0
@@ -617,6 +712,11 @@ def analyze_mutation_trajectories(
         # Convert to sweep events format for compatibility
         sweep_events = []
         for window in mutation_windows:
+            # Collect local trajectory within this window for later narrowing
+            window_mask = (times >= window['start_time']) & (times <= window['end_time'])
+            local_times = times[window_mask]
+            local_values = values[window_mask]
+
             sweep_events.append({
                 'sweep_type': window['direction'],
                 'start_time': window['start_time'],
@@ -626,11 +726,20 @@ def analyze_mutation_trajectories(
                 'peak_freq': window['peak_value'],
                 'end_freq': window['end_value'],
                 'total_change': window['end_value'] - window['start_value'],
-                'window_size': int(max(1, round(window['length_weeks'])))
+                'window_size': int(max(1, round(window['length_weeks']))),
+                'local_times': local_times.tolist(),
+                'local_values': local_values.tolist()
             })
         
-        # Correlate each sweep event with calprotectin events
-        correlations = correlate_sweep_calprotectin(sweep_events, calprotectin_events, lag_days, effect_days)
+        # Correlate each sweep event with calprotectin dynamics
+        correlations = correlate_sweep_calprotectin(
+            sweep_events, 
+            calprotectin_data, 
+            padding_weeks=padding_weeks,
+            slope_threshold=slope_threshold,
+            abs_change_threshold=abs_change_threshold,
+            min_sweep_range=min_sweep_range
+        )
         
         # Add results for each sweep event
         for correlation_type, events in correlations.items():
@@ -661,25 +770,23 @@ def analyze_mutation_trajectories(
                 # Add correlation direction info
                 if 'correlation_direction' in event_data:
                     result['correlation_direction'] = event_data['correlation_direction']
+                if 'relationship_sign' in event_data:
+                    result['relationship_sign'] = event_data['relationship_sign']
                 
-                # Add calprotectin event info if available
-                if 'calprotectin_event' in event_data:
-                    cal_event = event_data['calprotectin_event']
+                # Add calprotectin analysis info
+                if 'calprotectin_analysis' in event_data:
+                    cal_analysis = event_data['calprotectin_analysis']
                     result.update({
-                        'calprotectin_event_type': cal_event['event_type'],
-                        'calprotectin_start_time': cal_event['start_time'],
-                        'calprotectin_peak_time': cal_event['peak_time'],
-                        'calprotectin_end_time': cal_event['end_time'],
-                        'calprotectin_fold_change': cal_event['fold_change'],
-                        'calprotectin_baseline': cal_event['baseline']
-                    })
-                elif 'calprotectin_events' in event_data:
-                    # Multiple events case
-                    cal_events = event_data['calprotectin_events']
-                    result.update({
-                        'calprotectin_event_types': [e['event_type'] for e in cal_events],
-                        'calprotectin_fold_changes': [e['fold_change'] for e in cal_events],
-                        'num_calprotectin_events': len(cal_events)
+                        'calprotectin_n_points': cal_analysis.get('n_points', 0),
+                        'calprotectin_slope': cal_analysis.get('slope'),
+                        'calprotectin_abs_change': cal_analysis.get('abs_change'),
+                        'calprotectin_start_value': cal_analysis.get('start_value'),
+                        'calprotectin_end_value': cal_analysis.get('end_value'),
+                        'calprotectin_min_value': cal_analysis.get('min_value'),
+                        'calprotectin_max_value': cal_analysis.get('max_value'),
+                        'calprotectin_significant_slope': cal_analysis.get('significant_slope', False),
+                        'calprotectin_significant_change': cal_analysis.get('significant_change', False),
+                        'calprotectin_is_significant': cal_analysis.get('is_significant', False)
                     })
                 
                 results.append(result)
@@ -699,19 +806,18 @@ def main():
     parser.add_argument("mutation_file", help="analyzed_mutation_types.tsv file")
     parser.add_argument("calprotectin_file", help="CSV with week_num and calprotectin columns")
     parser.add_argument("output_file", help="Output TSV file")
-    parser.add_argument("--lag-days", type=int, default=2, help="Weeks before calprotectin event to consider")
-    parser.add_argument("--effect-days", type=int, default=2, help="Weeks after calprotectin event to consider")
-    parser.add_argument("--surge-threshold", type=float, default=2.0, help="Fold increase for calprotectin surge")
-    parser.add_argument("--drop-threshold", type=float, default=0.5, help="Fold decrease for calprotectin drop")
+    parser.add_argument("--padding-weeks", type=float, default=3.0, help="Weeks to pad around sweep timepoints for calprotectin analysis")
+    parser.add_argument("--slope-threshold", type=float, default=5.0, help="Minimum slope (mcg/g per week) for significant calprotectin association")
+    parser.add_argument("--abs-change-threshold", type=float, default=50.0, help="Minimum absolute change (mcg/g) for significant calprotectin association")
     parser.add_argument("--min-sweep-change", type=float, default=0.6, help="Minimum frequency change (increase or decrease) for sweep")
     parser.add_argument("--min-peak-freq", type=float, default=0.1, help="Minimum peak frequency for sweep")
     
     args = parser.parse_args()
     
     logger.info("=== Starting Sweep-Calprotectin Correlation Analysis ===")
-    logger.info(f"Parameters (weeks): lag={args.lag_days}, effect={args.effect_days}")
-    logger.info(f"Thresholds: surge={args.surge_threshold}, drop={args.drop_threshold}")
-    logger.info("Biology: normal<50, borderline[50,120), active>=120; abs_change>=50 mcg/g")
+    logger.info(f"Parameters: padding={args.padding_weeks} weeks")
+    logger.info(f"Thresholds: slope>={args.slope_threshold} mcg/g/week, abs_change>={args.abs_change_threshold} mcg/g")
+    logger.info("Analysis: Extract calprotectin dynamics during sweep timepoints ± padding")
     
     # Load data
     logger.info(f"Loading mutation data from {args.mutation_file}")
@@ -760,10 +866,9 @@ def main():
         calprotectin_data, 
         traj_cols,
         min_sweep_range=args.min_sweep_change,
-        surge_threshold=args.surge_threshold,
-        drop_threshold=args.drop_threshold,
-        lag_days=args.lag_days,
-        effect_days=args.effect_days
+        padding_weeks=args.padding_weeks,
+        slope_threshold=args.slope_threshold,
+        abs_change_threshold=args.abs_change_threshold
     )
     
     # Ensure output directory exists

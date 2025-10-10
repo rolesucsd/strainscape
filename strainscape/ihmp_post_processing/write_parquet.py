@@ -4,7 +4,7 @@
 # • Streams a huge mutation table in chunks
 # • *Keeps only sweeping SNVs*   (min_freq < 0·2  &  max_freq > 0·8)
 # • Writes one big Parquet with full annotation for those sweeps
-# • Writes per-gene and per-bin dN/dS tables (all coding SNVs)
+# • Detects sweep variants based on frequency changes over time
 # ---------------------------------------------------------------------------
 
 import argparse, gzip, re, uuid, sys
@@ -18,13 +18,13 @@ from tqdm import tqdm
 
 # ── CLI ────────────────────────────────────────────────────────────────────
 def get_args():
-    p = argparse.ArgumentParser("iHMP sweeps + dN/dS streamer")
+    p = argparse.ArgumentParser("iHMP sweeps detection streamer")
     p.add_argument("--mut-file",      required=True,
                    help="combined_trend_mapped_type.txt[.gz]")
     p.add_argument("--scaffold-file", required=True,
                    help="combined_processed_scaffolds.txt")
     p.add_argument("--meta-file",     required=True,
-                   help="hmp2_metadata_2018-08-20.csv  (only to map sample→patient)")
+                   help="meta_map.csv  (only to map sample→patient)")
     p.add_argument("--out-dir",       default="mutation_to_snv_sweep_parquet")
     p.add_argument("--chunk-size",    type=int, default=1_000_000)
     p.add_argument("--low-mem",       action="store_true",
@@ -35,9 +35,6 @@ def get_args():
 def detect_week_cols(cols: List[str]) -> List[int]:
     return sorted(int(c) for c in cols if re.fullmatch(r"\d+", c))
 
-def classify_dn_ds(mut_type: pd.Series):
-    m = mut_type.str.lower().fillna("")
-    return m.isin(["missense", "nonsense"]), m.eq("silent")
 
 def split_dbxrefs(s: str):
     return [t.strip().lower() for t in str(s).split(",") if t.strip()]
@@ -47,17 +44,47 @@ def extract_ec(tok): return [t for t in tok if t.startswith("ec:") or re.fullmat
 def extract_kegg(tok): return [t for t in tok if t.startswith("kegg:") or re.fullmatch(r"k\d{5}", t)]
 
 def load_bin_map(scaffold_file: str, meta_file: str) -> Dict[Tuple[str,str], str]:
+    print("[DEBUG] Reading meta file:", meta_file)
     meta = pd.read_csv(meta_file, low_memory=False)
     meta.columns = meta.columns.str.strip().str.lower().str.replace(" ","_")
-    sample_col  = "external.id" if "external.id" in meta.columns else "external_id"
-    meta = meta.rename(columns={sample_col:"sample"})[["sample","participant_id"]]\
-               .rename(columns={"participant_id":"patient_id"}).dropna()
 
+    # Prefer 'run' if present (per updated metadata), else fall back to External ID variants
+    candidate_sample_cols = ["run", "external.id", "external_id"]
+    sample_col = None
+    for c in candidate_sample_cols:
+        if c in meta.columns and meta[c].notna().any():
+            sample_col = c
+            break
+    if sample_col is None:
+        raise ValueError("Could not find a sample identifier column in metadata (tried: Run, External.ID).")
+
+    # Harmonise columns and drop NAs to avoid merge issues
+    meta = (meta.rename(columns={sample_col: "sample"})
+                [["sample", "participant_id"]]
+                .rename(columns={"participant_id": "patient_id"})
+                .dropna(subset=["sample", "patient_id"]))
+
+    # Normalise whitespace/case for robust merges
+    meta["sample"] = meta["sample"].astype(str).str.strip()
+    meta["patient_id"] = meta["patient_id"].astype(str).str.strip()
+    print(f"[DEBUG] Meta rows: {len(meta)} | unique samples: {meta['sample'].nunique()} | unique patients: {meta['patient_id'].nunique()}")
+
+    print("[DEBUG] Reading scaffold file:", scaffold_file)
     scaf = pd.read_csv(scaffold_file, sep="\t",
                        usecols=["scaffold","Sample","bin"], low_memory=False)
     scaf.columns = scaf.columns.str.lower()
 
-    mp = scaf.merge(meta, on="sample", how="left").dropna(subset=["patient_id"])
+    # Ensure sample column normalisation matches metadata
+    if "sample" in scaf.columns:
+        scaf["sample"] = scaf["sample"].astype(str).str.strip()
+    print(f"[DEBUG] Scaffold rows: {len(scaf)} | unique scaffolds: {scaf['scaffold'].nunique()} | unique samples: {scaf['sample'].nunique()} | unique bins: {scaf['bin'].nunique()}")
+
+    print("[DEBUG] Merging scaffold↔meta on sample")
+    mp_full = scaf.merge(meta, on="sample", how="left")
+    missing_pat = mp_full["patient_id"].isna().sum()
+    print(f"[DEBUG] Merge rows: {len(mp_full)} | rows missing patient_id: {missing_pat}")
+    mp = mp_full.dropna(subset=["patient_id"])
+    print(f"[DEBUG] Mapping entries (patient, scaffold)->bin: {len(mp)} (unique keys: {mp[['patient_id','scaffold']].drop_duplicates().shape[0]})")
     return {(r.patient_id, r.scaffold): r.bin for r in mp.itertuples(index=False)}
 
 def append_parquet(dir_path: Path, df: pd.DataFrame):
@@ -85,7 +112,6 @@ def main():
     total_rows  = sum(1 for _ in opener(a.mut_file, "rt")) - 1
     pbar        = tqdm(total=total_rows, unit="rows")
 
-    runs = {"gene_dnds":None, "bin_dnds":None}       # incremental dN/dS
 
     # ── iterate CSV chunks ---------------------------------------------------
     for chunk in pd.read_csv(a.mut_file, sep="\t",
@@ -106,6 +132,10 @@ def main():
         if "bin" not in chunk.columns:
             chunk["bin"] = [bin_map.get((pid, chrom))
                             for pid, chrom in zip(chunk.patient_id, chunk.chromosome)]
+        # Chunk-level debug on bin assignment
+        na_bins = chunk["bin"].isna().sum() if "bin" in chunk.columns else len(chunk)
+        uniq_bins = chunk["bin"].nunique(dropna=True) if "bin" in chunk.columns else 0
+        print(f"[DEBUG] Chunk rows: {len(chunk)} | NA bins: {na_bins} | unique bins in chunk: {uniq_bins}")
 
         # functional tokens --------------------------------------------------
         if "dbxrefs" in chunk.columns and "go_terms" not in chunk.columns:
@@ -115,65 +145,57 @@ def main():
             chunk["ec_terms"] = toks.apply(extract_ec)
 
         # per-variant min/max freq ------------------------------------------
-        id_cols = [c for c in chunk.columns if c not in map(str,week_cols)]
-        long_df = (chunk.melt(id_vars=id_cols, value_vars=list(map(str, week_cols)),
-                              var_name="week_num", value_name="freq")
-                         .dropna(subset=["freq"]))
-        var_mm = (long_df.groupby(["patient_id","chromosome","position"], as_index=False)
-                           .agg(min_f=("freq","min"),
-                                max_f=("freq","max")))
+        # 1) Make sure week columns exist as strings and are numeric
+        week_str = [str(c) for c in week_cols if str(c) in chunk.columns]
+        for c in week_str:
+            chunk[c] = pd.to_numeric(chunk[c], errors="coerce")
 
-        # join min/max back to main table  ----------------------------------
-        chunk = chunk.merge(var_mm, on=["patient_id","chromosome","position"])
+        # 2) Auto-detect percent scale and clamp to [0,1]
+        vals = chunk[week_str].to_numpy(dtype=float)  # shape = (n_rows, n_weeks)
 
-        freq_cols = list(map(str, week_cols))           # ensure week columns are strings
-        # apply row-wise; fine inside a 1 M-row chunk
-        sweep_mask            = (chunk.min_f < .20) & (chunk.max_f > .80)
-        chunk["is_sweep"]     = sweep_mask       # boolean column
+        # Heuristic: if ≥10% of entries > 1 and <1% > 100, treat as percent & scale
+        with np.errstate(invalid="ignore"):
+            frac_gt1   = np.nanmean(vals > 1.0)
+            frac_gt100 = np.nanmean(vals > 100.0)
+        if (frac_gt1 > 0.10) and (frac_gt100 < 0.01):
+            vals = vals / 100.0
+
+        # Clamp to [0,1]
+        vals = np.clip(vals, 0.0, 1.0)
+
+        # 3) Per-variant stats across weeks
+        n_obs         = np.sum(~np.isnan(vals), axis=1)
+        min_f         = np.nanmin(vals, axis=1)
+        max_f         = np.nanmax(vals, axis=1)
+        freq_range    = max_f - min_f
+
+        # 4) Put back into the chunk (after clamping)
+        chunk["n_obs"]      = n_obs
+        chunk["min_f"]      = min_f
+        chunk["max_f"]      = max_f
+        chunk["freq_range"] = freq_range
+
+        # 5) Robust sweep call (direction-agnostic)
+        LO, HI        = 0.20, 0.80
+        MIN_POINTS    = 3         # require at least 3 observed time points (was 5, but 27.5% of variants only have 3 obs)
+        MIN_RANGE     = 0.60      # HI-LO is 0.60, so anything that meets extremes will pass
+
+        sweep_mask = (chunk["n_obs"] >= MIN_POINTS) & \
+                     (chunk["min_f"] <= LO) & (chunk["max_f"] >= HI) & \
+                     (chunk["freq_range"] >= MIN_RANGE)
+
+        chunk["is_sweep"] = sweep_mask
 
         append_parquet(out_dir / "all_snvs",   chunk)
         append_parquet(out_dir / "sweep_variants", chunk.loc[sweep_mask])
 
-        # dN/dS – still use ALL coding SNVs ---------------------------------
-        is_dn, is_ds = classify_dn_ds(chunk.mutation_type)
-        coding_mask  = is_dn | is_ds
-        coding       = chunk[coding_mask]
-
-        if "gene" in coding.columns:
-            gene_part = (coding.assign(is_dn=is_dn[coding_mask],
-                                       is_ds=is_ds[coding_mask])
-                               .groupby(["patient_id","gene"], as_index=False)
-                               .agg(dn=("is_dn","sum"), ds=("is_ds","sum")))
-            runs["gene_dnds"] = (pd.concat([runs["gene_dnds"], gene_part])
-                                   if runs["gene_dnds"] is not None else gene_part)
-
-        if "bin" in coding.columns:
-            bin_part  = (coding.assign(is_dn=is_dn[coding_mask],
-                                       is_ds=is_ds[coding_mask])
-                               .dropna(subset=["bin"])
-                               .groupby(["patient_id","bin"], as_index=False)
-                               .agg(dn=("is_dn","sum"), ds=("is_ds","sum")))
-            runs["bin_dnds"] = (pd.concat([runs["bin_dnds"], bin_part])
-                                   if runs["bin_dnds"] is not None else bin_part)
-
         pbar.update(len(chunk))
     pbar.close()
-
-    # ── finalise dN/dS tables ----------------------------------------------
-    for name in ["gene_dnds","bin_dnds"]:
-        df = runs[name]
-        if df is None: continue
-        df = df.groupby(df.columns.tolist()[:-2], as_index=False).sum()  # collapse duplicates
-        df["dnds"] = df.apply(lambda r: r.dn / r.ds if r.ds else np.nan, axis=1)
-        pq.write_table(pa.Table.from_pandas(df, preserve_index=False),
-                       out_dir/f"{name}.parquet", compression="snappy")
-        print(f"✔ {name}.parquet ({df.shape[0]:,} rows)")
 
     # ────────────────────────────────────────────────────────────────────────
     print("🏁 Finished – wrote:")
     print("   • all_snvs/part-*.parquet        (every SNV, flag = is_sweep)")
     print("   • sweep_variants/part-*.parquet  (subset where is_sweep == TRUE)")
-    print("   • gene_dnds.parquet | bin_dnds.parquet")
 
 if __name__ == "__main__":
     main()

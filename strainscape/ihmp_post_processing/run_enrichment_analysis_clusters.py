@@ -192,7 +192,7 @@ def load_filter(filter_path: Optional[Path]) -> Optional[pd.DataFrame]:
 # Core builders - New weighted SNV approach
 # ─────────────────────────────────────────────────────────────────────────────
 
-def combine_gene_mass(freqs: pd.Series, how: str = "prob_any", power: float = 1.0) -> float:
+def combine_gene_mass(freqs: pd.Series, how: str = "prob_any", power: float = 2.0) -> float:
     # Emphasize higher-frequency mutations by exponentiating per-site f
     f = np.clip(freqs.astype(float).values, 0.0, 1.0) ** float(power)
     if f.size == 0:
@@ -207,17 +207,23 @@ def combine_gene_mass(freqs: pd.Series, how: str = "prob_any", power: float = 1.
 
 def observed_feature_mass(snvs: pd.DataFrame, fm: pd.DataFrame,
                           collapse: str = "prob_any",
-                          freq_power: float = 1.0
-                         ) -> tuple[pd.Series, pd.Series, pd.DataFrame, pd.DataFrame, pd.Series]:
+                          freq_power: float = 2.0
+                         ) -> tuple[pd.Series, pd.Series, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     # Collapse to one mass per (iso_id, locus_tag)
     snvs = snvs.copy()
     gene_mass = (snvs.groupby(["iso_id","locus_tag"], observed=True)["freq_range"]
                       .apply(lambda s: combine_gene_mass(s, how=collapse, power=freq_power))
                       .rename("m_gene").reset_index())
 
+    # Calculate average frequency per gene (before power transformation)
+    gene_avg_freq = (snvs.groupby(["iso_id","locus_tag"], observed=True)["freq_range"]
+                           .mean()
+                           .rename("avg_freq").reset_index())
+
     # Keep only genes that have at least one feature
     joinable = fm[["iso_id","locus_tag"]].drop_duplicates()
     gene_mass = gene_mass.merge(joinable, on=["iso_id","locus_tag"], how="inner", sort=False)
+    gene_avg_freq = gene_avg_freq.merge(joinable, on=["iso_id","locus_tag"], how="inner", sort=False)
 
     # Binary "event": gene mutated in this isolate if m_gene > 0
     mutated_genes = gene_mass.loc[gene_mass["m_gene"] > 0, ["iso_id","locus_tag"]].drop_duplicates()
@@ -237,6 +243,15 @@ def observed_feature_mass(snvs: pd.DataFrame, fm: pd.DataFrame,
     # Observed mass per feature
     obs = snv_feat.groupby("feature", observed=True)["mass"].sum()
 
+    # Calculate weighted average frequency per feature
+    # Weight by the gene mass contribution to each feature
+    snv_feat_with_freq = snv_feat.merge(gene_avg_freq, on=["iso_id","locus_tag"], how="left")
+    snv_feat_with_freq["freq_weight"] = snv_feat_with_freq["m_gene"]  # weight by gene mass
+    
+    # Weighted average frequency per feature
+    avg_freq = (snv_feat_with_freq.groupby("feature", observed=True)
+                                 .apply(lambda x: np.average(x["avg_freq"], weights=x["freq_weight"])))
+
     # Participant support
     iso2pat = snvs[["iso_id","patient_id"]].drop_duplicates()
     support = (snv_feat[["iso_id","feature"]]
@@ -248,7 +263,7 @@ def observed_feature_mass(snvs: pd.DataFrame, fm: pd.DataFrame,
                          .agg(T="sum", S2=lambda x: np.square(x).sum())
                          .astype(float))
 
-    return obs, support, iso_totals, snv_feat, events
+    return obs, support, iso_totals, snv_feat, events, avg_freq
 
 def iso_pq(fm: pd.DataFrame) -> tuple[dict, dict]:
     """
@@ -313,35 +328,6 @@ def feature_enrichment_analytic(obs: pd.Series,
     }).sort_values(["FDR_upper","p_upper"])
     return out
 
-# Optional: tiny permutation fallback for very low-variance features
-def permute_subset_pvalues(target_feats: list[str], B: int,
-                           snv_feat: pd.DataFrame,      # from step 4 join (has iso_id, feature, mass)
-                           fm: pd.DataFrame):           # feature map (iso_id, locus_tag, feature, w_split)
-    import numpy.random as npr
-    # build per-iso feature probabilities p_i,k from fm
-    p_map, _ = iso_pq(fm)
-    obs = snv_feat.groupby("feature")["mass"].sum()
-    # per iso: list of SNV masses
-    masses_by_iso = snv_feat.groupby("iso_id")["mass"].apply(list).to_dict()
-
-    perm_exceed = {k:0 for k in target_feats}
-    for _ in range(B):
-        tot = {k:0.0 for k in target_feats}
-        for iso, masses in masses_by_iso.items():
-            p = p_map.get(iso, pd.Series(dtype=float))
-            if p.empty: continue
-            feats = p.index.to_numpy()
-            probs = (p / p.sum()).to_numpy() if p.sum()>0 else None
-            if probs is None: continue
-            # draw a feature for each mass, add mass to that feature
-            picks = feats[npr.choice(len(feats), size=len(masses), p=probs, replace=True)]
-            for m, f in zip(masses, picks):
-                if f in tot: tot[f] += m
-        for k in target_feats:
-            if tot.get(k,0.0) >= obs.get(k,0.0): perm_exceed[k]+=1
-
-    return {k: (perm_exceed[k]+1)/(B+1) for k in target_feats}
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Core builders - Legacy (for reference)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -386,14 +372,6 @@ def run(args):
     # CRITICAL: Split locus tags containing '/' into separate rows and divide freq_range
     log.info("Splitting locus tags and dividing freq_range weights...")
     snv = split_locus_tags(snv, weight_col="freq_range")
-    
-    # Apply frequency floor filtering if specified
-    if args.freq_floor > 0.0:
-        log.info(f"Applying frequency floor filter (freq_range >= {args.freq_floor})...")
-        before_count = len(snv)
-        snv = snv[snv["freq_range"] >= args.freq_floor].copy()
-        after_count = len(snv)
-        log.info(f"Frequency floor filtering: {before_count} -> {after_count} SNVs ({after_count/before_count:.1%} retained)")
 
     # Apply filtering if provided
     if flt is not None:
@@ -463,7 +441,7 @@ def run(args):
 
     # Compute observed feature masses (all SNVs, weighted by freq_range)
     log.info("Computing observed feature masses from all SNVs...")
-    obs, support, iso_totals, snv_feat, n_events = observed_feature_mass(
+    obs, support, iso_totals, snv_feat, n_events, avg_freq = observed_feature_mass(
         snv, fm, collapse=args.collapse, freq_power=args.freq_power
     )
     iso_totals.index.name = "iso_id"  # (for the loop in feature_enrichment_analytic)
@@ -493,8 +471,9 @@ def run(args):
     if abs(sum_obs - sum_T) > 1e-6 * max(1.0, sum_T):
         log.warning("[CHECK] Observed mass does NOT equal ΣT. Inspect join/split logic.")
 
-    # Add event counts to results and filter by minimum events
+    # Add event counts and average frequency to results
     res["n_events"] = n_events.reindex(res["feature"]).fillna(0).astype(int).values
+    res["avg_freq_range"] = avg_freq.reindex(res["feature"]).fillna(0.0).values
     
     # Log event distribution
     log.info("[EVENTS] %d / %d features have ≥%d events",
@@ -539,7 +518,7 @@ def parse_args():
                     help="Compiled MAG gene TSV (patient_id, bin, locus_tag, cluster_rep, rep_gene, rep_dbxrefs)")
     ap.add_argument("--out-dir", type=Path, required=True)
     ap.add_argument("--group", choices=["ALL","IBD","nonIBD"], default="IBD")
-    ap.add_argument("--feature-type", choices=["kegg","go","ec","gene"], default="kegg")
+    ap.add_argument("--feature-type", choices=["kegg","go","ec","gene"], default="gene")
     ap.add_argument("--filter-file", type=Path, help="Optional TSV with patient_id and bin to keep")
     ap.add_argument("--p-thresh", type=float, default=0.05)
     ap.add_argument("--min-enrichment", type=float, default=2.0)

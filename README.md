@@ -130,6 +130,8 @@ snakemake --use-conda --cores 16 --configfile config/config.yaml
 4. **InStrain** (`instrain.smk`): per‐sample SNV/scaffold profiling
 5. **SNP Tracking** (`snp_tracking.smk`): combine tables, filter, compute trends, map to genes, classify mutation types
 
+See `docs/pipeline_overview.md` for a diagrammed schematic with tool notes and key artifacts for each step.
+
 ---
 
 ## 🤝 Contributing

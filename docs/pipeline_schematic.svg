@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" aria-labelledby="title desc" role="img">
+  <title id="title">StrainScape pipeline schematic</title>
+  <desc id="desc">High-level workflow from raw reads through assembly, binning, strain profiling, and mutation analysis.</desc>
+  <style>
+    .stage { fill:#f8fafc; stroke:#0f172a; stroke-width:2; rx:12; ry:12; }
+    .arrow { marker-end:url(#arrowhead); stroke:#0f172a; stroke-width:2; fill:none; }
+    .label { font-family: "Inter", "Helvetica", "Arial", sans-serif; font-size:16px; fill:#0f172a; }
+    .title { font-weight:700; font-size:18px; }
+    .note { font-size:14px; fill:#334155; }
+    .swim { font-size:18px; font-weight:700; fill:#0f172a; }
+  </style>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0f172a" />
+    </marker>
+  </defs>
+
+  <!-- Lanes -->
+  <text x="100" y="70" class="swim">Input</text>
+  <text x="100" y="240" class="swim">Assembly</text>
+  <text x="100" y="410" class="swim">Mapping & Binning</text>
+  <text x="100" y="580" class="swim">InStrain</text>
+  <text x="100" y="760" class="swim">SNP Tracking</text>
+
+  <!-- Raw reads -->
+  <rect x="230" y="40" width="240" height="90" class="stage" />
+  <text x="250" y="75" class="label title">Raw FASTQs</text>
+  <text x="250" y="100" class="label note">Per-patient manifests in config drive sample discovery</text>
+
+  <!-- Assembly block -->
+  <rect x="230" y="210" width="240" height="110" class="stage" />
+  <text x="250" y="245" class="label title">Co-assembly</text>
+  <text x="250" y="270" class="label note">MEGAHIT with k-mer sweep</text>
+  <text x="250" y="295" class="label note">Outputs: final_contigs.fa</text>
+
+  <rect x="520" y="210" width="230" height="110" class="stage" />
+  <text x="540" y="245" class="label title">Filter & annotate</text>
+  <text x="540" y="270" class="label note">SeqKit >1 kb; STB scaffold-bin map</text>
+  <text x="540" y="295" class="label note">Bakta gene TSV + FNA</text>
+
+  <!-- Mapping & binning block -->
+  <rect x="230" y="380" width="230" height="130" class="stage" />
+  <text x="250" y="415" class="label title">Mapping</text>
+  <text x="250" y="440" class="label note">BWA index + MEM align</text>
+  <text x="250" y="465" class="label note">Filter/sort BAM + flagstat</text>
+
+  <rect x="520" y="380" width="230" height="130" class="stage" />
+  <text x="540" y="415" class="label title">Depth & binning</text>
+  <text x="540" y="440" class="label note">jgi_summarize_bam_contig_depths</text>
+  <text x="540" y="465" class="label note">MetaBAT2 bins + CheckM2 QC</text>
+  <text x="540" y="490" class="label note">bins.txt scaffold→bin map</text>
+
+  <!-- InStrain block -->
+  <rect x="230" y="550" width="230" height="120" class="stage" />
+  <text x="250" y="585" class="label title">Per-sample profiling</text>
+  <text x="250" y="610" class="label note">InStrain profile on sorted BAMs</text>
+  <text x="250" y="635" class="label note">Outputs: SNVs + scaffold info</text>
+
+  <rect x="520" y="550" width="230" height="120" class="stage" />
+  <text x="540" y="585" class="label title">Combine tables</text>
+  <text x="540" y="610" class="label note">Merge SNV & scaffold TSVs per patient</text>
+  <text x="540" y="635" class="label note">Handle empty inputs safely</text>
+
+  <!-- SNP tracking block -->
+  <rect x="230" y="720" width="230" height="130" class="stage" />
+  <text x="250" y="755" class="label title">Process scaffolds</text>
+  <text x="250" y="780" class="label note">Filter by length/coverage/breadth</text>
+  <text x="250" y="805" class="label note">Merge with bins & metadata</text>
+
+  <rect x="520" y="720" width="230" height="130" class="stage" />
+  <text x="540" y="755" class="label title">Mutation trends</text>
+  <text x="540" y="780" class="label note">Filter SNVs, compute trends</text>
+  <text x="540" y="805" class="label note">Map to genes & classify types</text>
+
+  <rect x="820" y="720" width="230" height="130" class="stage" />
+  <text x="840" y="755" class="label title">Combined outputs</text>
+  <text x="840" y="780" class="label note">All patients: trend/mapped/type</text>
+  <text x="840" y="805" class="label note">Combined processed scaffolds</text>
+
+  <!-- Arrows row by row -->
+  <path d="M470 85 H520" class="arrow" />
+
+  <path d="M470 265 H520" class="arrow" />
+  <path d="M750 265 V445 H760" class="arrow" />
+
+  <path d="M470 445 H520" class="arrow" />
+  <path d="M750 445 V600 H760" class="arrow" />
+
+  <path d="M470 610 H520" class="arrow" />
+  <path d="M750 610 V785 H760" class="arrow" />
+
+  <path d="M750 785 H820" class="arrow" />
+
+  <!-- Vertical feeders from input to mapping/InStrain -->
+  <path d="M350 130 V210" class="arrow" />
+  <path d="M350 320 V380" class="arrow" />
+  <path d="M350 510 V550" class="arrow" />
+</svg>

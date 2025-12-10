@@ -6,7 +6,9 @@ setup(
     packages=find_packages(include=["strainscape", "strainscape.*"]),
     install_requires=[
         "pandas",
-        "numpy"
+        "numpy",
+        "pyyaml",
+        "biopython"
     ],
     author="Renee Oles",
     description="A toolkit for analyzing strain evolution in microbiome data",

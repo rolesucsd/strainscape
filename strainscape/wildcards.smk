@@ -15,11 +15,20 @@ def get_data_dir():
     return config["paths"]["data_dir"]
 
 # Assembly wildcards
+def COASSEMBLY_R1(patient):
+    return f"{get_data_dir()}/assembly/{patient}/coassembly_R1.fastq.gz"
+
+def COASSEMBLY_R2(patient):
+    return f"{get_data_dir()}/assembly/{patient}/coassembly_R2.fastq.gz"
+
+def COASSEMBLY_DIR(patient):
+    return f"{get_data_dir()}/assembly/{patient}"
+
 def COASSEMBLY(patient):
-    return f"{get_data_dir()}/assembly/{patient}/final_contigs.fa"
+    return f"{get_data_dir()}/assembly/{patient}/scaffolds.fasta"
 
 def FILTERED_CONTIGS(patient):
-    return f"{get_data_dir()}/assembly/{patient}/contigs_gt1kb.fa"
+    return f"{get_data_dir()}/assembly/{patient}/scaffolds_filtered.fasta"
 
 def STB_FILE(patient):
     return f"{get_data_dir()}/assembly/{patient}/assembly.stb"
@@ -47,21 +56,27 @@ def DEPTH_FILE(patient):
 def PATIENT_BIN_DIR(patient):
     return f"{get_data_dir()}/bins/{patient}"
 
+def PATIENT_BIN_OUT(patient):
+    return f"{get_data_dir()}/bins/{patient}/output_bins"
+
 def BIN_TXT(patient):
     return f"{get_data_dir()}/assembly/{patient}/bins.txt"
 
 def CHECKM2_OUT(patient):
     return f"{get_data_dir()}/checkm2/{patient}"
 
+def GTDBTK_OUT(patient):
+    return f"{get_data_dir()}/gtdbtk/{patient}"
+
 # InStrain wildcards
 def INSTR_DIR(patient):
     return f"{get_data_dir()}/instrain/{patient}"
 
 def SNV_FILE(patient, sample):
-    return f"{get_data_dir()}/instrain/{patient}/each/{sample}/output/{sample}_SNVs.tsv"
+    return f"{get_data_dir()}/instrain/{patient}/each/{sample}/output/output/output_SNVs.tsv"
 
 def SCF_FILE(patient, sample):
-    return f"{get_data_dir()}/instrain/{patient}/each/{sample}/output/{sample}_scaffold_info.tsv"
+    return f"{get_data_dir()}/instrain/{patient}/each/{sample}/output/output/output_scaffold_info.tsv"
 
 def COMBINED_SCAFFOLD_INFO(patient):
     return f"{get_data_dir()}/instrain/{patient}/combined_scaffold_info.tsv"
@@ -78,6 +93,15 @@ def BAKTA_TSV(patient):
 
 def BAKTA_FNA(patient):
     return f"{get_data_dir()}/bakta/{patient}/{patient}.fna"
+
+def BAKTA_FAA(patient):
+    return f"{get_data_dir()}/bakta/{patient}/{patient}.faa"
+
+def BAKTA_FAA_PREFIX(patient):
+    return f"{get_data_dir()}/bakta/{patient}/{patient}.prefixed.faa"
+
+def COMBINED_MMSEQ2_DIR():
+    return f"{get_data_dir()}/mmseq2"
 
 def MAGS_BIN(patient, bin_id):
     return f"{get_data_dir()}/bins/{patient}/{bin_id}.fa"

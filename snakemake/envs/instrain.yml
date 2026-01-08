@@ -1,8 +1,7 @@
 name: instrain
 channels:
-  - defaults
-  - bioconda
   - conda-forge
+  - bioconda
+channel_priority: strict
 dependencies:
   - instrain
-  - samtools

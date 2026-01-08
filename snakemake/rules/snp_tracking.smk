@@ -39,7 +39,7 @@ rule process_scaffolds:
         min_length   = 1000,
         min_coverage = 5,
         min_breadth  = 0.4,
-        min_comp = 50,
+        min_comp = 80,
         max_cont = 10
     shell:
         """

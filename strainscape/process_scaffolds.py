@@ -22,7 +22,6 @@ from Bio import SeqIO
 import argparse, logging, sys, textwrap
 from typing import Dict, List, Optional, Tuple, Union
 from strainscape.utils import setup_logging, get_logger
-from .make_bin_txt import make_bin_txt
 
 # Get module logger
 logger = get_logger(__name__)
@@ -104,7 +103,6 @@ def process_scaffolds(
     max_contamination: float = 10,
     log_file: Optional[str] = None,
     *,
-    stb_file: str | None = None,
     metadata_file: str | None = None,
     bin_dir: str | None = None,
     threads: int = 1,
@@ -126,20 +124,10 @@ def process_scaffolds(
     if log_file:
         setup_logging(log_file)
 
-    if bin_file is None and bin_dir:
-        tmp_bin = Path(output_file).with_suffix('.bin.txt')
-        make_bin_txt(Path(bin_dir), tmp_bin)
-        bin_file = str(tmp_bin)
-    elif bin_file is None:
+    if bin_file is None:
         raise ValueError("bin_file or bin_dir must be provided")
 
     scaffold_path = Path(scaffold_file)
-    if stb_file:
-        scaff = pd.read_csv(scaffold_path, sep='\t')
-        stb_df = pd.read_csv(stb_file, sep='\t', names=['scaffold', 'Sample'])
-        scaff = scaff.merge(stb_df, on='scaffold', how='left')
-        scaffold_path = Path(output_file).with_suffix('.scaff.tmp.tsv')
-        scaff.to_csv(scaffold_path, sep='\t', index=False)
 
     process(
         scaffold_info=str(scaffold_path),
@@ -159,8 +147,6 @@ def process_scaffolds(
         df = df.merge(meta, left_on='Sample', right_on='External.ID', how='left')
         df.to_csv(output_file, sep='\t', index=False)
 
-    if stb_file:
-        os.remove(scaffold_path)
     if bin_dir:
         os.remove(bin_file)
 

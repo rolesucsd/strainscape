@@ -1,27 +1,53 @@
 # Snakemake workflow for the iHMP pipeline
 
-import os
+import os, re
 import pandas as pd
+from collections import defaultdict
+from functools import lru_cache
 
 # Load user config
 configfile: "config/config.yaml"
 
-# List of patient IDs from config
-PATIENT_IDS     = config["patient_ids"]
 # Base directories from config
 BASE_DIR        = config["paths"]["data_dir"]
-FASTQ_LIST_DIR  = config["paths"]["fastq_list_dir"]
+FASTQ_LIST_DIR  = config["paths"]["fastq_dir"]
 LOG_DIR         = config["paths"]["log_dir"]
 INSTR_DIRECT       = os.path.join(BASE_DIR, "instrain")
+SAMPLE_GROUP_TSV = config["metadata"]["samples"]
 
-# Read sample manifest and return dict {sample: R1_path}
+# load mapping (columns: sample, group)
+sg = pd.read_csv(SAMPLE_GROUP_TSV, sep=None, engine="python", dtype=str)
+sg["sample"] = sg["sample"].str.strip()
+sg["group"]  = sg["group"].str.strip()
+
+GROUP_TO_SAMPLES = defaultdict(list)
+for _, r in sg.iterrows():
+    GROUP_TO_SAMPLES[r["group"]].append(r["sample"])
+PATIENT_IDS = sorted(GROUP_TO_SAMPLES.keys())
+
+@lru_cache(maxsize=None)
 def read_samples(patient: str):
-    fp = os.path.join(FASTQ_LIST_DIR, f"{patient}_full_path.txt")
-    df = pd.read_csv(fp, header=None, names=["R1"] )
-    df["R1"]     = df["R1"].str.strip()
-    df["fname"]  = df["R1"].apply(os.path.basename)
-    df["sample"] = df["fname"].str.replace(r"(\.|_)R1\.fastq(\.gz)?$", "", regex=True)
-    return dict(zip(df["sample"], df["R1"]))
+    """
+    Build {sample: {"R1": path, "R2": path}} for samples that belong to `patient`.
+    Assumes files are named {sample}_R1.fastq.gz and {sample}_R2.fastq.gz in FASTQ_LIST_DIR.
+    """
+    allowed = sorted(set(GROUP_TO_SAMPLES.get(patient, [])))
+    out = {}
+    missing = []
+    for s in allowed:
+        r1 = os.path.join(FASTQ_LIST_DIR, f"{s}_R1.fastq.gz")
+        r2 = os.path.join(FASTQ_LIST_DIR, f"{s}_R2.fastq.gz")
+        if os.path.exists(r1) and os.path.exists(r2):
+            out[s] = {"R1": r1, "R2": r2}
+        else:
+            missing.append((s, r1, r2))
+    if missing:
+        msg = "\n".join([f"  - {s}\n      R1: {r1}\n      R2: {r2}" for s, r1, r2 in missing[:6]])
+        raise FileNotFoundError(
+            f"Missing FASTQs for {len(missing)} sample(s) in {FASTQ_LIST_DIR}.\n{msg}"
+            + ("\n  ..." if len(missing) > 6 else "")
+        )
+    return out
 
 # Per-sample paths
 MAP_BAM    = lambda p, s: os.path.join(BASE_DIR, "mapping", p, f"{s}.all.bam")
@@ -52,7 +78,8 @@ rule all:
         expand(STB_FILE("{patient}"),             patient=PATIENT_IDS),
         expand(BAKTA_TSV("{patient}"),            patient=PATIENT_IDS),
         expand(CHECKM2_OUT("{patient}"),          patient=PATIENT_IDS),
-        expand(DEPTH_FILE("{patient}"),           patient=PATIENT_IDS),
+        expand(GTDBTK_OUT("{patient}"),           patient=PATIENT_IDS),
+#        expand(DEPTH_FILE("{patient}"),           patient=PATIENT_IDS),
         expand(BIN_TXT("{patient}"),              patient=PATIENT_IDS),
         expand(MUTATION_TYPES("{patient}"),       patient=PATIENT_IDS),
         os.path.join(INSTR_DIRECT, "combined_trend_mapped_type.txt"),

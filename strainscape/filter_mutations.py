@@ -8,7 +8,7 @@ criteria.
 
 Inputs
 ------
-* ``snv_info.tsv``      : Raw mutation data from inStrain
+* ``snv_warning.tsv``      : Raw mutation data from inStrain
 * ``processed_scaffolds.tsv`` : Filtered scaffolds that passed QC
 * ``metadata.csv``      : Sample-level metadata
 
@@ -60,7 +60,7 @@ def load_mutation_data(snv_file: Path | str) -> pd.DataFrame:
         Mutation table.
     """
     snv_file = Path(snv_file)
-    logger.info("Loading mutation data from %s", snv_file)
+    logger.warning("Loading mutation data from %s", snv_file)
     df = pd.read_csv(snv_file, sep="\t")
     if "Sample" not in df.columns:
         df["Sample"] = snv_file.parent.parent.name
@@ -71,7 +71,7 @@ def filter_by_coverage(
     mutations: pd.DataFrame, min_coverage: int = 10
 ) -> pd.DataFrame:
     """Keep rows whose coverage is ≥ ``min_coverage``."""
-    logger.info("Filtering mutations by minimum coverage of %s×", min_coverage)
+    logger.warning("Filtering mutations by minimum coverage of %s×", min_coverage)
     return mutations.loc[mutations["position_coverage"] >= min_coverage]
 
 
@@ -85,24 +85,11 @@ def load_metadata(meta_csv: Path, *, log: Optional[logging.Logger] = None) -> pd
     """
     # Required / optional fields ------------------------------------------------
     essential_cols = [
-        "External.ID",
+        "Run",
         "week_num",
         "Participant ID",
         "diagnosis",
     ]
-    optional_cols = [
-        "sex",
-        "Height",
-        "Weight",
-        "BMI",
-        "fecalcal_ng_ml",
-        "Alcohol (beer, brandy, spirits, hard liquor, wine, aperitif, etc.)",
-        "Antibiotics",
-        "Immunosuppressants (e.g. oral corticosteroids)",
-        "hbi",
-        "sccai",
-    ]
-
     # Inspect header first so we can trim eagerly --------------------------------
     with open(meta_csv, "r") as f:
         header = f.readline().strip().split(",")
@@ -111,21 +98,7 @@ def load_metadata(meta_csv: Path, *, log: Optional[logging.Logger] = None) -> pd
     if missing_essentials:
         raise ValueError(f"Missing required metadata columns: {missing_essentials}")
 
-    meta_keep += [c for c in optional_cols if c in header]
-    missing_optional = [c for c in optional_cols if c not in header]
-    (log or logger).warning(
-        "Optional metadata columns missing and will be skipped: %s",
-        missing_optional,
-    )
-
     meta = pd.read_csv(meta_csv, usecols=meta_keep, dtype=str)
-    # Normalise column names
-    meta = meta.rename(
-        columns={
-            "Alcohol": "Alcohol (beer, brandy, spirits, hard liquor, wine, aperitif, etc.)",
-            "Immunosuppressants": "Immunosuppressants (e.g. oral corticosteroids)",
-        }
-    )
     return meta
 
 
@@ -139,40 +112,41 @@ def filter_mutations(
     """Core pipeline for filtering, merging, and writing mutations."""
     # 1) Load -------------------------------------------------------------------
     mutations = load_mutation_data(snv_file)
-    logger.info("Loaded %s rows from SNV file", len(mutations))
+    logger.warning("Loaded %s rows from SNV file", len(mutations))
 
     # 2) Filter by coverage -----------------------------------------------------
     mutations = filter_by_coverage(mutations, min_coverage)
-    logger.info("%s rows remain after coverage filter", len(mutations))
+    logger.warning("%s rows remain after coverage filter", len(mutations))
 
     # 3) Merge with processed scaffolds ----------------------------------------
     processed_scaffolds = pd.read_csv(processed_scaffolds_file, sep="\t")
     mutations = mutations.merge(
         processed_scaffolds, on=["scaffold", "Sample"], how="inner"
     )
-    logger.info("%s rows remain after scaffold merge", len(mutations))
+    logger.warning("%s rows remain after scaffold merge", len(mutations))
 
     # 4) Merge with metadata ----------------------------------------------------
     meta = load_metadata(metadata_file)
-    logger.info(
+    print(meta)
+    logger.warning(
         "Merging mutations (%s distinct Sample) with metadata (%s distinct External.ID)",
         mutations["Sample"].nunique(),
-        meta["External.ID"].nunique(),
+        meta["Run"].nunique(),
     )
     mutations = mutations.merge(
-        meta, left_on="Sample", right_on="External.ID", how="inner"
+        meta, left_on="Sample", right_on="Run", how="inner"
     )
-    logger.info("%s rows remain after metadata merge", len(mutations))
+    logger.warning("%s rows remain after metadata merge", len(mutations))
 
     # 5) Drop duplicates --------------------------------------------------------
     before = len(mutations)
     mutations = mutations.drop_duplicates(
         subset=["scaffold", "position", "Sample"], keep="first"
     )
-    logger.info("Dropped %s duplicate rows", before - len(mutations))
+    logger.warning("Dropped %s duplicate rows", before - len(mutations))
 
     # 6) Write ------------------------------------------------------------------
-    logger.info("Writing %s filtered mutations to %s", len(mutations), output_file)
+    logger.warning("Writing %s filtered mutations to %s", len(mutations), output_file)
     mutations.to_csv(output_file, sep="\t", index=False)
 
 
@@ -216,7 +190,7 @@ def main() -> None:
     setup_logging(args.log_file)
     global logger  # refresh the module-level logger so it inherits handlers
     logger = logging.getLogger(__name__)
-    logger.info("Logging initialised - writing to %s", args.log_file or "stderr")
+    logger.warning("Logging initialised - writing to %s", args.log_file or "stderr")
 
     # ─── Run filtering ────────────────────────────────────────────────────────
     perf_monitor.start_operation("filter_mutations")
@@ -233,3 +207,5 @@ def main() -> None:
 # ─── Execute ─────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     main()
+
+

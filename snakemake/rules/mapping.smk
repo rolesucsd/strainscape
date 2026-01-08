@@ -35,13 +35,11 @@ rule bwa_index:
     output: 
         amb = FILTERED_CONTIGS("{patient}") + ".amb",
         ann = FILTERED_CONTIGS("{patient}") + ".ann",
-        bwt = FILTERED_CONTIGS("{patient}") + ".bwt",
-        pac = FILTERED_CONTIGS("{patient}") + ".pac",
-        sa = FILTERED_CONTIGS("{patient}") + ".sa"
+        pac = FILTERED_CONTIGS("{patient}") + ".pac"
     conda:
         config['conda_envs']['mapping']
     shell: 
-        "bwa index {input.fa}"
+        "bwa-mem2 index {input.fa}"
 
 rule map_reads_bwa:
     """
@@ -70,26 +68,25 @@ rule map_reads_bwa:
         ref = FILTERED_CONTIGS("{patient}"),
         amb = FILTERED_CONTIGS("{patient}") + ".amb",
         ann = FILTERED_CONTIGS("{patient}") + ".ann",
-        bwt = FILTERED_CONTIGS("{patient}") + ".bwt",
         pac = FILTERED_CONTIGS("{patient}") + ".pac",
-        sa = FILTERED_CONTIGS("{patient}") + ".sa",
-        r1 = lambda wc: read_samples(wc.patient)[wc.sample]
+        r1 = lambda wc: read_samples(wc.patient)[wc.sample]["R1"],
+        r2 = lambda wc: read_samples(wc.patient)[wc.sample]["R2"]
     output:
-        bam_all = MAP_BAM("{patient}", "{sample}"),
-        sorted = SORT_BAM("{patient}", "{sample}"),
+        bam_all  = MAP_BAM("{patient}", "{sample}"),           # unsorted, unfiltered BAM
+        sorted   = SORT_BAM("{patient}", "{sample}"),          # sorted, filtered BAM
         flagstat = FLAGSTAT("{patient}", "{sample}"),
-        index = SORT_BAM("{patient}", "{sample}") + ".bai"
+        index    = SORT_BAM("{patient}", "{sample}") + ".bai",
     threads: 8
     conda:
         config['conda_envs']['mapping']
     shell:
         r"""
-        mkdir -p $(dirname {output.bam_all})
-        bwa mem -t {threads} {input.ref} {input.r1} \
-          | samtools view -b - > {output.bam_all}
+         bwa-mem2 mem -t {threads} {input.ref} {input.r1} {input.r2} \
+          | samtools view -b -o {output.bam_all} -
         samtools flagstat {output.bam_all} > {output.flagstat}
-        samtools view -b -F 4 -q 1 {output.bam_all} | samtools sort -o {output.sorted}
-        samtools index {output.sorted}
+        samtools view -@ {threads} -b -F 0x904 -f 0x2 -q 1 {output.bam_all} \
+          | samtools sort -@ {threads} -o {output.sorted} -
+        samtools index {output.sorted} {output.index}
         """
 
 rule combine_flagstats:
@@ -111,7 +108,7 @@ rule combine_flagstats:
     """
     input:
         flagstats = expand(FLAGSTAT("{patient}", "{sample}"),
-                         patient=config["patient_ids"],
+                         patient=PATIENT_IDS,
                          sample=lambda wc: read_samples(wc.patient).keys())
     output:
         combined = COMBINED_FLAGSTAT()

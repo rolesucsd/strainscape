@@ -15,44 +15,17 @@ Dependencies:
 
 import os
 
-rule jgi_summarize_depths:
+rule semibin2:
     """
-    Calculate contig depths using jgi_summarize_bam_contig_depths.
-    
-    This rule calculates the depth of coverage for each contig across all
-    samples. The depth information is used by MetaBAT2 for binning.
-    
-    Input:
-        bams: List of sorted BAM files
-    Output:
-        depth: Depth file containing coverage information
-    """
-    input:
-        bams = lambda wc: [SORT_BAM(wc.patient, s) for s in read_samples(wc.patient)]
-    output:
-        depth = DEPTH_FILE("{patient}")
-    conda:
-        config['conda_envs']['metabat2']
-    shell:
-        """
-        jgi_summarize_bam_contig_depths --outputDepth {output.depth} {input.bams}
-        """
+    SemiBin2 in co-assembly mode:
+    - Use `single_easy_bin` with MULTIPLE BAMs mapped to the SAME co-assembly.
+      (Correct per SemiBin2 docs. Pretrained `--environment` is NOT used for co-assembly.)
+    - Self-supervised training happens internally; we force reproducibility with --random-seed.
+    - We set `-m/--min-len` to MIN_CONTIG_LEN to keep contig cutoff consistent with assembly filter.
+    - `--sequencing-type short_read` to select short-read model.
 
-rule metabat2_binning:
-    """
-    Perform binning using MetaBAT2.
-    
-    This rule uses MetaBAT2 to bin contigs into metagenomic assembled
-    genomes (MAGs) based on:
-    - Coverage depth
-    - Tetranucleotide frequency
-    - Contig length
-    
     Parameters:
     - Minimum contig length: 1500bp
-    - Maximum probability threshold: 95%
-    - Minimum score: 60
-    - Maximum edges: 200
     
     Input:
         contig: Filtered contigs file
@@ -61,26 +34,34 @@ rule metabat2_binning:
         directory: Directory containing binned contigs
     Resources:
         mem: 50GB
+
     """
     input:
         contig = FILTERED_CONTIGS("{patient}"),
-        depth  = DEPTH_FILE("{patient}")
+        bams   = lambda wc: [SORT_BAM(wc.patient, s) for s in sorted(read_samples(wc.patient))]
     output:
-        directory(PATIENT_BIN_DIR("{patient}"))
+        directory(PATIENT_BIN_OUT("{patient}"))
     params:
-        outdir = PATIENT_BIN_DIR("{patient}")
+        outdir = PATIENT_BIN_DIR("{patient}"),
+        minlen=1500,
+        engine="auto",          # auto-detect GPU, fall back to CPU
+        seed=1
+    threads: 16
     conda:
-        config['conda_envs']['metabat2']
-    resources:
-        mem = "50G"
+        config['conda_envs']['semibin']
     shell:
         r"""
-        mkdir -p {params.outdir}
-        metabat2 -i {input.contig} \
-                 -a {input.depth} \
-                 -o {params.outdir}/bin \
-                 -s 1500 -m 1500 --maxP 95 --minS 60 --maxEdges 200 \
-                 --seed 1 --saveCls
+        mkdir -p "{params.outdir}"
+        SemiBin2 single_easy_bin \
+          --sequencing-type short_read \
+          --self-supervised \
+          --random-seed {params.seed} \
+          -m {params.minlen} \
+          -t {threads} \
+          -i {input.contig} \
+          -b {input.bams} \
+          -o {params.outdir} \
+          --engine {params.engine}
         """
 
 rule checkm2:
@@ -95,19 +76,20 @@ rule checkm2:
         results: Directory with CheckM2 output including taxonomy and QC
     """
     input:
-        bin_dir = PATIENT_BIN_DIR("{patient}")
+        bin_dir = PATIENT_BIN_OUT("{patient}")
     output:
         results = directory(CHECKM2_OUT("{patient}")),
         tsv = os.path.join(CHECKM2_OUT("{patient}"), "quality_report.tsv")
     params:
-        db=config['reference']['checkm2_db']
+        db=config['reference']['checkm2_db'],
+        threads=8
     conda:
         config['conda_envs']['checkm2']
     resources:
-        mem = "50G"
+        mem = "32G"
     shell:
         """
-        checkm2 predict -x fa --database_path {params.db} -i {input.bin_dir} -o {output.results}
+        checkm2 predict --threads {params.threads} -x fa.gz --database_path {params.db} -i {input.bin_dir} -o {output.results}
         """
 
 rule make_bin_txt:
@@ -116,10 +98,12 @@ rule make_bin_txt:
     CheckM2 metrics (Completeness, Contamination, Genome_Size).
     """
     input:
-        bin_dir    = PATIENT_BIN_DIR("{patient}"),
+        bin_dir    = PATIENT_BIN_OUT("{patient}"),
         checkm2_tsv = os.path.join(CHECKM2_OUT("{patient}"), "quality_report.tsv")
     output:
         bin_file = BIN_TXT("{patient}")
+    resources:
+        mem = "5G"
     log:
         os.path.join(config['paths']['log_dir'], "make_bin_txt_{patient}.log")
     shell:
@@ -129,4 +113,33 @@ rule make_bin_txt:
           --checkm2-tsv {input.checkm2_tsv} \
           --output_file {output.bin_file} \
           --log_file {log} 2>&1
+        """
+
+rule gtdbtk_classify:
+    """
+    Assign taxonomy to MAGs with GTDB-Tk directly from the bin directory.
+    """
+    input:
+        bin_dir = PATIENT_BIN_OUT("{patient}"),
+        db_dir  = config['reference']['gtdbtk_db']
+    output:
+        out_dir = directory(GTDBTK_OUT("{patient}"))
+    params:
+        scratch = os.path.join(GTDBTK_OUT("{patient}"), "tmp/")
+    threads: 1            # scheduler can downscale; GTDB-Tk uses this for HMM/align
+    resources:
+        mem = "150G"       # raise only if logs show OOM
+    conda:
+        config['conda_envs']['gtdbtk']
+    shell:
+        r"""
+        mkdir -p "{params.scratch}/tmp"
+        export GTDBTK_DATA_PATH="{input.db_dir}"
+        gtdbtk classify_wf \
+          --genome_dir "{input.bin_dir}" \
+          --out_dir "{output.out_dir}" \
+          --cpus {threads} \
+          --pplacer_cpus 1 \
+          --scratch_dir "{params.scratch}" \
+          -x fa.gz
         """

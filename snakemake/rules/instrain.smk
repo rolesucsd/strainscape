@@ -69,7 +69,9 @@ rule combine_scaffold_info:
         combined: Combined scaffold information file
     """
     input:
-        lambda wc: [SCF_FILE(wc.patient, s) for s in read_samples(wc.patient)]
+        files = lambda wc: [SCF_FILE(wc.patient, s) for s in read_samples(wc.patient)]
+    params:
+        sample_map = lambda wc: {s: SCF_FILE(wc.patient, s) for s in read_samples(wc.patient)}
     output:
         combined = COMBINED_SCAFFOLD_INFO("{patient}")
     run:
@@ -79,31 +81,31 @@ rule combine_scaffold_info:
         dfs = []
         expected_cols = None
 
-        for f in input:
+        for sample, fn in params.sample_map.items():
             # 1) skip zero-byte files
-            if not os.path.getsize(f):
-                print(f"[combine_scaffold_info] WARNING: {f} is zero-byte – skipped",
+            if not os.path.getsize(fn):
+                print(f"[combine_scaffold_info] WARNING: {fn} is zero-byte – skipped",
                       file=sys.stderr)
                 continue
 
             # 2) try reading header first time to capture expected columns
             if expected_cols is None:
                 try:
-                    expected_cols = pd.read_csv(f, sep="\t", nrows=0).columns.tolist()
+                    expected_cols = pd.read_csv(fn, sep="\t", nrows=0).columns.tolist()
                 except pd.errors.EmptyDataError:
                     # header-only or malformed—will be caught below
                     expected_cols = []
 
             # 3) read full table, catch truly empty‐content files
             try:
-                df = pd.read_csv(f, sep="\t")
+                df = pd.read_csv(fn, sep="\t")
             except pd.errors.EmptyDataError:
-                print(f"[combine_scaffold_info] WARNING: {f} has no columns – skipped",
+                print(f"[combine_scaffold_info] WARNING: {fn} has no columns – skipped",
                       file=sys.stderr)
                 continue
 
             # 4) record sample name and keep
-            df["Sample"] = os.path.basename(os.path.dirname(os.path.dirname(f)))
+            df["Sample"] = sample
             dfs.append(df)
 
         # 5) write concatenated or fallback empty
@@ -125,14 +127,16 @@ rule combine_SNV_info:
     if some of the per‐sample files are empty or unparseable.
     """
     input:
-        lambda wc: [SNV_FILE(wc.patient, s) for s in read_samples(wc.patient)]
+        files = lambda wc: [SNV_FILE(wc.patient, s) for s in read_samples(wc.patient)]        
+    params:
+        sample_map = lambda wc: {s: SNV_FILE(wc.patient, s) for s in read_samples(wc.patient)}
     output:
         combined = COMBINED_SNV_INFO("{patient}")
     run:
         import os, sys, pandas as pd
 
         dfs = []
-        for fn in input:
+        for sample, fn in params.sample_map.items():  # use the dict here
             # skip zero‐byte files immediately
             if os.path.getsize(fn) == 0:
                 print(f"[combine_SNV_info] WARNING: {fn} is zero‐byte, skipping", file=sys.stderr)
@@ -145,7 +149,7 @@ rule combine_SNV_info:
                 continue
 
             # tag and collect
-            df["Sample"] = os.path.basename(os.path.dirname(os.path.dirname(fn)))
+            df["Sample"] = sample
             dfs.append(df)
 
         # write out

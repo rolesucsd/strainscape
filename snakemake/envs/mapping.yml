@@ -1,9 +1,12 @@
 name: mapping
 channels:
-  - defaults
-  - bioconda
   - conda-forge
+  - bioconda
+  - defaults
+channel_priority: strict
 dependencies:
-  - python=3.8
-  - bwa
-  - samtools
+  - bwa-mem2=2.2.1
+  - samtools=1.20
+  - htslib=1.20
+  - pigz
+  - python=3.10

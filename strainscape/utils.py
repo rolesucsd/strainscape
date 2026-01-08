@@ -15,53 +15,43 @@ import pandas as pd
 from functools import lru_cache
 import time
 
-def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
-    """Set up logging configuration.
-    
-    Args:
-        log_file: Optional path to write log file. If None, logs to stderr.
-        
-    Returns:
-        Logger instance configured with appropriate handlers.
+def setup_logging(
+    log_file: Optional[Path] = None,
+    name: str = "strainscape",
+    level: int = logging.INFO,
+) -> logging.Logger:
+    """Create a named logger without touching the root logger.
+    Adds a FileHandler if log_file is given; otherwise installs a NullHandler.
     """
-    logger = logging.getLogger()
-
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    # Keep Snakemake's logging isolated
+    logger.propagate = False
 
     if not logger.handlers:
-        logger.setLevel(logging.INFO)
-
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
+        logger.addHandler(logging.NullHandler())
 
     if log_file:
         log_file = Path(log_file)
-        log_dir = log_file.parent
-        if log_dir and str(log_dir) != '.':
-            os.makedirs(log_dir, exist_ok=True)
-        if not any(
-            isinstance(h, logging.FileHandler) and h.baseFilename == str(log_file)
-            for h in logger.handlers
-        ):
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        fmt = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh = logging.FileHandler(log_file)
+        fh.setFormatter(fmt)
+        logger.addHandler(fh)
 
     return logger
 
 def get_logger(name: str) -> logging.Logger:
-    """Get a logger instance for a module.
-    
-    Args:
-        name: Name of the module (typically __name__)
-        
-    Returns:
-        Logger instance configured with the module's name
-    """
-    return logging.getLogger(name)
+    # Namespace under 'strainscape' so all module loggers sit together
+    base = "strainscape"
+    full = f"{base}.{name}" if not name.startswith(f"{base}.") else name
+    lg = logging.getLogger(full)
+    lg.propagate = False
+    if not lg.handlers:
+        lg.addHandler(logging.NullHandler())
+    return lg
+
+#logger = get_logger(__name__)
 
 def ensure_dir(directory: Path) -> None:
     """Ensure a directory exists, creating it if necessary.
@@ -269,9 +259,6 @@ def read_large_csv(file_path: str, chunksize: int = 10000) -> pd.DataFrame:
     for chunk in pd.read_csv(file_path, chunksize=chunksize):
         chunks.append(chunk)
     return pd.concat(chunks, ignore_index=True)
-
-# Create root logger instance
-logger = setup_logging()
 
 def get_output_path(base_path, patient, sample=None, suffix=None):
     """Generate output path for a file."""
